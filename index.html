@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONGEKI Rate Calculator</title>
+    <meta name="format-detection" content="telephone=no">
+    <title>OngekiScoreCalculator</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -12,6 +13,7 @@
             --glass-bg: rgba(255, 255, 255, 0.05);
             --text-primary: #e0e0e0;
             --input-border: rgba(255, 255, 255, 0.1);
+            --error-color: #ff4444;
         }
 
         [data-theme="light"] {
@@ -21,6 +23,7 @@
             --input-border: rgba(0, 0, 0, 0.1);
             --neon-blue: #0366d6;
             --neon-purple: #6f42c1;
+            --error-color: #cc0000;
         }
 
         body {
@@ -43,37 +46,21 @@
 
         .header h1 {
             color: var(--neon-blue);
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
             margin: 0;
             text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
         }
 
         .calculator {
-            width: 100%;
-            max-width: 400px;
+            width: 90vw;
+            max-width: 600px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 8px;
-            padding: 1.5rem;
+            padding: clamp(1rem, 3vw, 1.5rem);
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--neon-blue);
             transition: all 0.3s;
-        }
-
-        @media (min-width: 600px) {
-            .calculator {
-                max-width: 500px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .calculator {
-                max-width: 600px;
-            }
-            
-            .header h1 {
-                font-size: 2.5rem;
-            }
         }
 
         .mode-switch {
@@ -87,12 +74,12 @@
             background: none;
             border: 1px solid var(--neon-blue);
             color: var(--neon-blue);
-            padding: 0.6rem;
+            padding: clamp(0.5rem, 2vw, 1rem);
             border-radius: 4px;
             cursor: pointer;
             transition: 0.2s;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
 
         .mode-btn.active {
@@ -107,28 +94,36 @@
 
         .input-field {
             margin-bottom: 1rem;
+            position: relative;
         }
 
         label {
             display: block;
             margin-bottom: 0.3rem;
-            font-size: 0.85rem;
+            font-size: clamp(0.85rem, 3vw, 1rem);
             color: var(--neon-blue);
         }
 
         input {
             width: calc(100% - 1.6rem);
-            padding: 0.5rem 0.8rem;
+            padding: clamp(0.3rem, 1.5vw, 0.8rem);
             background: rgba(0, 0, 0, 0.1);
             border: 1px solid var(--input-border);
             border-radius: 4px;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
         }
 
         input:focus {
             outline: 2px solid var(--neon-blue);
             outline-offset: 2px;
+        }
+
+        .input-error {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
         }
 
         .result {
@@ -141,7 +136,7 @@
 
         .result h2 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 6vw, 2rem);
             color: var(--neon-blue);
         }
     </style>
@@ -159,23 +154,27 @@
 
         <div class="input-group rate-mode">
             <div class="input-field">
-                <label>Chart Constant</label>
-                <input type="number" id="chart" placeholder="12.5">
+                <label>Chart Constant (1.0 - 15.7)</label>
+                <input type="number" id="chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
+                <div class="input-error" id="chart-error"></div>
             </div>
             <div class="input-field">
                 <label>Target Rate</label>
                 <input type="number" id="target-rate" placeholder="14.0">
+                <div class="input-error" id="rate-error"></div>
             </div>
         </div>
 
         <div class="input-group score-mode" style="display:none">
             <div class="input-field">
-                <label>Chart Constant</label>
-                <input type="number" id="score-chart" placeholder="12.5">
+                <label>Chart Constant (1.0 - 15.7)</label>
+                <input type="number" id="score-chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
+                <div class="input-error" id="score-chart-error"></div>
             </div>
             <div class="input-field">
-                <label>Music Score</label>
-                <input type="number" id="score" placeholder="1007500">
+                <label>Music Score (0 - 1010000)</label>
+                <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
+                <div class="input-error" id="score-error"></div>
             </div>
         </div>
 
@@ -197,12 +196,114 @@
             mediaQuery.addEventListener('change', applySystemTheme);
         }
 
-        // Initialize calculator
-        function init() {
-            applySystemTheme();
-            watchSystemTheme();
-            setupEventListeners();
-            calculate();
+        // Input Validation
+        function validateInput(input, min, max, errorElement) {
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value < min || value > max) {
+                errorElement.textContent = `値は${min}から${max}の間で入力してください`;
+                errorElement.style.display = 'block';
+                input.classList.add('invalid');
+                return false;
+            }
+            errorElement.style.display = 'none';
+            input.classList.remove('invalid');
+            return true;
+        }
+
+        // Main Calculation
+        function calculate() {
+            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+            let result = '-';
+
+            try {
+                if (activeMode === 'rate') {
+                    const chartValid = validateInput(
+                        document.getElementById('chart'),
+                        1.0, 15.7,
+                        document.getElementById('chart-error')
+                    );
+                    const rateValid = validateInput(
+                        document.getElementById('target-rate'),
+                        0, 20,
+                        document.getElementById('rate-error')
+                    );
+
+                    if (chartValid && rateValid) {
+                        const chart = parseFloat(document.getElementById('chart').value);
+                        const target = parseFloat(document.getElementById('target-rate').value);
+                        result = calculateScore(chart, target);
+                    }
+                } else {
+                    const chartValid = validateInput(
+                        document.getElementById('score-chart'),
+                        1.0, 15.7,
+                        document.getElementById('score-chart-error')
+                    );
+                    const scoreValid = validateInput(
+                        document.getElementById('score'),
+                        0, 1010000,
+                        document.getElementById('score-error')
+                    );
+
+                    if (chartValid && scoreValid) {
+                        const chart = parseFloat(document.getElementById('score-chart').value);
+                        const score = parseFloat(document.getElementById('score').value);
+                        result = calculateRate(chart, score);
+                    }
+                }
+            } catch (error) {
+                result = 'Invalid Input';
+            }
+
+            document.getElementById('result-text').textContent = result;
+        }
+
+        // Rate Calculation
+        function calculateRate(chart, score) {
+            let rate = chart;
+
+            if (score >= 1007500) return (chart + 2).toFixed(2);
+            if (score >= 1000000) {
+                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
+            } else if (score >= 990000) {
+                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
+            } else if (score >= 970000) {
+                rate += Math.floor((score - 970000) / 200) * 0.01;
+            } else if (score >= 940000) {
+                rate -= Math.floor((970000 - score) / 200) * 0.01;
+            } else if (score >= 900000) {
+                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
+            } else {
+                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
+            }
+
+            return Math.max(rate, 0).toFixed(2);
+        }
+
+        // Score Calculation
+        function calculateScore(chart, target) {
+            const maxRate = chart + 2;
+            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
+            if (target < 0) return 'Invalid';
+
+            const diff = target - chart;
+            let score = 0;
+
+            if (diff >= 2) return '1,007,500';
+            if (diff >= 1.5) {
+                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
+            } else if (diff >= 1) {
+                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
+            } else if (diff >= 0) {
+                score = 970000 + Math.floor(diff / 0.01) * 200;
+            } else if (diff >= -1.5) {
+                score = 970000 - Math.floor(-diff / 0.01) * 200;
+            } else {
+                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+            }
+
+            score = Math.min(Math.max(score, 0), 1010000);
+            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
         }
 
         // Event Listeners
@@ -231,74 +332,12 @@
             calculate();
         }
 
-        // Main Calculation
-        function calculate() {
-            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-            let result = '-';
-
-            try {
-                if (activeMode === 'rate') {
-                    const chart = Math.floor(parseFloat(document.getElementById('chart').value) * 10) / 10;
-                    const target = Math.floor(parseFloat(document.getElementById('target-rate').value) * 10) / 10;
-                    result = calculateScore(chart, target);
-                } else {
-                    const chart = Math.floor(parseFloat(document.getElementById('score-chart').value) * 10) / 10;
-                    const score = Math.floor(parseFloat(document.getElementById('score').value));
-                    result = calculateRate(chart, score);
-                }
-            } catch (error) {
-                result = 'Invalid Input';
-            }
-
-            document.getElementById('result-text').textContent = result;
-        }
-
-        // Rate Calculation with floor
-        function calculateRate(chart, score) {
-            let rate = chart;
-
-            if (score >= 1007500) return (chart + 2).toFixed(2);
-            if (score >= 1000000) {
-                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
-            } else if (score >= 990000) {
-                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
-            } else if (score >= 970000) {
-                rate += Math.floor((score - 970000) / 200) * 0.01;
-            } else if (score >= 940000) {
-                rate -= Math.floor((970000 - score) / 200) * 0.01;
-            } else if (score >= 900000) {
-                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
-            } else {
-                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
-            }
-
-            return Math.max(rate, 0).toFixed(2);
-        }
-
-        // Score Calculation with floor
-        function calculateScore(chart, target) {
-            const maxRate = chart + 2;
-            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
-            if (target < 0) return 'Invalid';
-
-            const diff = target - chart;
-            let score = 0;
-
-            if (diff >= 2) return '1,007,500';
-            if (diff >= 1.5) {
-                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
-            } else if (diff >= 1) {
-                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
-            } else if (diff >= 0) {
-                score = 970000 + Math.floor(diff / 0.01) * 200;
-            } else if (diff >= -1.5) {
-                score = 970000 - Math.floor(-diff / 0.01) * 200;
-            } else {
-                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
-            }
-
-            score = Math.min(Math.max(score, 0), 1010000);
-            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
+        // Initialize
+        function init() {
+            applySystemTheme();
+            watchSystemTheme();
+            setupEventListeners();
+            calculate();
         }
 
         // Start the app
