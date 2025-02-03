@@ -44,15 +44,15 @@
             backdrop-filter: blur(10px);
             border-radius: 8px;
             padding: 2rem;
-            width: 100%;
-            max-width: 600px;
+            width: 90%; /* 画面幅に対する割合で指定 */
+            max-width: 600px; /* 最大幅は維持 */
             position: relative;
         }
 
         .mode-switch {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: 1fr 1fr; /* または auto auto や minmax(auto, 1fr) */
+            gap: 0.5rem; /* または gapを削除 */
             margin-bottom: 2rem;
         }
 
@@ -66,6 +66,7 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
+            width: 100%; /* 追加 */
         }
 
         .mode-btn.active {
@@ -82,7 +83,7 @@
             background: var(--glass-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 6px;
-            padding: 1rem;
+            padding: 0.5rem; /* 調整 */
             margin-bottom: 1rem;
             transition: all 0.3s ease;
         }
@@ -107,6 +108,7 @@
             font-size: 1.2rem;
             padding: 0.5rem 0;
             font-family: 'Cyber', monospace;
+            box-sizing: border-box; /* 追加 */
         }
 
         input:focus {
@@ -115,7 +117,7 @@
 
         .result {
             text-align: center;
-            padding: 2rem;
+            padding: 1rem; /* 調整 */
             background: var(--glass-bg);
             border-radius: 6px;
             margin: 2rem 0;
@@ -160,6 +162,13 @@
             --bg-color: #f0f2f5;
             --text-primary: #0a0e14;
             --glass-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        /* タブレット用メディアクエリ */
+        @media (max-width: 1024px) {
+            .calculator {
+                max-width: 90%; /* タブレット用の最大幅 */
+            }
         }
     </style>
 </head>
@@ -214,7 +223,7 @@
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 const mode = this.dataset.mode;
                 document.querySelectorAll('.input-group').forEach(g => g.style.display = 'none');
                 document.querySelector(`.${mode}-mode`).style.display = 'block';
@@ -222,9 +231,28 @@
             });
         });
 
-        // リアルタイム計算
+        // リアルタイム計算 & 入力値制限
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculate);
+            input.addEventListener('input', function(e) {
+                // 正規表現で数字と小数点以外をチェック
+                const filteredValue = this.value.replace(/[^0-9.]/g, '');
+
+                // 入力値がフィルタリングされた値と異なる場合、値を更新
+                if (this.value !== filteredValue) {
+                    this.value = filteredValue;
+                }
+
+                // 小数点が複数ある場合、最初の一つ以外を削除
+                const dotIndex = this.value.indexOf('.');
+                if (dotIndex !== -1) {
+                    const newValue = this.value.substring(0, dotIndex + 1) + this.value.substring(dotIndex + 1).replace(/\./g, '');
+                    if (this.value !== newValue) {
+                        this.value = newValue;
+                    }
+                }
+
+                calculate();
+            });
         });
 
         function calculate() {
@@ -234,14 +262,14 @@
             if (mode === 'rate') {
                 const chart = parseFloat(document.getElementById('chart').value);
                 const target = parseFloat(document.getElementById('target-rate').value);
-                
+
                 if (!isNaN(chart) && !isNaN(target)) {
                     result = calculateScore(chart, target);
                 }
             } else {
                 const chart = parseFloat(document.getElementById('score-chart').value);
                 const score = parseInt(document.getElementById('score').value);
-                
+
                 if (!isNaN(chart) && !isNaN(score)) {
                     result = calculateRate(chart, score);
                 }
@@ -252,7 +280,7 @@
 
         function calculateRate(chart, score) {
             let rate = chart;
-            
+
             if (score >= 1007500) return (chart + 2.0).toFixed(2);
             if (score >= 1000000) {
                 const over = score - 1000000;
