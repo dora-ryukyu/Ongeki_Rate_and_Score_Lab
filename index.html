@@ -1,448 +1,254 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ONGEKI Rate Calculator</title>
     <style>
-        /* Color Variables */
         :root {
-            --color-neon-blue: #00f3ff;
-            --color-neon-purple: #bc13fe;
-            --color-dark-mode-background: #0a0e14;
-            --color-dark-mode-glass: rgba(255, 255, 255, 0.05);
-            --color-dark-mode-text: #ffffff;
-            --color-dark-mode-input-background: rgba(255, 255, 255, 0.1);
-            --color-dark-mode-input-border: rgba(255, 255, 255, 0.1);
-            --color-dark-mode-input-focus: var(--color-neon-blue);
-            --color-dark-mode-button-background: var(--color-dark-mode-glass);
-            --color-dark-mode-button-border: var(--color-neon-blue);
-            --color-dark-mode-button-text: var(--color-neon-blue);
-            --color-dark-mode-button-hover-background: var(--color-neon-blue);
-            --color-dark-mode-button-hover-text: var(--color-dark-mode-text);
-            --color-dark-mode-button-active-background: var(--color-neon-blue);
-            --color-dark-mode-button-active-text: var(--color-dark-mode-text);
-            --color-dark-mode-result-background: var(--color-dark-mode-glass);
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --dark-bg: #0a0e14;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #e0e0e0;
+            --input-border: rgba(255, 255, 255, 0.1);
         }
 
-        /* Light Theme Color Variables */
         [data-theme="light"] {
-            --color-light-mode-background: #f6f8fa;
-            --color-light-mode-glass: rgba(0, 0, 0, 0.05);
-            --color-light-mode-text: #24292e;
-            --color-light-mode-input-background: rgba(0, 0, 0, 0.05);
-            --color-light-mode-input-border: rgba(0, 0, 0, 0.1);
-            --color-light-mode-input-focus: #0366d6;
-            --color-light-mode-button-background: var(--color-light-mode-glass);
-            --color-light-mode-button-border: #0366d6;
-            --color-light-mode-button-text: #0366d6;
-            --color-light-mode-button-hover-background: #0366d6;
-            --color-light-mode-button-hover-text: #ffffff;
-            --color-light-mode-button-active-background: #0366d6;
-            --color-light-mode-button-active-text: #ffffff;
-            --color-light-mode-result-background: var(--color-light-mode-glass);
+            --dark-bg: #f6f8fa;
+            --glass-bg: rgba(0, 0, 0, 0.05);
+            --text-primary: #24292e;
+            --input-border: rgba(0, 0, 0, 0.1);
+            --neon-blue: #0366d6;
+            --neon-purple: #6f42c1;
         }
 
-        /* Font Face */
-        @font-face {
-            font-family: 'Cyber';
-            src: url('https://fonts.cdnfonts.com/s/67021/cyberverse.woff') format('woff');
-        }
-
-        /* Base Styles */
         body {
-            font-family: 'Cyber', Arial, sans-serif;
-            background: var(--color-dark-mode-background);
-            color: var(--color-dark-mode-text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: grid;
+            place-items: center;
             margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-            font-size: 16px; /* Base font size */
-            line-height: 1.6; /* Line height */
+            padding: 1rem;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* Use light theme colors when prefers-color-scheme is set to light */
-        @media (prefers-color-scheme: light) {
-            body {
-                background: var(--color-light-mode-background);
-                color: var(--color-light-mode-text);
-            }
-            .theme-switcher {
-                display: none;
-            }
-        }
-
-        /* Cyber Border */
-        .cyber-border {
-            position: relative;
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.8), rgba(188, 19, 254, 0.8));
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            padding: 2px;
-        }
-
-        /* Calculator Container */
         .calculator {
-            background: var(--color-dark-mode-glass);
+            width: min(100%, 400px);
+            background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            position: relative;
-            padding: 2.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--neon-blue);
+            transition: all 0.3s;
         }
 
-        /* Mode Switch Container */
         .mode-switch {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Mode Button */
-        .mode-btn {
-            background: var(--color-dark-mode-button-background);
-            border: 1px solid var(--color-dark-mode-button-border);
-            color: var(--color-dark-mode-button-text);
-            padding: 1rem 1.5rem; /* Increase padding */
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            width: 100%;
-            font-size: 1rem; /* Increase font size */
-        }
-
-        /* Mode Button Hover State */
-        .mode-btn:hover {
-            background-color: var(--color-dark-mode-button-hover-background);
-            color: var(--color-dark-mode-button-hover-text);
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-        }
-
-        /* Mode Button Active State */
-        .mode-btn.active {
-            background: var(--color-dark-mode-button-active-background);
-            color: var(--color-dark-mode-button-active-text);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
-        }
-
-        /* Input Group */
-        .input-group {
-            margin-bottom: 2rem;
-        }
-
-        /* Input Field Container */
-        .input-field {
-            background: var(--color-dark-mode-input-background);
-            border: 1px solid var(--color-dark-mode-input-border);
-            border-radius: 6px;
-            padding: 0.8rem; /* Increase padding */
+            display: flex;
+            gap: 1rem;
             margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
         }
 
-        /* Input Field Focus State */
-        .input-field:focus-within {
-            border-color: var(--color-dark-mode-input-focus);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        .mode-btn {
+            flex: 1;
+            background: none;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
-        /* Label */
+        .mode-btn.active {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            border-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-field {
+            margin-bottom: 1rem;
+        }
+
         label {
             display: block;
-            margin-bottom: 0.3rem; /* Decrease margin */
-            color: var(--color-neon-blue);
-            font-size: 0.8rem; /* Decrease font size */
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--neon-blue);
         }
 
-        /* Input */
         input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--color-dark-mode-text);
-            font-size: 1.2rem;
-            padding: 0.5rem 0;
-            font-family: 'Cyber', monospace;
-            box-sizing: border-box;
+            width: calc(100% - 1.6rem);
+            padding: 0.5rem 0.8rem;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
         }
 
-        /* Input Focus State */
         input:focus {
-            outline: none;
+            outline: 2px solid var(--neon-blue);
+            outline-offset: 2px;
         }
 
-        /* Result Container */
         .result {
             text-align: center;
-            padding: 1rem;
-            background: var(--color-dark-mode-result-background);
-            border-radius: 6px;
-            margin: 2rem 0;
-            position: relative;
-            line-height: 1.8; /* Increase line height */
+            padding: 1.2rem;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            margin-top: 1.5rem;
         }
 
-        /* Result Decoration */
-        .result::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.5), rgba(188, 19, 254, 0.5));
-            border-radius: 8px;
-            animation: glow 2s infinite alternate;
-        }
-
-        /* Result Text */
         .result h2 {
-            font-size: 2.5rem;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 700;
-            z-index: 1; /* Ensure text is above the pseudo-element */
-            position: relative; /* Position set for z-index to work */
-        }
-
-        /* Loading Animation Container */
-        .loading {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid var(--color-neon-blue);
-            border-top: 4px solid transparent;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Spin Animation */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Glow Animation */
-        @keyframes glow {
-            from {
-                opacity: 0.5;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Theme Switcher Button (Optional) */
-        .theme-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
-            background: var(--color-dark-mode-glass);
-            border: 1px solid var(--color-neon-blue);
-        }
-
-        /* Media Queries */
-        @media (max-width: 1024px) {
-            .calculator {
-                max-width: 90%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-
-            .mode-switch {
-                grid-template-columns: 1fr;
-            }
-
-            .result h2 {
-                font-size: 2rem;
-            }
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
         }
     </style>
 </head>
 <body>
-    <div class="cyber-border">
-        <div class="calculator">
-            <div class="mode-switch">
-                <button class="mode-btn active" data-mode="rate">Rate → Score</button>
-                <button class="mode-btn" data-mode="score">Score → Rate</button>
-            </div>
+    <div class="calculator">
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="rate">Rate → Score</button>
+            <button class="mode-btn" data-mode="score">Score → Rate</button>
+        </div>
 
-            <div class="input-group rate-mode">
-                <div class="input-field">
-                    <label>Chart Constant</label>
-                    <input type="number" step="0.1" id="chart" placeholder="例: 12.5" min="0">
-                </div>
-                <div class="input-field">
-                    <label>Target Rate</label>
-                    <input type="number" step="0.1" id="target-rate" placeholder="例: 14.0" min="0">
-                </div>
+        <div class="input-group rate-mode">
+            <div class="input-field">
+                <label>Chart Constant</label>
+                <input type="number" id="chart" placeholder="12.5">
             </div>
+            <div class="input-field">
+                <label>Target Rate</label>
+                <input type="number" id="target-rate" placeholder="14.0">
+            </div>
+        </div>
 
-            <div class="input-group score-mode" style="display:none">
-                <div class="input-field">
-                    <label>Chart Constant</label>
-                    <input type="number" step="0.1" id="score-chart" placeholder="例: 12.5" min="0">
-                </div>
-                <div class="input-field">
-                    <label>Music Score</label>
-                    <input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000">
-                </div>
+        <div class="input-group score-mode" style="display:none">
+            <div class="input-field">
+                <label>Chart Constant</label>
+                <input type="number" id="score-chart" placeholder="12.5">
             </div>
+            <div class="input-field">
+                <label>Music Score</label>
+                <input type="number" id="score" placeholder="1007500">
+            </div>
+        </div>
 
-            <div class="result">
-                <h2 id="result-text">-</h2>
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
-            </div>
+        <div class="result">
+            <h2 id="result-text">-</h2>
         </div>
     </div>
 
-    <div class="theme-switcher" onclick="toggleTheme()">🌓</div>
-
     <script>
-        // Theme Toggle Function
-        function toggleTheme() {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+        // Theme Management
+        function applySystemTheme() {
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
         }
 
-        // Apply Saved Theme on Page Load
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.body.setAttribute('data-theme', savedTheme);
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                document.body.setAttribute('data-theme', 'light');
-            }
-        });
+        // Watch for system theme changes
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', applySystemTheme);
+        }
 
-        // Mode Switch Functionality
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+        // Initialize calculator
+        function init() {
+            applySystemTheme();
+            watchSystemTheme();
+            setupEventListeners();
+            calculate();
+        }
 
-                const mode = this.dataset.mode;
-                document.querySelectorAll('.input-group').forEach(g => g.style.display = 'none');
-                document.querySelector(`.${mode}-mode`).style.display = 'block';
-                calculate();
+        // Event Listeners
+        function setupEventListeners() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', handleModeSwitch);
             });
-        });
 
-        // Real-time Calculation and Input Validation
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function(e) {
-                const filteredValue = this.value.replace(/[^0-9.]/g, '');
-
-                if (this.value !== filteredValue) {
-                    this.value = filteredValue;
-                }
-
-                const dotIndex = this.value.indexOf('.');
-                if (dotIndex !== -1) {
-                    const newValue = this.value.substring(0, dotIndex + 1) + this.value.substring(dotIndex + 1).replace(/\./g, '');
-                    if (this.value !== newValue) {
-                        this.value = newValue;
-                    }
-                }
-
-                calculate();
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', calculate);
             });
-        });
+        }
 
-        // Calculate Function
+        // Mode Switching
+        function handleModeSwitch(e) {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            document.querySelectorAll('.input-group').forEach(group => {
+                group.style.display = 'none';
+            });
+            document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
+            
+            calculate();
+        }
+
+        // Main Calculation
         function calculate() {
-            document.querySelector('.loading').style.display = 'flex';
-            const mode = document.querySelector('.mode-btn.active').dataset.mode;
+            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+            let result = '-';
 
-            setTimeout(() => {
-                let result = '-';
-                if (mode === 'rate') {
-                    result = calculateScore(
-                        parseFloat(document.getElementById('chart').value),
-                        parseFloat(document.getElementById('target-rate').value)
-                    );
+            try {
+                if (activeMode === 'rate') {
+                    const chart = Math.floor(parseFloat(document.getElementById('chart').value) * 10) / 10;
+                    const target = Math.floor(parseFloat(document.getElementById('target-rate').value) * 10) / 10;
+                    result = calculateScore(chart, target);
                 } else {
-                    result = calculateRate(
-                        parseFloat(document.getElementById('score-chart').value),
-                        parseInt(document.getElementById('score').value)
-                    );
+                    const chart = Math.floor(parseFloat(document.getElementById('score-chart').value) * 10) / 10;
+                    const score = Math.floor(parseFloat(document.getElementById('score').value));
+                    result = calculateRate(chart, score);
                 }
-                document.getElementById('result-text').textContent = result;
-                document.querySelector('.loading').style.display = 'none';
-            }, 500); // Simulate calculation time
+            } catch (error) {
+                result = 'Invalid Input';
+            }
+
+            document.getElementById('result-text').textContent = result;
         }
 
-        // Original calculateRate Function (Unchanged)
+        // Rate Calculation with floor
         function calculateRate(chart, score) {
             let rate = chart;
 
-            if (score >= 1007500) return (chart + 2.0).toFixed(2);
+            if (score >= 1007500) return (chart + 2).toFixed(2);
             if (score >= 1000000) {
-                const over = score - 1000000;
-                rate += 1.5 + (over / 150 * 0.01);
+                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
             } else if (score >= 990000) {
-                const over = score - 990000;
-                rate += 1.0 + (over / 200 * 0.01);
+                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
             } else if (score >= 970000) {
-                const over = score - 970000;
-                rate += (over / 200 * 0.01);
+                rate += Math.floor((score - 970000) / 200) * 0.01;
             } else if (score >= 940000) {
-                const under = 970000 - score;
-                rate -= (under / 200 * 0.01);
+                rate -= Math.floor((970000 - score) / 200) * 0.01;
             } else if (score >= 900000) {
-                const under = 940000 - score;
-                rate -= (under / 175 * 0.01) + 1.5;
+                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
             } else {
-                const under = 940000 - 900000;
-                const extraUnder = 900000 - score;
-                rate -= (under / 175 * 0.01) + (extraUnder / 175 * 0.01) + 1.5;
+                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
             }
 
             return Math.max(rate, 0).toFixed(2);
         }
 
-        // calculateScore Function with Math.floor() for rounding down
+        // Score Calculation with floor
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
-            if (target > maxRate) return `MAX: ${maxRate.toFixed(1)}`;
+            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
             if (target < 0) return 'Invalid';
 
-            let score = 0;
             const diff = target - chart;
+            let score = 0;
 
             if (diff >= 2) return '1,007,500';
             if (diff >= 1.5) {
@@ -457,8 +263,12 @@
                 score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
             }
 
-            return Math.min(Math.max(score, 0), 1010000).toLocaleString();
+            score = Math.min(Math.max(score, 0), 1010000);
+            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
         }
+
+        // Start the app
+        init();
     </script>
 </body>
 </html>
