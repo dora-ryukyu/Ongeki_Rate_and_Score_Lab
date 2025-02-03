@@ -432,7 +432,7 @@
             return Math.max(rate, 0).toFixed(2);
         }
 
-        // Original calculateScore Function (Unchanged)
+        // calculateScore Function with Math.floor() for rounding down
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
             if (target > maxRate) return `MAX: ${maxRate.toFixed(1)}`;
@@ -443,19 +443,18 @@
 
             if (diff >= 2) return '1,007,500';
             if (diff >= 1.5) {
-                score = 1000000 + Math.ceil((diff - 1.5) / 0.01 * 150);
+                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
             } else if (diff >= 1) {
-                score = 990000 + Math.ceil((diff - 1) / 0.01 * 200);
+                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
             } else if (diff >= 0) {
-                score = 970000 + Math.ceil(diff / 0.01 * 200);
+                score = 970000 + Math.floor(diff / 0.01) * 200;
             } else if (diff >= -1.5) {
-                score = 970000 - Math.floor(-diff / 0.01 * 200);
+                score = 970000 - Math.floor(-diff / 0.01) * 200;
             } else {
-                score = 940000 - Math.floor((-diff - 1.5) / 0.01 * 175);
+                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
             }
 
-            score = Math.min(Math.max(score, 0), 1010000);
-            return score.toLocaleString() + (score >= 1007500 ? ' (MAX)' : '');
+            return Math.min(Math.max(score, 0), 1010000).toLocaleString();
         }
     </script>
 </body>
