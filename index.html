@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オンゲキ レート計算機（相互変換対応）</title>
+    <style>
+        /* 既存のスタイルに追加 */
+        .mode-switch {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #eee;
+        }
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        .target-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="rate">レート計算</button>
+            <button class="mode-btn" data-mode="score">目標スコア計算</button>
+        </div>
+
+        <div class="input-group rate-mode">
+            <!-- 既存の入力欄 -->
+        </div>
+
+        <div class="input-group target-input score-mode">
+            <label>
+                譜面定数
+                <input type="number" step="0.1" id="target-chart" placeholder="12.5">
+            </label>
+            <label>
+                目標レート
+                <input type="number" step="0.1" id="target-rate" placeholder="14.0">
+            </label>
+        </div>
+
+        <div class="result">
+            <h3 id="result-text">単曲レート: <span id="rate-result">0.00</span></h3>
+        </div>
+    </div>
+
+    <script>
+        // モード切り替え機能
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const mode = btn.dataset.mode;
+                document.querySelectorAll('.input-group').forEach(g => g.style.display = 'none');
+                document.querySelector(`.${mode}-mode`).style.display = 'block';
+                updateResult();
+            });
+        });
+
+        // 目標スコア計算ロジック
+        function calculateRequiredScore() {
+            const chart = parseFloat(document.getElementById('target-chart').value);
+            const targetRate = parseFloat(document.getElementById('target-rate').value);
+            
+            if (isNaN(chart) || isNaN(targetRate)) return '入力してください';
+
+            const maxRate = chart + 2.0;
+            if (targetRate > maxRate) return '達成不可（理論最大値: ' + maxRate.toFixed(1) + '）';
+            if (targetRate < 0) return '無効な値';
+
+            let requiredScore = 0;
+
+            if (targetRate >= chart + 2.0) {
+                requiredScore = 1007500;
+            } else if (targetRate >= chart + 1.5) {
+                const diff = targetRate - (chart + 1.5);
+                requiredScore = 1000000 + Math.ceil(diff / 0.01 * 150);
+            } else if (targetRate >= chart + 1.0) {
+                const diff = targetRate - (chart + 1.0);
+                requiredScore = 990000 + Math.ceil(diff / 0.01 * 200);
+            } else if (targetRate >= chart) {
+                const diff = targetRate - chart;
+                requiredScore = 970000 + Math.ceil(diff / 0.01 * 200);
+            } else if (targetRate >= chart - 1.5) {
+                const diff = chart - targetRate;
+                requiredScore = 970000 - Math.floor(diff / 0.01 * 200);
+            } else {
+                const diff = chart - targetRate - 1.5;
+                requiredScore = 940000 - Math.floor(diff / 0.01 * 175);
+            }
+
+            // スコアの上限下限処理
+            requiredScore = Math.min(Math.max(requiredScore, 0), 1010000);
+            return requiredScore.toLocaleString() + ' 点';
+        }
+
+        // 結果表示更新関数
+        function updateResult() {
+            const mode = document.querySelector('.mode-btn.active').dataset.mode;
+            if (mode === 'rate') {
+                const result = calculateRate();
+                document.getElementById('result-text').innerHTML = `単曲レート: <span id="rate-result">${result}</span>`;
+            } else {
+                const result = calculateRequiredScore();
+                document.getElementById('result-text').innerHTML = `必要スコア: <span id="rate-result">${result}</span>`;
+            }
+        }
+
+        // イベントリスナー追加
+        document.getElementById('target-chart').addEventListener('input', updateResult);
+        document.getElementById('target-rate').addEventListener('input', updateResult);
+    </script>
+</body>
+</html>
