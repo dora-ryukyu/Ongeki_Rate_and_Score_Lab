@@ -132,7 +132,7 @@
             right: -2px;
             bottom: -2px;
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
-            z-index: -1;
+            z-index: -2; /* -1 から -2 に変更 */
             border-radius: 8px;
             animation: glow 2s infinite alternate;
         }
@@ -234,8 +234,8 @@
         // リアルタイム計算 & 入力値制限
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', function(e) {
-                // 正規表現で数字と小数点以外をチェック
-                const filteredValue = this.value.replace(/[^0-9.]/g, '');
+                // 正規表現で数字と小数点以外をチェック（g フラグを追加）
+                const filteredValue = this.value.replace(/[^0-9.]/g, ''); 
 
                 // 入力値がフィルタリングされた値と異なる場合、値を更新
                 if (this.value !== filteredValue) {
