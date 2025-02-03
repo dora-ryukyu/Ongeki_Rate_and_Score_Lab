@@ -3,123 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>オンゲキ レート計算機（相互変換対応）</title>
+    <title>ONGEKI Rate Calculator</title>
     <style>
-        /* 既存のスタイルに追加 */
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --bg-color: #0a0e14;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+        }
+
+        @font-face {
+            font-family: 'Cyber';
+            src: url('https://fonts.cdnfonts.com/s/67021/cyberverse.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Cyber', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .cyber-border {
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .calculator {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
         .mode-switch {
-            text-align: center;
-            margin: 1rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
+
         .mode-btn {
-            padding: 0.5rem 1rem;
-            margin: 0 0.5rem;
-            border: none;
-            border-radius: 4px;
+            background: var(--glass-bg);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 1rem;
+            border-radius: 6px;
             cursor: pointer;
-            background: #eee;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
+
         .mode-btn.active {
-            background: var(--primary-color);
-            color: white;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: var(--text-primary);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
         }
-        .target-input {
-            display: none;
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus-within {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--neon-blue);
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            padding: 0.5rem 0;
+            font-family: 'Cyber', monospace;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .result {
+            text-align: center;
+            padding: 2rem;
+            background: var(--glass-bg);
+            border-radius: 6px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .result::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            z-index: -1;
+            border-radius: 8px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                opacity: 0.5;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* ダークテーマ */
+        [data-theme="light"] {
+            --bg-color: #f0f2f5;
+            --text-primary: #0a0e14;
+            --glass-bg: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
 <body>
-    <div class="calculator">
-        <div class="mode-switch">
-            <button class="mode-btn active" data-mode="rate">レート計算</button>
-            <button class="mode-btn" data-mode="score">目標スコア計算</button>
-        </div>
+    <div class="cyber-border">
+        <div class="calculator">
+            <div class="mode-switch">
+                <button class="mode-btn active" data-mode="rate">Rate → Score</button>
+                <button class="mode-btn" data-mode="score">Score → Rate</button>
+            </div>
 
-        <div class="input-group rate-mode">
-            <!-- 既存の入力欄 -->
-        </div>
+            <div class="input-group rate-mode">
+                <div class="input-field">
+                    <label>Chart Constant</label>
+                    <input type="number" step="0.1" id="chart" placeholder="12.5">
+                </div>
+                <div class="input-field">
+                    <label>Target Rate</label>
+                    <input type="number" step="0.1" id="target-rate" placeholder="14.0">
+                </div>
+            </div>
 
-        <div class="input-group target-input score-mode">
-            <label>
-                譜面定数
-                <input type="number" step="0.1" id="target-chart" placeholder="12.5">
-            </label>
-            <label>
-                目標レート
-                <input type="number" step="0.1" id="target-rate" placeholder="14.0">
-            </label>
-        </div>
+            <div class="input-group score-mode" style="display:none">
+                <div class="input-field">
+                    <label>Chart Constant</label>
+                    <input type="number" step="0.1" id="score-chart" placeholder="12.5">
+                </div>
+                <div class="input-field">
+                    <label>Music Score</label>
+                    <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
+                </div>
+            </div>
 
-        <div class="result">
-            <h3 id="result-text">単曲レート: <span id="rate-result">0.00</span></h3>
+            <div class="result">
+                <h2 id="result-text">-</h2>
+            </div>
         </div>
     </div>
 
+    <div class="theme-switcher" onclick="toggleTheme()">🌓</div>
+
     <script>
-        // モード切り替え機能
+        // テーマ切り替え
+        function toggleTheme() {
+            document.body.setAttribute('data-theme',
+                document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
+            );
+        }
+
+        // モード切り替え
         document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', function() {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                this.classList.add('active');
                 
-                const mode = btn.dataset.mode;
+                const mode = this.dataset.mode;
                 document.querySelectorAll('.input-group').forEach(g => g.style.display = 'none');
                 document.querySelector(`.${mode}-mode`).style.display = 'block';
-                updateResult();
+                calculate();
             });
         });
 
-        // 目標スコア計算ロジック
-        function calculateRequiredScore() {
-            const chart = parseFloat(document.getElementById('target-chart').value);
-            const targetRate = parseFloat(document.getElementById('target-rate').value);
-            
-            if (isNaN(chart) || isNaN(targetRate)) return '入力してください';
+        // リアルタイム計算
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
 
-            const maxRate = chart + 2.0;
-            if (targetRate > maxRate) return '達成不可（理論最大値: ' + maxRate.toFixed(1) + '）';
-            if (targetRate < 0) return '無効な値';
-
-            let requiredScore = 0;
-
-            if (targetRate >= chart + 2.0) {
-                requiredScore = 1007500;
-            } else if (targetRate >= chart + 1.5) {
-                const diff = targetRate - (chart + 1.5);
-                requiredScore = 1000000 + Math.ceil(diff / 0.01 * 150);
-            } else if (targetRate >= chart + 1.0) {
-                const diff = targetRate - (chart + 1.0);
-                requiredScore = 990000 + Math.ceil(diff / 0.01 * 200);
-            } else if (targetRate >= chart) {
-                const diff = targetRate - chart;
-                requiredScore = 970000 + Math.ceil(diff / 0.01 * 200);
-            } else if (targetRate >= chart - 1.5) {
-                const diff = chart - targetRate;
-                requiredScore = 970000 - Math.floor(diff / 0.01 * 200);
-            } else {
-                const diff = chart - targetRate - 1.5;
-                requiredScore = 940000 - Math.floor(diff / 0.01 * 175);
-            }
-
-            // スコアの上限下限処理
-            requiredScore = Math.min(Math.max(requiredScore, 0), 1010000);
-            return requiredScore.toLocaleString() + ' 点';
-        }
-
-        // 結果表示更新関数
-        function updateResult() {
+        function calculate() {
             const mode = document.querySelector('.mode-btn.active').dataset.mode;
+            let result = '-';
+
             if (mode === 'rate') {
-                const result = calculateRate();
-                document.getElementById('result-text').innerHTML = `単曲レート: <span id="rate-result">${result}</span>`;
+                const chart = parseFloat(document.getElementById('chart').value);
+                const target = parseFloat(document.getElementById('target-rate').value);
+                
+                if (!isNaN(chart) && !isNaN(target)) {
+                    result = calculateScore(chart, target);
+                }
             } else {
-                const result = calculateRequiredScore();
-                document.getElementById('result-text').innerHTML = `必要スコア: <span id="rate-result">${result}</span>`;
+                const chart = parseFloat(document.getElementById('score-chart').value);
+                const score = parseInt(document.getElementById('score').value);
+                
+                if (!isNaN(chart) && !isNaN(score)) {
+                    result = calculateRate(chart, score);
+                }
             }
+
+            document.getElementById('result-text').textContent = result;
         }
 
-        // イベントリスナー追加
-        document.getElementById('target-chart').addEventListener('input', updateResult);
-        document.getElementById('target-rate').addEventListener('input', updateResult);
+        function calculateRate(chart, score) {
+            let rate = chart;
+            
+            if (score >= 1007500) return (chart + 2.0).toFixed(2);
+            if (score >= 1000000) {
+                const over = score - 1000000;
+                rate += 1.5 + (over / 150 * 0.01);
+            } else if (score >= 990000) {
+                const over = score - 990000;
+                rate += 1.0 + (over / 200 * 0.01);
+            } else if (score >= 970000) {
+                const over = score - 970000;
+                rate += (over / 200 * 0.01);
+            } else if (score >= 940000) {
+                const under = 970000 - score;
+                rate -= (under / 200 * 0.01);
+            } else if (score >= 900000) {
+                const under = 940000 - score;
+                rate -= (under / 175 * 0.01) + 1.5;
+            } else {
+                const under = 940000 - 900000;
+                const extraUnder = 900000 - score;
+                rate -= (under / 175 * 0.01) + (extraUnder / 175 * 0.01) + 1.5;
+            }
+
+            return Math.max(rate, 0).toFixed(2);
+        }
+
+        function calculateScore(chart, target) {
+            const maxRate = chart + 2;
+            if (target > maxRate) return `MAX: ${maxRate.toFixed(1)}`;
+            if (target < 0) return 'Invalid';
+
+            let score = 0;
+            const diff = target - chart;
+
+            if (diff >= 2) return '1,007,500';
+            if (diff >= 1.5) {
+                score = 1000000 + Math.ceil((diff - 1.5) / 0.01 * 150);
+            } else if (diff >= 1) {
+                score = 990000 + Math.ceil((diff - 1) / 0.01 * 200);
+            } else if (diff >= 0) {
+                score = 970000 + Math.ceil(diff / 0.01 * 200);
+            } else if (diff >= -1.5) {
+                score = 970000 - Math.floor(-diff / 0.01 * 200);
+            } else {
+                score = 940000 - Math.floor((-diff - 1.5) / 0.01 * 175);
+            }
+
+            score = Math.min(Math.max(score, 0), 1010000);
+            return score.toLocaleString() + (score >= 1007500 ? ' (MAX)' : '');
+        }
     </script>
 </body>
 </html>
