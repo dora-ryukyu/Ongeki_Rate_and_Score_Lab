@@ -1,8 +1,54 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<style>
-/* ... 省略 ... */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONGEKI Rate Calculator</title>
+    <style>
+        /* Color Variables */
+        :root {
+            --color-neon-blue: #00f3ff;
+            --color-neon-purple: #bc13fe;
+            --color-dark-mode-background: #0a0e14;
+            --color-dark-mode-glass: rgba(255, 255, 255, 0.05);
+            --color-dark-mode-text: #ffffff;
+            --color-dark-mode-input-background: rgba(255, 255, 255, 0.1);
+            --color-dark-mode-input-border: rgba(255, 255, 255, 0.1);
+            --color-dark-mode-input-focus: var(--color-neon-blue);
+            --color-dark-mode-button-background: var(--color-dark-mode-glass);
+            --color-dark-mode-button-border: var(--color-neon-blue);
+            --color-dark-mode-button-text: var(--color-neon-blue);
+            --color-dark-mode-button-hover-background: var(--color-neon-blue);
+            --color-dark-mode-button-hover-text: var(--color-dark-mode-text);
+            --color-dark-mode-button-active-background: var(--color-neon-blue);
+            --color-dark-mode-button-active-text: var(--color-dark-mode-text);
+            --color-dark-mode-result-background: var(--color-dark-mode-glass);
+        }
+
+        /* Light Theme Color Variables */
+        [data-theme="light"] {
+            --color-light-mode-background: #f6f8fa;
+            --color-light-mode-glass: rgba(0, 0, 0, 0.05);
+            --color-light-mode-text: #24292e;
+            --color-light-mode-input-background: rgba(0, 0, 0, 0.05);
+            --color-light-mode-input-border: rgba(0, 0, 0, 0.1);
+            --color-light-mode-input-focus: #0366d6;
+            --color-light-mode-button-background: var(--color-light-mode-glass);
+            --color-light-mode-button-border: #0366d6;
+            --color-light-mode-button-text: #0366d6;
+            --color-light-mode-button-hover-background: #0366d6;
+            --color-light-mode-button-hover-text: #ffffff;
+            --color-light-mode-button-active-background: #0366d6;
+            --color-light-mode-button-active-text: #ffffff;
+            --color-light-mode-result-background: var(--color-light-mode-glass);
+        }
+
+        /* Font Face */
+        @font-face {
+            font-family: 'Cyber';
+            src: url('https://fonts.cdnfonts.com/s/67021/cyberverse.woff') format('woff');
+        }
+
         /* Base Styles */
         body {
             font-family: 'Cyber', Arial, sans-serif;
@@ -18,35 +64,238 @@
             font-size: 16px; /* Base font size */
             line-height: 1.6; /* Line height */
         }
-.container {
-    position: relative;
-    width: 90%;
-    max-width: 600px;
-}
-/* Cyber Border */
-.cyber-border {
-    position: absolute;
-    background: linear-gradient(135deg, rgba(0, 243, 255, 0.8), rgba(188, 19, 254, 0.8));
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
-    /* width: 100%; と height: 100%; を削除 */
-    box-sizing: border-box;
-    padding: 2px;
-    left: 0;
-    top: 0;
-}
 
-/* Calculator Container */
-.calculator {
-    background: var(--color-dark-mode-glass);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    width: 100%;
-    position: relative;
-    padding: 2.5rem;
-}
-/* ... 省略 ... */
-</style>
+        /* Use light theme colors when prefers-color-scheme is set to light */
+        @media (prefers-color-scheme: light) {
+            body {
+                background: var(--color-light-mode-background);
+                color: var(--color-light-mode-text);
+            }
+            .theme-switcher {
+                display: none;
+            }
+        }
+
+        /* Container for calculator and border */
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        /* Cyber Border */
+        .cyber-border {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.8), rgba(188, 19, 254, 0.8));
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            box-sizing: border-box;
+            padding: 2px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Calculator Container */
+        .calculator {
+            background: var(--color-dark-mode-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            width: 100%;
+            position: relative;
+            padding: 2.5rem;
+        }
+
+        /* Mode Switch Container */
+        .mode-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Mode Button */
+        .mode-btn {
+            background: var(--color-dark-mode-button-background);
+            border: 1px solid var(--color-dark-mode-button-border);
+            color: var(--color-dark-mode-button-text);
+            padding: 1rem 1.5rem; /* Increase padding */
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            width: 100%;
+            font-size: 1rem; /* Increase font size */
+        }
+
+        /* Mode Button Hover State */
+        .mode-btn:hover {
+            background-color: var(--color-dark-mode-button-hover-background);
+            color: var(--color-dark-mode-button-hover-text);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Mode Button Active State */
+        .mode-btn.active {
+            background: var(--color-dark-mode-button-active-background);
+            color: var(--color-dark-mode-button-active-text);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Input Group */
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        /* Input Field Container */
+        .input-field {
+            background: var(--color-dark-mode-input-background);
+            border: 1px solid var(--color-dark-mode-input-border);
+            border-radius: 6px;
+            padding: 0.8rem; /* Increase padding */
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Input Field Focus State */
+        .input-field:focus-within {
+            border-color: var(--color-dark-mode-input-focus);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Label */
+        label {
+            display: block;
+            margin-bottom: 0.3rem; /* Decrease margin */
+            color: var(--color-neon-blue);
+            font-size: 0.8rem; /* Decrease font size */
+        }
+
+        /* Input */
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--color-dark-mode-text);
+            font-size: 1.2rem;
+            padding: 0.5rem 0;
+            font-family: 'Cyber', monospace;
+            box-sizing: border-box;
+        }
+
+        /* Input Focus State */
+        input:focus {
+            outline: none;
+        }
+
+        /* Result Container */
+        .result {
+            text-align: center;
+            padding: 1rem;
+            background: var(--color-dark-mode-result-background);
+            border-radius: 6px;
+            margin: 2rem 0;
+            position: relative;
+            line-height: 1.8; /* Increase line height */
+        }
+
+        /* Result Decoration */
+        .result::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.5), rgba(188, 19, 254, 0.5));
+            border-radius: 8px;
+            animation: glow 2s infinite alternate;
+        }
+
+        /* Result Text */
+        .result h2 {
+            font-size: 2.5rem;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            z-index: 1; /* Ensure text is above the pseudo-element */
+            position: relative; /* Position set for z-index to work */
+        }
+
+        /* Loading Animation Container */
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid var(--color-neon-blue);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Spin Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Glow Animation */
+        @keyframes glow {
+            from {
+                opacity: 0.5;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Theme Switcher Button (Optional) */
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background: var(--color-dark-mode-glass);
+            border: 1px solid var(--color-neon-blue);
+        }
+
+        /* Media Queries */
+        @media (max-width: 1024px) {
+            .calculator {
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .mode-switch {
+                grid-template-columns: 1fr;
+            }
+
+            .result h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -89,8 +338,136 @@
     </div>
 
     <div class="theme-switcher" onclick="toggleTheme()">🌓</div>
+
     <script>
-        // ... 省略 ...
+        // Theme Toggle Function
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Apply Saved Theme on Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.body.setAttribute('data-theme', 'light');
+            }
+        });
+
+        // Mode Switch Functionality
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const mode = this.dataset.mode;
+                document.querySelectorAll('.input-group').forEach(g => g.style.display = 'none');
+                document.querySelector(`.${mode}-mode`).style.display = 'block';
+                calculate();
+            });
+        });
+
+        // Real-time Calculation and Input Validation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function(e) {
+                const filteredValue = this.value.replace(/[^0-9.]/g, '');
+
+                if (this.value !== filteredValue) {
+                    this.value = filteredValue;
+                }
+
+                const dotIndex = this.value.indexOf('.');
+                if (dotIndex !== -1) {
+                    const newValue = this.value.substring(0, dotIndex + 1) + this.value.substring(dotIndex + 1).replace(/\./g, '');
+                    if (this.value !== newValue) {
+                        this.value = newValue;
+                    }
+                }
+
+                calculate();
+            });
+        });
+
+        // Calculate Function
+        function calculate() {
+            document.querySelector('.loading').style.display = 'flex';
+            const mode = document.querySelector('.mode-btn.active').dataset.mode;
+
+            setTimeout(() => {
+                let result = '-';
+                if (mode === 'rate') {
+                    result = calculateScore(
+                        parseFloat(document.getElementById('chart').value),
+                        parseFloat(document.getElementById('target-rate').value)
+                    );
+                } else {
+                    result = calculateRate(
+                        parseFloat(document.getElementById('score-chart').value),
+                        parseInt(document.getElementById('score').value)
+                    );
+                }
+                document.getElementById('result-text').textContent = result;
+                document.querySelector('.loading').style.display = 'none';
+            }, 500); // Simulate calculation time
+        }
+
+        // Original calculateRate Function (Unchanged)
+        function calculateRate(chart, score) {
+            let rate = chart;
+
+            if (score >= 1007500) return (chart + 2.0).toFixed(2);
+            if (score >= 1000000) {
+                const over = score - 1000000;
+                rate += 1.5 + (over / 150 * 0.01);
+            } else if (score >= 990000) {
+                const over = score - 990000;
+                rate += 1.0 + (over / 200 * 0.01);
+            } else if (score >= 970000) {
+                const over = score - 970000;
+                rate += (over / 200 * 0.01);
+            } else if (score >= 940000) {
+                const under = 970000 - score;
+                rate -= (under / 200 * 0.01);
+            } else if (score >= 900000) {
+                const under = 940000 - score;
+                rate -= (under / 175 * 0.01) + 1.5;
+            } else {
+                const under = 940000 - 900000;
+                const extraUnder = 900000 - score;
+                rate -= (under / 175 * 0.01) + (extraUnder / 175 * 0.01) + 1.5;
+            }
+
+            return Math.max(rate, 0).toFixed(2);
+        }
+
+        // calculateScore Function with Math.floor() for rounding down
+        function calculateScore(chart, target) {
+            const maxRate = chart + 2;
+            if (target > maxRate) return `MAX: ${maxRate.toFixed(1)}`;
+            if (target < 0) return 'Invalid';
+
+            let score = 0;
+            const diff = target - chart;
+
+            if (diff >= 2) return '1,007,500';
+            if (diff >= 1.5) {
+                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
+            } else if (diff >= 1) {
+                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
+            } else if (diff >= 0) {
+                score = 970000 + Math.floor(diff / 0.01) * 200;
+            } else if (diff >= -1.5) {
+                score = 970000 - Math.floor(-diff / 0.01) * 200;
+            } else {
+                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+            }
+
+            return Math.min(Math.max(score, 0), 1010000).toLocaleString();
+        }
     </script>
 </body>
 </html>
