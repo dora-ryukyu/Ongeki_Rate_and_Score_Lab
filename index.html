@@ -5,42 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ONGEKI Rate Calculator</title>
     <style>
-        /* Variables */
+        /* Color Variables */
         :root {
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --bg-color: #0a0e14;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --text-primary: #ffffff;
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --input-border: rgba(255, 255, 255, 0.1);
-            --input-focus: var(--neon-blue);
-            --btn-bg: var(--glass-bg);
-            --btn-border: var(--neon-blue);
-            --btn-text: var(--neon-blue);
-            --btn-hover-bg: var(--neon-blue);
-            --btn-hover-text: var(--text-primary);
-            --btn-active-bg: var(--neon-blue);
-            --btn-active-text: var(--text-primary);
-            --result-bg: var(--glass-bg);
+            --color-neon-blue: #00f3ff;
+            --color-neon-purple: #bc13fe;
+            --color-dark-mode-background: #0a0e14;
+            --color-dark-mode-glass: rgba(255, 255, 255, 0.05);
+            --color-dark-mode-text: #ffffff;
+            --color-dark-mode-input-background: rgba(255, 255, 255, 0.1);
+            --color-dark-mode-input-border: rgba(255, 255, 255, 0.1);
+            --color-dark-mode-input-focus: var(--color-neon-blue);
+            --color-dark-mode-button-background: var(--color-dark-mode-glass);
+            --color-dark-mode-button-border: var(--color-neon-blue);
+            --color-dark-mode-button-text: var(--color-neon-blue);
+            --color-dark-mode-button-hover-background: var(--color-neon-blue);
+            --color-dark-mode-button-hover-text: var(--color-dark-mode-text);
+            --color-dark-mode-button-active-background: var(--color-neon-blue);
+            --color-dark-mode-button-active-text: var(--color-dark-mode-text);
+            --color-dark-mode-result-background: var(--color-dark-mode-glass);
         }
 
-        /* Light Theme Variables */
+        /* Light Theme Color Variables */
         [data-theme="light"] {
-            --bg-color: #f6f8fa;
-            --glass-bg: rgba(0, 0, 0, 0.05);
-            --text-primary: #24292e;
-            --input-bg: rgba(0, 0, 0, 0.05);
-            --input-border: rgba(0, 0, 0, 0.1);
-            --input-focus: #0366d6;
-            --btn-bg: var(--glass-bg);
-            --btn-border: #0366d6;
-            --btn-text: #0366d6;
-            --btn-hover-bg: #0366d6;
-            --btn-hover-text: #ffffff;
-            --btn-active-bg: #0366d6;
-            --btn-active-text: #ffffff;
-            --result-bg: var(--glass-bg);
+            --color-light-mode-background: #f6f8fa;
+            --color-light-mode-glass: rgba(0, 0, 0, 0.05);
+            --color-light-mode-text: #24292e;
+            --color-light-mode-input-background: rgba(0, 0, 0, 0.05);
+            --color-light-mode-input-border: rgba(0, 0, 0, 0.1);
+            --color-light-mode-input-focus: #0366d6;
+            --color-light-mode-button-background: var(--color-light-mode-glass);
+            --color-light-mode-button-border: #0366d6;
+            --color-light-mode-button-text: #0366d6;
+            --color-light-mode-button-hover-background: #0366d6;
+            --color-light-mode-button-hover-text: #ffffff;
+            --color-light-mode-button-active-background: #0366d6;
+            --color-light-mode-button-active-text: #ffffff;
+            --color-light-mode-result-background: var(--color-light-mode-glass);
         }
 
         /* Font Face */
@@ -52,8 +52,8 @@
         /* Base Styles */
         body {
             font-family: 'Cyber', Arial, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-primary);
+            background: var(--color-dark-mode-background);
+            color: var(--color-dark-mode-text);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -61,8 +61,19 @@
             margin: 0;
             padding: 20px;
             overflow-x: hidden;
-            font-size: 16px; /* ベースのフォントサイズを調整 */
-            line-height: 1.6; /* 行間を調整 */
+            font-size: 16px; /* Base font size */
+            line-height: 1.6; /* Line height */
+        }
+
+        /* Use light theme colors when prefers-color-scheme is set to light */
+        @media (prefers-color-scheme: light) {
+            body {
+                background: var(--color-light-mode-background);
+                color: var(--color-light-mode-text);
+            }
+            .theme-switcher {
+                display: none;
+            }
         }
 
         /* Cyber Border */
@@ -74,18 +85,18 @@
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
         }
 
-        /* Calculator */
+        /* Calculator Container */
         .calculator {
-            background: var(--glass-bg);
+            background: var(--color-dark-mode-glass);
             backdrop-filter: blur(10px);
             border-radius: 8px;
-            padding: 2.5rem; /* パディングを拡大 */
+            padding: 2.5rem; /* Increase padding */
             width: 90%;
             max-width: 600px;
             position: relative;
         }
 
-        /* Mode Switch */
+        /* Mode Switch Container */
         .mode-switch {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -95,28 +106,30 @@
 
         /* Mode Button */
         .mode-btn {
-            background: var(--btn-bg);
-            border: 1px solid var(--btn-border);
-            color: var(--btn-text);
-            padding: 1rem 1.5rem; /* 左右のパディングを調整 */
+            background: var(--color-dark-mode-button-background);
+            border: 1px solid var(--color-dark-mode-button-border);
+            color: var(--color-dark-mode-button-text);
+            padding: 1rem 1.5rem; /* Increase padding */
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
             width: 100%;
-            font-size: 1rem; /* フォントサイズを調整 */
+            font-size: 1rem; /* Increase font size */
         }
 
+        /* Mode Button Hover State */
         .mode-btn:hover {
-            background-color: var(--btn-hover-bg);
-            color: var(--btn-hover-text);
+            background-color: var(--color-dark-mode-button-hover-background);
+            color: var(--color-dark-mode-button-hover-text);
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
+        /* Mode Button Active State */
         .mode-btn.active {
-            background: var(--btn-active-bg);
-            color: var(--btn-active-text);
+            background: var(--color-dark-mode-button-active-background);
+            color: var(--color-dark-mode-button-active-text);
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
         }
 
@@ -125,27 +138,28 @@
             margin-bottom: 2rem;
         }
 
-        /* Input Field */
+        /* Input Field Container */
         .input-field {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
+            background: var(--color-dark-mode-input-background);
+            border: 1px solid var(--color-dark-mode-input-border);
             border-radius: 6px;
-            padding: 0.8rem; /* パディングを調整 */
+            padding: 0.8rem; /* Increase padding */
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
         }
 
+        /* Input Field Focus State */
         .input-field:focus-within {
-            border-color: var(--input-focus);
+            border-color: var(--color-dark-mode-input-focus);
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
         }
 
         /* Label */
         label {
             display: block;
-            margin-bottom: 0.3rem; /* 下のマージンを調整 */
-            color: var(--neon-blue);
-            font-size: 0.8rem; /* フォントサイズを調整 */
+            margin-bottom: 0.3rem; /* Decrease margin */
+            color: var(--color-neon-blue);
+            font-size: 0.8rem; /* Decrease font size */
         }
 
         /* Input */
@@ -153,28 +167,30 @@
             width: 100%;
             background: transparent;
             border: none;
-            color: var(--text-primary);
+            color: var(--color-dark-mode-text);
             font-size: 1.2rem;
             padding: 0.5rem 0;
             font-family: 'Cyber', monospace;
             box-sizing: border-box;
         }
 
+        /* Input Focus State */
         input:focus {
             outline: none;
         }
 
-        /* Result */
+        /* Result Container */
         .result {
             text-align: center;
             padding: 1rem;
-            background: var(--result-bg);
+            background: var(--color-dark-mode-result-background);
             border-radius: 6px;
             margin: 2rem 0;
             position: relative;
-            line-height: 1.8; /* 行間を調整 */
+            line-height: 1.8; /* Increase line height */
         }
 
+        /* Result Decoration */
         .result::after {
             content: '';
             position: absolute;
@@ -183,27 +199,20 @@
             right: -2px;
             bottom: -2px;
             background: linear-gradient(135deg, rgba(0, 243, 255, 0.5), rgba(188, 19, 254, 0.5));
-            z-index: -2;
             border-radius: 8px;
             animation: glow 2s infinite alternate;
         }
 
-        @keyframes glow {
-            from {
-                opacity: 0.5;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
+        /* Result Text */
         .result h2 {
             font-size: 2.5rem;
-            font-family: 'Roboto', sans-serif; /* 必要に応じて標準的なフォントを使用 */
+            font-family: 'Roboto', sans-serif;
             font-weight: 700;
+            z-index: 1; /* Ensure text is above the pseudo-element */
+            position: relative; /* Position set for z-index to work */
         }
 
-        /* Loading Animation */
+        /* Loading Animation Container */
         .loading {
             display: none;
             justify-content: center;
@@ -217,8 +226,9 @@
             z-index: 10;
         }
 
+        /* Loading Spinner */
         .spinner {
-            border: 4px solid var(--neon-blue);
+            border: 4px solid var(--color-neon-blue);
             border-top: 4px solid transparent;
             border-radius: 50%;
             width: 30px;
@@ -226,12 +236,23 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Spin Animation */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Theme Switcher (Optional) */
+        /* Glow Animation */
+        @keyframes glow {
+            from {
+                opacity: 0.5;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Theme Switcher Button (Optional) */
         .theme-switcher {
             position: fixed;
             top: 20px;
@@ -239,8 +260,8 @@
             cursor: pointer;
             padding: 10px;
             border-radius: 50%;
-            background: var(--glass-bg);
-            border: 1px solid var(--neon-blue);
+            background: var(--color-dark-mode-glass);
+            border: 1px solid var(--color-neon-blue);
         }
 
         /* Media Queries */
@@ -263,31 +284,6 @@
                 font-size: 2rem;
             }
         }
-
-        /* prefers-color-scheme */
-        @media (prefers-color-scheme: light) {
-            :root {
-                --bg-color: #f6f8fa;
-                --glass-bg: rgba(0, 0, 0, 0.05);
-                --text-primary: #24292e;
-                --input-bg: rgba(0, 0, 0, 0.05);
-                --input-border: rgba(0, 0, 0, 0.1);
-                --input-focus: #0366d6;
-                --btn-bg: var(--glass-bg);
-                --btn-border: #0366d6;
-                --btn-text: #0366d6;
-                --btn-hover-bg: #0366d6;
-                --btn-hover-text: #ffffff;
-                --btn-active-bg: #0366d6;
-                --btn-active-text: #ffffff;
-                --result-bg: var(--glass-bg);
-            }
-
-            /* テーマ切り替えボタンを非表示にする（自動切り替えのため） */
-            .theme-switcher {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
@@ -301,22 +297,22 @@
             <div class="input-group rate-mode">
                 <div class="input-field">
                     <label>Chart Constant</label>
-                    <input type="number" step="0.1" id="chart" placeholder="12.5">
+                    <input type="number" step="0.1" id="chart" placeholder="例: 12.5" min="0">
                 </div>
                 <div class="input-field">
                     <label>Target Rate</label>
-                    <input type="number" step="0.1" id="target-rate" placeholder="14.0">
+                    <input type="number" step="0.1" id="target-rate" placeholder="例: 14.0" min="0">
                 </div>
             </div>
 
             <div class="input-group score-mode" style="display:none">
                 <div class="input-field">
                     <label>Chart Constant</label>
-                    <input type="number" step="0.1" id="score-chart" placeholder="12.5">
+                    <input type="number" step="0.1" id="score-chart" placeholder="例: 12.5" min="0">
                 </div>
                 <div class="input-field">
                     <label>Music Score</label>
-                    <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
+                    <input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000">
                 </div>
             </div>
 
@@ -332,7 +328,7 @@
     <div class="theme-switcher" onclick="toggleTheme()">🌓</div>
 
     <script>
-        // テーマ切り替え
+        // Theme Toggle Function
         function toggleTheme() {
             const currentTheme = document.body.getAttribute('data-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -340,7 +336,7 @@
             localStorage.setItem('theme', newTheme);
         }
 
-        // ページ読み込み時に保存されたテーマを適用
+        // Apply Saved Theme on Page Load
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
@@ -350,7 +346,7 @@
             }
         });
 
-        // モード切り替え
+        // Mode Switch Functionality
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -363,7 +359,7 @@
             });
         });
 
-        // リアルタイム計算 & 入力値制限
+        // Real-time Calculation and Input Validation
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', function(e) {
                 const filteredValue = this.value.replace(/[^0-9.]/g, '');
@@ -384,38 +380,30 @@
             });
         });
 
-        // 計算処理
+        // Calculate Function
         function calculate() {
-            // ローディングアニメーションの表示
             document.querySelector('.loading').style.display = 'flex';
-            document.getElementById('result-text').textContent = '-';
+            const mode = document.querySelector('.mode-btn.active').dataset.mode;
 
-            // 計算完了後にローディングアニメーションを非表示にするための遅延処理
             setTimeout(() => {
-                const mode = document.querySelector('.mode-btn.active').dataset.mode;
                 let result = '-';
-
                 if (mode === 'rate') {
-                    const chart = parseFloat(document.getElementById('chart').value);
-                    const target = parseFloat(document.getElementById('target-rate').value);
-
-                    if (!isNaN(chart) && !isNaN(target)) {
-                        result = calculateScore(chart, target);
-                    }
+                    result = calculateScore(
+                        parseFloat(document.getElementById('chart').value),
+                        parseFloat(document.getElementById('target-rate').value)
+                    );
                 } else {
-                    const chart = parseFloat(document.getElementById('score-chart').value);
-                    const score = parseInt(document.getElementById('score').value);
-
-                    if (!isNaN(chart) && !isNaN(score)) {
-                        result = calculateRate(chart, score);
-                    }
+                    result = calculateRate(
+                        parseFloat(document.getElementById('score-chart').value),
+                        parseInt(document.getElementById('score').value)
+                    );
                 }
-
                 document.getElementById('result-text').textContent = result;
                 document.querySelector('.loading').style.display = 'none';
-            }, 500); // 0.5秒後にローディングアニメーションを非表示（必要に応じて調整）
+            }, 500); // Simulate calculation time
         }
 
+        // Original calculateRate Function (Unchanged)
         function calculateRate(chart, score) {
             let rate = chart;
 
@@ -444,6 +432,7 @@
             return Math.max(rate, 0).toFixed(2);
         }
 
+        // Original calculateScore Function (Unchanged)
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
             if (target > maxRate) return `MAX: ${maxRate.toFixed(1)}`;
