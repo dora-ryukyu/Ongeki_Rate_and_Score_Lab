@@ -283,6 +283,7 @@
         // Score Calculation
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
+            if (target > 17.7) return 'Max: 17.7';
             if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
             if (target < 0) return 'Invalid';
 
