@@ -69,7 +69,8 @@
         }
 
         #song-search {
-            width: 100%;
+            width: 100%; /* 変更前 */
+            max-width: calc(100% - 1rem); /* 変更後: 最大幅を calculator の幅に合わせる */
             padding: 0.8rem;
             margin-bottom: 1rem;
             background: rgba(0, 0, 0, 0.1);
@@ -77,6 +78,7 @@
             border-radius: 4px;
             color: var(--text-primary);
             font-size: 1rem;
+            box-sizing: border-box; /* padding と border を含めて width を計算 */
         }
 
         #search-results {
@@ -391,7 +393,7 @@
 
                         // 検索ワードが空の場合は、検索結果をクリアして処理を中断
                         if (!query) {
-                            this.displayResults([]); // 空の配列を渡して結果をクリア
+                            this.displayResults(query, []); // 空の配列を渡して結果をクリア
                             return;
                         }
 
@@ -400,19 +402,19 @@
                             song.genre.toLowerCase().includes(query) ||
                             song.difficulty.toLowerCase().includes(query)
                         );
-                        this.displayResults(results);
+                        this.displayResults(query, results);
                     }, 250); // 250ms のdebounce
                 };
 
                 searchInput.addEventListener('input', performSearch);
             }
 
-            displayResults(results) {
+            displayResults(query, results) {
                 const resultsContainer = document.getElementById('search-results');
 
-                // 検索結果が空の場合は、メッセージを表示する
-                if (results.length === 0) {
-                    resultsContainer.innerHTML = ''; // コンテナを空にする
+                // 検索ワードが空の場合、または検索結果が空の場合は、コンテナを空にする
+                if (!query || results.length === 0) {
+                    resultsContainer.innerHTML = '';
                     return;
                 }
 
