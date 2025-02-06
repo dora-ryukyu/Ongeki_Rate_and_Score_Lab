@@ -523,30 +523,19 @@
         }
 
         function setSongSearchWidth() {
-            const calculator = document.querySelector('.calculator');
+            const resultElement = document.querySelector('.result');
             const searchInput = document.getElementById('song-search');
             const inputFields = document.querySelectorAll('.input-field');
 
-            if (calculator && searchInput && inputFields.length > 0) {
-                const width = calculator.getBoundingClientRect().width;
+            if (resultElement && searchInput && inputFields.length > 0) {
+                const targetWidth = resultElement.getBoundingClientRect().width;
 
-                // getComputedStyleを使って、searchInputのpaddingとborderを取得
-                const searchInputStyle = getComputedStyle(searchInput);
-                const searchInputPaddingLeft = parseFloat(searchInputStyle.paddingLeft);
-                const searchInputPaddingRight = parseFloat(searchInputStyle.paddingRight);
-                const searchInputBorderLeft = parseFloat(searchInputStyle.borderLeftWidth);
-                const searchInputBorderRight = parseFloat(searchInputStyle.borderRightWidth);
-
-                // input要素の幅を計算
-                const inputWidth = width - (searchInputPaddingLeft + searchInputPaddingRight + searchInputBorderLeft + searchInputBorderRight);
-
-
-                searchInput.style.width = `${inputWidth}px`;
+                searchInput.style.width = `${targetWidth}px`;
 
                 inputFields.forEach(field => {
                     const input = field.querySelector('input');
                     if (input) {
-                        input.style.width = `${inputWidth}px`;
+                        input.style.width = `${targetWidth}px`;
                     }
                 });
             }
