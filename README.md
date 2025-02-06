@@ -1,4 +1,4 @@
-# OngekiScoreCalculator
+# OngekiRateCalculator
 
 ## 概要
 ONGEKI（オンゲキ）のスコアとレートを相互変換するためのWebアプリケーションです。以下の機能を提供します：
