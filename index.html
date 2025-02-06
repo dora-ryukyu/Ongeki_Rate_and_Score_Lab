@@ -7,518 +7,615 @@
     <title>Ongeki Rate & Score Lab</title>
     <style>
         :root {
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --dark-bg: #0a0e14;
+            /* ダークモード (提案2) */
+            --neon-blue: #4080bf;
+            --neon-purple: #8562b4;
+            --dark-bg: #1c1f23;
             --glass-bg: rgba(255, 255, 255, 0.05);
-            --text-primary: #e0e0e0;
+            --text-primary: #d1d5da;
             --input-border: rgba(255, 255, 255, 0.1);
-            --error-color: #ff4444;
+            --error-color: #ff6b6b;
         }
-[data-theme="light"] {
-        --dark-bg: #f6f8fa;
-        --glass-bg: rgba(0, 0, 0, 0.05);
-        --text-primary: #24292e;
-        --input-border: rgba(0, 0, 0, 0.1);
-        --neon-blue: #0366d6;
-        --neon-purple: #6f42c1;
-        --error-color: #cc0000;
-    }
 
-    body {
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        background: var(--dark-bg);
-        color: var(--text-primary);
-        min-height: 100vh;
-        margin: 0;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: background 0.3s, color 0.3s;
-    }
+        [data-theme="light"] {
+            --dark-bg: #f6f8fa;
+            --glass-bg: rgba(0, 0, 0, 0.05);
+            --text-primary: #24292e;
+            --input-border: rgba(0, 0, 0, 0.1);
+            --neon-blue: #0366d6;
+            --neon-purple: #6f42c1;
+            --error-color: #cc0000; /* または #d73a49 */
+        }
+       [data-theme="dark"] {
+            /* ダークモード上書き */
+            --neon-blue: #4080bf;
+            --neon-purple: #8562b4;
+            --dark-bg: #1c1f23;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #d1d5da;
+            --input-border: rgba(255, 255, 255, 0.1);
+            --error-color: #ff6b6b;
+        }
 
-    .header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.3s, color 0.3s;
+        }
 
-    .header h1 {
-        color: var(--neon-blue);
-        font-size: clamp(1.5rem, 6vw, 2.5rem);
-        margin: 0;
-        text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    .calculator {
-        width: 90vw;
-        max-width: 800px;
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border-radius: 8px;
-        padding: clamp(1rem, 3vw, 1.5rem);
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--neon-blue);
-        transition: all 0.3s;
-    }
+        .header h1 {
+            color: var(--neon-blue);
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            margin: 0;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.3); /* ダークモードでは不要かも */
+        }
 
-    .search-container {
-        margin-bottom: 2rem;
-    }
+        .calculator {
+            width: 90vw;
+            max-width: 800px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: clamp(1rem, 3vw, 1.5rem);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* ライトモード用の影 */
+            border: 1px solid var(--neon-blue);
+            transition: all 0.3s;
+        }
+        /* ダークモード用の繊細なシャドウ */
+        [data-theme="dark"] .calculator {
+            box-shadow:
+              0 2.8px 2.2px rgba(0, 0, 0, 0.02),
+              0 6.7px 5.3px rgba(0, 0, 0, 0.028),
+              0 12.5px 10px rgba(0, 0, 0, 0.035),
+              0 22.3px 17.9px rgba(0, 0, 0, 0.042),
+              0 41.8px 33.4px rgba(0, 0, 0, 0.05),
+              0 100px 80px rgba(0, 0, 0, 0.07);
+        }
 
-    #song-search {
-        padding: 0.8rem;
-        margin-bottom: 1rem;
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
-        color: var(--text-primary);
-        font-size: 1rem;
-        box-sizing: border-box;
-    }
+        .search-container {
+            margin-bottom: 2rem;
+            max-width: 600px; /* 最大幅を設定 */
+            width: 100%;
+        }
 
-    #search-results {
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
-        background: var(--dark-bg);
-    }
+        #song-search {
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            box-sizing: border-box;
+            width: 100%; /* 親要素の幅に合わせる */
+        }
 
-    .song-item {
-        padding: 0.8rem;
-        border-bottom: 1px solid var(--input-border);
-        cursor: pointer;
-        transition: background 0.2s;
-    }
+        #search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            background: var(--dark-bg);
+            width: 100%; /* 親要素の幅に合わせる */
 
-    .song-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
+        }
 
-    .song-details {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
+        /* スクロールバーのスタイル (オプション) */
+        #search-results::-webkit-scrollbar {
+            width: 8px;
+        }
 
-    .mode-switch {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
+        #search-results::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
 
-    .mode-btn {
-        flex: 1;
-        background: none;
-        border: 1px solid var(--neon-blue);
-        color: var(--neon-blue);
-        padding: clamp(0.5rem, 2vw, 1rem);
-        border-radius: 4px;
-        cursor: pointer;
-        transition: 0.2s;
-        text-align: center;
-        font-size: clamp(0.8rem, 3vw, 1rem);
-    }
+        #search-results::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 4px;
+        }
 
-    .mode-btn.active {
-        background: var(--neon-blue);
-        color: var(--dark-bg);
-        border-color: transparent;
-    }
+        .song-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--input-border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        /* ホバー時のスタイル */
+        .song-item:hover {
+            background-color: rgba(255, 255, 255, 0.05); /* ライトモード */
+        }
 
-    .input-group {
-        margin-bottom: 1.2rem;
-    }
+        [data-theme="dark"] .song-item:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* ダークモード */
+        }
 
-    .input-field {
-        margin-bottom: 1rem;
-        position: relative;
-    }
+        /* アクティブ時のスタイル (タップ/クリック時) */
+        .song-item:active {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+        }
 
-    label {
-        display: block;
-        margin-bottom: 0.3rem;
-        font-size: clamp(0.85rem, 3vw, 1rem);
-        color: var(--neon-blue);
-    }
+        [data-theme="light"] .song-item:active {
+            background: var(--neon-purple);
+            color: white;
+        }
 
-    input {
-        padding: clamp(0.3rem, 1.5vw, 0.8rem);
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
-        color: var(--text-primary);
-        font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-        box-sizing: border-box;
-    }
+        .song-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
 
-    input:focus {
-        outline: 2px solid var(--neon-blue);
-        outline-offset: 2px;
-    }
+        .mode-switch {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
 
-    .input-error {
-        color: var(--error-color);
-        font-size: 0.8rem;
-        margin-top: 0.3rem;
-        display: none;
-    }
+        .mode-btn {
+            flex: 1;
+            background: none;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: clamp(0.5rem, 2vw, 1rem);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+        }
 
-    .result {
-        text-align: center;
-        padding: 1.2rem;
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        margin-top: 1.5rem;
-    }
+        .mode-btn.active {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            border-color: transparent;
+        }
 
-    .result h2 {
-        margin: 0;
-        font-size: clamp(1.5rem, 6vw, 2rem);
-        color: var(--neon-blue);
-    }
-    .footer {
-      margin-top: auto;
-      padding: 1rem;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--neon-blue);
-    }
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
 
-    .footer a {
-      color: var(--neon-blue);
-      text-decoration: none;
-    }
+        .input-field {
+            margin-bottom: 1rem;
+            position: relative;
+        }
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            color: var(--neon-blue);
+        }
 
-</style>
+        input {
+            padding: clamp(0.3rem, 1.5vw, 0.8rem);
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            box-sizing: border-box;
+            width: 100%; /* 親要素の幅に合わせる */
+        }
+
+        input:focus {
+            outline: 2px solid var(--neon-blue);
+            outline-offset: 2px;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Chrome, Safari, Edge */
+            margin: 0;
+        }
+
+        .input-error {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none; /* 初期状態では非表示 */
+        }
+        /* エラー時に表示 */
+        .input-field.error .input-error {
+             display: block;
+        }
+        .input-field.error input{
+            border-color: var(--error-color);
+        }
+
+        .result {
+            text-align: center;
+            padding: 1.2rem;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            margin-top: 1.5rem;
+        }
+
+        .result h2 {
+            margin: 0;
+            font-size: clamp(1.1rem, 4vw, 1.7rem); /*少し小さく*/
+            color: var(--neon-blue);
+        }
+        .footer {
+          margin-top: auto;
+          padding: 1rem;
+          text-align: center;
+          font-size: 0.8rem;
+          color: var(--neon-blue);
+        }
+
+        .footer a {
+          color: var(--neon-blue);
+          text-decoration: none;
+        }
+
+        .footer a:hover {
+          text-decoration: underline;
+        }
+
+    </style>
 </head>
 <body>
     <div class="header">
         <h1>Ongeki Rate & Score Lab</h1>
     </div>
-<div class="calculator">
-    <div class="search-container">
-        <input type="text" id="song-search" placeholder="曲名、ジャンル、難易度で検索...">
-        <div id="search-results"></div>
-    </div>
-
-    <div class="mode-switch">
-        <button class="mode-btn active" data-mode="rate">Rate → Score</button>
-        <button class="mode-btn" data-mode="score">Score → Rate</button>
-    </div>
-
-    <div class="input-group rate-mode">
-        <div class="input-field">
-            <label>Chart Constant (1.0 - 15.7)</label>
-            <input type="number" id="chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
-            <div class="input-error" id="chart-error">値は1.0から15.7の間で入力してください</div>
+    <div class="calculator">
+        <div class="search-container">
+            <input type="text" id="song-search" placeholder="曲名、ジャンル、難易度で検索..." inputmode="search">
+            <div id="search-results"></div>
         </div>
-        <div class="input-field">
-            <label>Target Rate (0 - 17.7)</label>
-            <input type="number" id="target-rate" placeholder="14.0" min="0" max="17.7">
-            <div class="input-error" id="rate-error">値は0から17.7の間で入力してください</div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="rate">Rate → Score</button>
+            <button class="mode-btn" data-mode="score">Score → Rate</button>
+        </div>
+
+        <div class="input-group rate-mode">
+            <div class="input-field">
+                <label>Chart Constant (1.0 - 15.7)</label>
+                <input type="number" id="chart" placeholder="例: 12.5" min="1.0" max="15.7" step="0.1" inputmode="decimal">
+                <div class="input-error" id="chart-error">値は1.0から15.7の間で入力してください</div>
+            </div>
+            <div class="input-field">
+                <label>Target Rate (0 - 17.7)</label>
+                <input type="number" id="target-rate" placeholder="例: 14.0" min="0" max="17.7" inputmode="decimal">
+                <div class="input-error" id="rate-error">値は0から17.7の間で入力してください</div>
+            </div>
+        </div>
+
+        <div class="input-group score-mode" style="display:none">
+            <div class="input-field">
+                <label>Chart Constant (1.0 - 15.7)</label>
+                <input type="number" id="score-chart" placeholder="例: 12.5" min="1.0" max="15.7" step="0.1" inputmode="decimal">
+                <div class="input-error" id="score-chart-error">値は1.0から15.7の間で入力してください</div>
+            </div>
+            <div class="input-field">
+                <label>Music Score (0 - 1010000)</label>
+                <input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000" inputmode="numeric">
+                <div class="input-error" id="score-error">値は0から1010000の間で入力してください</div>
+            </div>
+        </div>
+
+        <div class="result">
+            <h2 id="result-text">ここに結果が表示されます</h2>
         </div>
     </div>
 
-    <div class="input-group score-mode" style="display:none">
-        <div class="input-field">
-            <label>Chart Constant (1.0 - 15.7)</label>
-            <input type="number" id="score-chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
-            <div class="input-error" id="score-chart-error">値は1.0から15.7の間で入力してください</div>
-        </div>
-        <div class="input-field">
-            <label>Music Score (0 - 1010000)</label>
-            <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
-            <div class="input-error" id="score-error">値は0から1010000の間で入力してください</div>
-        </div>
+    <div class="footer">
+          <p><a href="https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/" target="_blank" rel="noopener noreferrer">This project is available on GitHub</a>.</p>
     </div>
 
-    <div class="result">
-        <h2 id="result-text">-</h2>
-    </div>
-</div>
-
-<div class="footer">
-      <p><a href="https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/" target="_blank" rel="noopener noreferrer">This project is available on GitHub</a>.</p>
-</div>
-
-<script>
-    function applySystemTheme() {
-        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
-    }
-
-    function watchSystemTheme() {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        mediaQuery.addEventListener('change', applySystemTheme);
-    }
-
-    class SongDatabase {
-        constructor() {
-            this.songs = [];
-            this.loadData();
+    <script>
+        function applySystemTheme() {
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
         }
 
-        async loadData() {
-            try {
-                const response = await fetch('constants.json');
-                const data = await response.json();
-                this.songs = data.map(song => ({
-                    ...song,
-                    constant: parseFloat(song.constant)
-                }));
-                this.initializeSearch();
-                this.setupEventListeners();
-                this.setSongSearchWidth();
-
-            } catch (error) {
-                console.error('楽曲データの読み込みに失敗しました:', error);
-                document.getElementById('search-results').textContent = "楽曲データの読み込みに失敗しました。";
-            }
+        function watchSystemTheme() {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', applySystemTheme);
         }
 
-        initializeSearch() {
-            const searchInput = document.getElementById('song-search');
-            let timeoutId;
-
-            const performSearch = () => {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    let query = searchInput.value.toLowerCase();
-                    query = String(query);
-
-                    if (!query) {
-                        this.displayResults(query, []);
-                        return;
-                    }
-
-                    const results = this.songs.filter(song =>
-                        song.title.toLowerCase().includes(query) ||
-                        song.genre.toLowerCase().includes(query) ||
-                        song.difficulty.toLowerCase().includes(query) ||
-                        song.constant.toFixed(1).includes(query)
-                    );
-                    this.displayResults(query, results);
-                }, 250);
-            };
-
-            searchInput.addEventListener('input', performSearch);
-        }
-
-      displayResults(query, results) {
-            const resultsContainer = document.getElementById('search-results');
-
-            if (!query || results.length === 0) {
-                resultsContainer.innerHTML = '';
-                return;
+        class SongDatabase {
+            constructor() {
+                this.songs = [];
+                this.loadData();
             }
 
-            resultsContainer.innerHTML = results.map(song => `
-                <div class="song-item" data-constant="${song.constant}">
-                    <div>${song.title}</div>
-                    <div class="song-details">
-                        <span>${song.difficulty}</span>
-                        <span>${song.genre}</span>
-                        <span>定数: ${song.constant.toFixed(1)}</span>
-                    </div>
-                </div>
-            `).join('');
+            async loadData() {
+                try {
+                    const response = await fetch('constants.json');
+                    const data = await response.json();
+                    this.songs = data.map(song => ({
+                        ...song,
+                        constant: parseFloat(song.constant)
+                    }));
+                    this.initializeSearch();
+                    this.setupEventListeners();
+                    this.setSongSearchWidth();
 
-            document.querySelectorAll('.song-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const constant = parseFloat(item.dataset.constant);
-                    this.setConstantToInputs(constant);
-                });
-            });
-          this.setSongSearchWidth();
-        }
+                } catch (error) {
+                    console.error('楽曲データの読み込みに失敗しました:', error);
+                    this.displayLoadError(); // エラー表示用の関数を呼び出す
 
-        setConstantToInputs(constant) {
-            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-            const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
-            const input = document.getElementById(inputId);
-
-            if (input) {
-                input.value = constant.toFixed(1); // toFixed(1) を追加
-                this.calculate();
-            }
-            this.setSongSearchWidth();
-        }
-
-        setupEventListeners() {
-            const modeButtons = document.querySelectorAll('.mode-btn');
-            if(modeButtons.length > 0){
-                modeButtons.forEach(btn => {
-                    btn.addEventListener('click', (e) => this.handleModeSwitch(e));
-                });
-           }
-
-            const inputFields = document.querySelectorAll('input');
-            if(inputFields.length > 0){
-                inputFields.forEach(input => {
-                    input.addEventListener('input', () => this.calculate());
-                });
-            }
-        }
-
-        handleModeSwitch(e) {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            e.target.classList.add('active');
-
-            document.querySelectorAll('.input-group').forEach(group => {
-                group.style.display = 'none';
-            });
-            document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
-
-            this.calculate();
-            this.setSongSearchWidth();
-        }
-      setSongSearchWidth() {
-            const resultElement = document.querySelector('.result');
-            const searchInput = document.getElementById('song-search');
-            const inputFields = document.querySelectorAll('.input-field');
-
-            if (resultElement && searchInput && inputFields.length > 0) {
-                const targetWidth = resultElement.getBoundingClientRect().width;
-
-                searchInput.style.width = `${targetWidth}px`;
-
-                inputFields.forEach(field => {
-                    const input = field.querySelector('input');
-                    if (input) {
-                        input.style.width = `${targetWidth}px`;
-                    }
-                });
-            }
-        }
-
-        validateInput(input, min, max, errorElement) {
-            const value = parseFloat(input.value);
-            if (isNaN(value) || value < min || value > max) {
-                errorElement.style.display = 'block';
-                input.classList.add('invalid');
-                return false;
-            }
-            errorElement.style.display = 'none';
-            input.classList.remove('invalid');
-            return true;
-        }
-
-        calculate() {
-            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-            let result = '-';
-
-            try {
-                if (activeMode === 'rate') {
-                    const chartValid = this.validateInput(
-                        document.getElementById('chart'),
-                        1.0, 15.7,
-                        document.getElementById('chart-error')
-                    );
-                    const rateValid = this.validateInput(
-                        document.getElementById('target-rate'),
-                        0, 17.7,
-                        document.getElementById('rate-error')
-                    );
-
-                    if (chartValid && rateValid) {
-                        const chart = parseFloat(document.getElementById('chart').value);
-                        const target = parseFloat(document.getElementById('target-rate').value);
-                        result = this.calculateScore(chart, target);
-                    }
-                } else {
-                    const chartValid = this.validateInput(
-                        document.getElementById('score-chart'),
-                        1.0, 15.7,
-                        document.getElementById('score-chart-error')
-                    );
-                    const scoreValid = this.validateInput(
-                        document.getElementById('score'),
-                        0, 1010000,
-                        document.getElementById('score-error')
-                    );
-
-                    if (chartValid && scoreValid) {
-                        const chart = parseFloat(document.getElementById('score-chart').value);
-                        const score = parseFloat(document.getElementById('score').value);
-                        result = this.calculateRate(chart, score);
-                    }
                 }
-            } catch (error) {
-                result = 'Invalid Input';
+            }
+            // loadData()が失敗した時にエラーメッセージを表示する
+            displayLoadError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = '楽曲データの読み込みに失敗しました。';
+                errorDiv.style.color = 'var(--error-color)';
+                errorDiv.style.textAlign = 'center';
+                errorDiv.style.marginTop = '1rem';
+                document.querySelector('.search-container').appendChild(errorDiv);
             }
 
-            document.getElementById('result-text').textContent = result;
-        }
+            initializeSearch() {
+                const searchInput = document.getElementById('song-search');
+                let timeoutId;
 
-        calculateRate(chart, score) {
-            let rate = chart;
+                const performSearch = () => {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        let query = searchInput.value.toLowerCase();
+                        query = String(query);
 
-            if (score >= 1007500) return (chart + 2).toFixed(2);
-            if (score >= 1000000) {
-                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
-            } else if (score >= 990000) {
-                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
-            } else if (score >= 970000) {
-                rate += Math.floor((score - 970000) / 200) * 0.01;
-            } else if (score >= 940000) {
-                rate -= Math.floor((970000 - score) / 200) * 0.01;
-            } else if (score >= 900000) {
-                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
-            } else {
-                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
+                        if (!query) {
+                            this.displayResults(query, []);
+                            return;
+                        }
+
+                        const results = this.songs.filter(song =>
+                            song.title.toLowerCase().includes(query) ||
+                            song.genre.toLowerCase().includes(query) ||
+                            song.difficulty.toLowerCase().includes(query) ||
+                            song.constant.toFixed(1).includes(query)
+                        );
+                        this.displayResults(query, results);
+                    }, 250);
+                };
+
+                searchInput.addEventListener('input', performSearch);
             }
 
-            return Math.max(rate, 0).toFixed(2);
-        }
+          displayResults(query, results) {
+                const resultsContainer = document.getElementById('search-results');
 
-        calculateScore(chart, target) {
-            const maxRate = chart + 2;
-            if (target > 17.7) return 'Max: 17.7';
-            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
-            if (target < 0) return 'Invalid';
+                if (!query) {
+                    resultsContainer.innerHTML = '';
+                    return;
+                }
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div style="text-align: center; padding: 0.8rem;">該当する楽曲はありません</div>';
+                    return;
+                }
 
-            const diff = target - chart;
-            let score = 0;
+                resultsContainer.innerHTML = results.map(song => `
+                    <div class="song-item" data-constant="${song.constant}">
+                        <div>${song.title}</div>
+                        <div class="song-details">
+                            <span>${song.difficulty}</span>
+                            <span>${song.genre}</span>
+                            <span>定数: ${song.constant.toFixed(1)}</span>
+                        </div>
+                    </div>
+                `).join('');
 
-            if (diff >= 2) return '1,007,500';
-            if (diff >= 1.5) {
-                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
-            } else if (diff >= 1) {
-                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
-            } else if (diff >= 0) {
-                score = 970000 + Math.floor(diff / 0.01) * 200;
-            } else if (diff >= -1.5) {
-                score = 970000 - Math.floor(-diff / 0.01) * 200;
-            } else {
-                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+                document.querySelectorAll('.song-item').forEach(item => {
+                    item.addEventListener('click', (event) => {
+                        const constant = parseFloat(item.dataset.constant);
+                        this.setConstantToInputs(constant);
+
+                        // 以下、エフェクト用のコード
+                        const originalBackgroundColor = item.style.backgroundColor;
+                        item.style.backgroundColor = 'var(--neon-blue)'; // 一時的な背景色
+
+                        if (document.body.dataset.theme === 'light') {
+                            item.style.backgroundColor = 'var(--neon-purple)';
+                        }
+
+                        setTimeout(() => {
+                            item.style.backgroundColor = originalBackgroundColor;
+                        }, 200);
+                    });
+                });
+              this.setSongSearchWidth();
             }
 
-            score = Math.min(Math.max(score, 0), 1010000);
-            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
+            setConstantToInputs(constant) {
+                const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+                const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
+                const input = document.getElementById(inputId);
+
+                if (input) {
+                    input.value = constant.toFixed(1);
+                    this.calculate();
+                }
+                this.setSongSearchWidth();
+            }
+
+            setupEventListeners() {
+                const modeButtons = document.querySelectorAll('.mode-btn');
+                if(modeButtons.length > 0){
+                    modeButtons.forEach(btn => {
+                        btn.addEventListener('click', (e) => this.handleModeSwitch(e));
+                    });
+               }
+
+                const inputFields = document.querySelectorAll('input');
+                if(inputFields.length > 0){
+                    inputFields.forEach(input => {
+                        input.addEventListener('input', () => this.calculate());
+                    });
+                }
+            }
+
+            handleModeSwitch(e) {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+
+                document.querySelectorAll('.input-group').forEach(group => {
+                    group.style.display = 'none';
+                });
+                document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
+
+                this.calculate();
+                this.setSongSearchWidth();
+            }
+            setSongSearchWidth() {
+                const searchContainer = document.querySelector('.search-container');
+                const inputFields = document.querySelectorAll('.input-field');
+
+                if (searchContainer && inputFields.length > 0) {
+                    const targetWidth = searchContainer.getBoundingClientRect().width;
+
+                    inputFields.forEach(field => {
+                        const input = field.querySelector('input');
+                         if (input) {
+                            input.style.width = `${targetWidth}px`;
+                        }
+                    });
+                }
+            }
+
+            validateInput(input, min, max, errorElement) {
+                const value = parseFloat(input.value);
+                const inputField = input.closest('.input-field'); // inputの親要素
+
+                if (isNaN(value) || value < min || value > max) {
+                    // inputFieldに対してクラスを操作する
+                    inputField.classList.add('error');
+                    return false;
+                }
+                inputField.classList.remove('error');
+                return true;
+            }
+
+            calculate() {
+                const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+                let result = '計算中...';
+
+                try {
+                    if (activeMode === 'rate') {
+                        const chartValid = this.validateInput(
+                            document.getElementById('chart'),
+                            1.0, 15.7,
+                            document.getElementById('chart-error')
+                        );
+                        const rateValid = this.validateInput(
+                            document.getElementById('target-rate'),
+                            0, 17.7,
+                            document.getElementById('rate-error')
+                        );
+
+                        if (chartValid && rateValid) {
+                            const chart = parseFloat(document.getElementById('chart').value);
+                            const target = parseFloat(document.getElementById('target-rate').value);
+                            result = this.calculateScore(chart, target);
+                        }
+                    } else {
+                        const chartValid = this.validateInput(
+                            document.getElementById('score-chart'),
+                            1.0, 15.7,
+                            document.getElementById('score-chart-error')
+                        );
+                        const scoreValid = this.validateInput(
+                            document.getElementById('score'),
+                            0, 1010000,
+                            document.getElementById('score-error')
+                        );
+
+                        if (chartValid && scoreValid) {
+                            const chart = parseFloat(document.getElementById('score-chart').value);
+                            const score = parseFloat(document.getElementById('score').value);
+                            result = this.calculateRate(chart, score);
+                        }
+                    }
+                } catch (error) {
+                    result = 'エラー';
+                }
+
+                document.getElementById('result-text').textContent = result;
+            }
+
+            calculateRate(chart, score) {
+                let rate = chart;
+
+                if (score >= 1007500) return (chart + 2).toFixed(2);
+                if (score >= 1000000) {
+                    rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
+                } else if (score >= 990000) {
+                    rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
+                } else if (score >= 970000) {
+                    rate += Math.floor((score - 970000) / 200) * 0.01;
+                } else if (score >= 940000) {
+                    rate -= Math.floor((970000 - score) / 200) * 0.01;
+                } else if (score >= 900000) {
+                    rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
+                } else {
+                    rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
+                }
+
+                return Math.max(rate, 0).toFixed(2);
+            }
+
+            calculateScore(chart, target) {
+                const maxRate = chart + 2;
+                if (target > 17.7) return 'Max: 17.7';
+                if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
+                if (target < 0) return 'Invalid';
+
+                const diff = target - chart;
+                let score = 0;
+
+                if (diff >= 2) return '1,007,500';
+                if (diff >= 1.5) {
+                    score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
+                } else if (diff >= 1) {
+                    score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
+                } else if (diff >= 0) {
+                    score = 970000 + Math.floor(diff / 0.01) * 200;
+                } else if (diff >= -1.5) {
+                    score = 970000 - Math.floor(-diff / 0.01) * 200;
+                } else {
+                    score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+                }
+
+                score = Math.min(Math.max(score, 0), 1010000);
+                return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
+            }
         }
-    }
 
-    function init() {
-        applySystemTheme();
-        watchSystemTheme();
+        function init() {
+            applySystemTheme();
+            watchSystemTheme();
 
-        const songDB = new SongDatabase(); // インスタンス作成
-        window.addEventListener('resize', () => {
-            songDB.setSongSearchWidth();
-        });
-    }
+            const songDB = new SongDatabase();
+            window.addEventListener('resize', () => {
+                songDB.setSongSearchWidth();
+            });
+        }
 
-    document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', init);
 
-</script>
+    </script>
 </body>
 </html>
