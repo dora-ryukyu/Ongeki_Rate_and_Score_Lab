@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <title>ONGEKI Rate Calculator</title>
+    <title>Ongeki Rate & Score Lab</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -179,12 +179,28 @@
         font-size: clamp(1.5rem, 6vw, 2rem);
         color: var(--neon-blue);
     }
+    .footer {
+      margin-top: auto;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--neon-blue);
+    }
+
+    .footer a {
+      color: var(--neon-blue);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
 
 </style>
 </head>
 <body>
     <div class="header">
-        <h1>OngekiScoreCalculator</h1>
+        <h1>Ongeki Rate & Score Lab</h1>
     </div>
 <div class="calculator">
     <div class="search-container">
@@ -226,6 +242,10 @@
     <div class="result">
         <h2 id="result-text">-</h2>
     </div>
+</div>
+
+<div class="footer">
+      <p>This project is available on <a href="https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
 </div>
 
 <script>
@@ -325,7 +345,7 @@
             const input = document.getElementById(inputId);
 
             if (input) {
-                input.value = constant;
+                input.value = constant.toFixed(1); // toFixed(1) を追加
                 this.calculate();
             }
             this.setSongSearchWidth();
