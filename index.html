@@ -365,7 +365,7 @@
 
             async loadData() {
                 try {
-                    const response = await fetch('./constants.json');
+                    const response = await fetch('constants.json'); // または constants.json の実際の相対パス
                     const data = await response.json();
                     this.songs = data.map(song => ({
                         ...song,
@@ -374,21 +374,34 @@
                     this.initializeSearch();
                 } catch (error) {
                     console.error('楽曲データの読み込みに失敗しました:', error);
+                    // ユーザーへのエラー通知を追加
+                    document.getElementById('search-results').textContent = "楽曲データの読み込みに失敗しました。";
                 }
             }
 
             initializeSearch() {
                 const searchInput = document.getElementById('song-search');
                 const resultsContainer = document.getElementById('search-results');
+                let timeoutId;
 
                 const performSearch = () => {
-                    const query = searchInput.value.toLowerCase();
-                    const results = this.songs.filter(song =>
-                        song.title.toLowerCase().includes(query) ||
-                        song.genre.toLowerCase().includes(query) ||
-                        song.difficulty.toLowerCase().includes(query)
-                    );
-                    this.displayResults(results);
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        const query = searchInput.value.toLowerCase();
+
+                        // 検索ワードが空の場合は、検索結果をクリアして処理を中断
+                        if (!query) {
+                            this.displayResults([]); // 空の配列を渡して結果をクリア
+                            return;
+                        }
+
+                        const results = this.songs.filter(song =>
+                            song.title.toLowerCase().includes(query) ||
+                            song.genre.toLowerCase().includes(query) ||
+                            song.difficulty.toLowerCase().includes(query)
+                        );
+                        this.displayResults(results);
+                    }, 250); // 250ms のdebounce
                 };
 
                 searchInput.addEventListener('input', performSearch);
@@ -396,13 +409,20 @@
 
             displayResults(results) {
                 const resultsContainer = document.getElementById('search-results');
+
+                // 検索結果が空の場合は、メッセージを表示する
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = ''; // コンテナを空にする
+                    return;
+                }
+
                 resultsContainer.innerHTML = results.map(song => `
                     <div class="song-item" data-constant="${song.constant}">
                         <div>${song.title}</div>
                         <div class="song-details">
                             <span>${song.difficulty}</span>
                             <span>${song.genre}</span>
-                            <span>定数: ${song.constant}</span>
+                            <span>定数: ${song.constant.toFixed(1)}</span>
                         </div>
                     </div>
                 `).join('');
@@ -425,42 +445,89 @@
                     calculate();
                 }
             }
+
+            setupEventListeners() {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', this.handleModeSwitch.bind(this));
+                });
+
+                document.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', this.calculate.bind(this));
+                });
+            }
+
+            handleModeSwitch(e) {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+
+                document.querySelectorAll('.input-group').forEach(group => {
+                    group.style.display = 'none';
+                });
+                document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
+
+                this.calculate(); // SongDatabaseのコンテキストでcalculateを呼ぶ
+            }
+
+            calculate() {
+                const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+                let result = '-';
+
+                try {
+                    if (activeMode === 'rate') {
+                        const chartValid = validateInput(
+                            document.getElementById('chart'),
+                            1.0, 15.7,
+                            document.getElementById('chart-error')
+                        );
+                        const rateValid = validateInput(
+                            document.getElementById('target-rate'),
+                            0, 17.7,
+                            document.getElementById('rate-error')
+                        );
+
+                        if (chartValid && rateValid) {
+                            const chart = parseFloat(document.getElementById('chart').value);
+                            const target = parseFloat(document.getElementById('target-rate').value);
+                            result = calculateScore(chart, target);
+                        }
+                    } else {
+                        const chartValid = validateInput(
+                            document.getElementById('score-chart'),
+                            1.0, 15.7,
+                            document.getElementById('score-chart-error')
+                        );
+                        const scoreValid = validateInput(
+                            document.getElementById('score'),
+                            0, 1010000,
+                            document.getElementById('score-error')
+                        );
+
+                        if (chartValid && scoreValid) {
+                            const chart = parseFloat(document.getElementById('score-chart').value);
+                            const score = parseFloat(document.getElementById('score').value);
+                            result = calculateRate(chart, score);
+                        }
+                    }
+                } catch (error) {
+                    result = 'Invalid Input';
+                }
+
+                document.getElementById('result-text').textContent = result;
+            }
         }
 
         // Event Listeners (最初のコードから)
-        function setupEventListeners() {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', handleModeSwitch);
-            });
-
-            document.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', calculate);
-            });
-        }
-
-        // Mode Switching (最初のコードから)
-        function handleModeSwitch(e) {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            e.target.classList.add('active');
-            
-            document.querySelectorAll('.input-group').forEach(group => {
-                group.style.display = 'none';
-            });
-            document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
-            
-            calculate();
-        }
 
         // Initialize (両方のコードの初期化処理をまとめる)
         function init() {
             applySystemTheme(); // 最初のコードの初期化
             watchSystemTheme(); // 最初のコードの初期化
-            setupEventListeners(); // 最初のコードの初期化
-            calculate(); // 最初のコードの初期化
 
             const songDB = new SongDatabase(); // 2つ目のコードの初期化
+            songDB.setupEventListeners(); // イベントリスナーのセットアップを SongDatabase 経由で行う
+            songDB.calculate();
         }
 
         // Start the app
