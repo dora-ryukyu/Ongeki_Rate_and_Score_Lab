@@ -87,7 +87,7 @@
             border: 1px solid var(--input-border);
             border-radius: 4px;
             background: var(--dark-bg);
-        }
+            }
 
         .song-item {
             padding: 0.8rem;
@@ -157,7 +157,7 @@
             border-radius: 4px;
             color: var(--text-primary);
             font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-            box-sizing: border-box; /* 追加 */
+            box-sizing: border-box;
         }
 
         input:focus {
@@ -236,19 +236,19 @@
     </div>
 
     <script>
-        // Theme Management (最初のコードから)
+        // Theme Management
         function applySystemTheme() {
             const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
         }
 
-        // Watch for system theme changes (最初のコードから)
+        // Watch for system theme changes
         function watchSystemTheme() {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             mediaQuery.addEventListener('change', applySystemTheme);
         }
 
-        // Input Validation (最初のコードから)
+        // Input Validation
         function validateInput(input, min, max, errorElement) {
             const value = parseFloat(input.value);
             if (isNaN(value) || value < min || value > max) {
@@ -262,7 +262,7 @@
             return true;
         }
 
-        // Main Calculation (最初のコードから)
+        // Main Calculation
         function calculate() {
             const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
             let result = '-';
@@ -310,7 +310,7 @@
             document.getElementById('result-text').textContent = result;
         }
 
-        // Rate Calculation (最初のコードから)
+        // Rate Calculation
         function calculateRate(chart, score) {
             let rate = chart;
 
@@ -332,7 +332,7 @@
             return Math.max(rate, 0).toFixed(2);
         }
 
-        // Score Calculation (最初のコードから)
+        // Score Calculation
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
             if (target > 17.7) return 'Max: 17.7';
@@ -359,42 +359,49 @@
             return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
         }
 
-        // Song Databaseクラス (2つ目のコードから)
+        // Song Databaseクラス
         class SongDatabase {
             constructor() {
                 this.songs = [];
                 this.loadData();
+                this.firstDisplay = true; // 初回表示フラグ
             }
 
             async loadData() {
                 try {
-                    const response = await fetch('constants.json'); // または constants.json の実際の相対パス
+                    const response = await fetch('constants.json');
                     const data = await response.json();
                     this.songs = data.map(song => ({
                         ...song,
                         constant: parseFloat(song.constant)
                     }));
                     this.initializeSearch();
+
+                    // データロード後、検索ボックスの幅を調整
+                    setTimeout(() => {
+                      setSongSearchWidth();
+                    }, 0);
+
+
                 } catch (error) {
                     console.error('楽曲データの読み込みに失敗しました:', error);
-                    // ユーザーへのエラー通知を追加
                     document.getElementById('search-results').textContent = "楽曲データの読み込みに失敗しました。";
                 }
             }
 
             initializeSearch() {
                 const searchInput = document.getElementById('song-search');
-                const resultsContainer = document.getElementById('search-results');
                 let timeoutId;
 
                 const performSearch = () => {
                     clearTimeout(timeoutId);
                     timeoutId = setTimeout(() => {
-                        const query = searchInput.value.toLowerCase();
+                        let query = searchInput.value.toLowerCase();
+                        query = String(query); // クエリを文字列に変換
 
-                        // 検索ワードが空の場合は、検索結果をクリアして処理を中断
+
                         if (!query) {
-                            this.displayResults(query, []); // 空の配列を渡して結果をクリア
+                            this.displayResults(query, []);
                             return;
                         }
 
@@ -402,20 +409,18 @@
                             song.title.toLowerCase().includes(query) ||
                             song.genre.toLowerCase().includes(query) ||
                             song.difficulty.toLowerCase().includes(query) ||
-                            String(song.constant).includes(query) // 定数での検索を追加
+                            song.constant.toFixed(1).includes(query) // 定数での検索
                         );
                         this.displayResults(query, results);
-                    }, 250); // 250ms のdebounce
+                    }, 250);
                 };
 
                 searchInput.addEventListener('input', performSearch);
             }
 
-
             displayResults(query, results) {
                 const resultsContainer = document.getElementById('search-results');
 
-                // 検索ワードが空の場合、または検索結果が空の場合は、コンテナを空にする
                 if (!query || results.length === 0) {
                     resultsContainer.innerHTML = '';
                     return;
@@ -438,6 +443,14 @@
                         this.setConstantToInputs(constant);
                     });
                 });
+
+                // 初回表示時のみ、検索ボックスの幅を調整
+                if (this.firstDisplay) {
+                    setTimeout(() => {
+                        setSongSearchWidth();
+                    }, 0);
+                    this.firstDisplay = false;
+                }
             }
 
             setConstantToInputs(constant) {
@@ -472,10 +485,11 @@
                 });
                 document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
 
-                this.calculate(); // SongDatabaseのコンテキストでcalculateを呼ぶ
+                this.calculate();
             }
 
             calculate() {
+                // ... (calculate メソッドの内容は変更なし) ...
                 const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
                 let result = '-';
 
@@ -527,30 +541,27 @@
         function setSongSearchWidth() {
             const inputField = document.querySelector('.input-field');
             const searchInput = document.getElementById('song-search');
-
             if (inputField && searchInput) {
-                const width = inputField.offsetWidth;
+                const width = inputField.getBoundingClientRect().width;
                 searchInput.style.width = `${width}px`;
             }
         }
 
-        // Initialize (両方のコードの初期化処理をまとめる)
+        // Initialize
         function init() {
-            applySystemTheme(); // 最初のコードの初期化
-            watchSystemTheme(); // 最初のコードの初期化
+            applySystemTheme();
+            watchSystemTheme();
 
-            const songDB = new SongDatabase(); // 2つ目のコードの初期化
-            songDB.setupEventListeners(); // イベントリスナーのセットアップを SongDatabase 経由で行う
+            const songDB = new SongDatabase();
+            songDB.setupEventListeners();
             songDB.calculate();
-
-
-            // 検索ボックスの幅を初期設定
-            setSongSearchWidth();
         }
 
-        // DOMContentLoaded と resize イベントで幅を調整
         document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('resize', setSongSearchWidth);
+        window.addEventListener('resize', () => {
+          // setSongSearchWidth をここで直接呼び出す
+          setSongSearchWidth();
+        });
     </script>
 </body>
 </html>
