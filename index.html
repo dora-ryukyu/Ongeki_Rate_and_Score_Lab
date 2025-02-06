@@ -6,7 +6,6 @@
     <meta name="format-detection" content="telephone=no">
     <title>ONGEKI Rate Calculator</title>
     <style>
-        /* 合体後のCSS */
         :root {
             --neon-blue: #00f3ff;
             --neon-purple: #bc13fe;
@@ -54,7 +53,7 @@
 
         .calculator {
             width: 90vw;
-            max-width: 800px; /* 2つ目のコードの値 */
+            max-width: 800px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 8px;
@@ -69,8 +68,6 @@
         }
 
         #song-search {
-            /*width: 100%;*/ /* 削除 */
-            /*max-width: calc(100% - 1rem);*/ /* 削除 */
             padding: 0.8rem;
             margin-bottom: 1rem;
             background: rgba(0, 0, 0, 0.1);
@@ -78,7 +75,7 @@
             border-radius: 4px;
             color: var(--text-primary);
             font-size: 1rem;
-            box-sizing: border-box; /* padding と border を含めて width を計算 */
+            box-sizing: border-box;
         }
 
         #search-results {
@@ -87,7 +84,7 @@
             border: 1px solid var(--input-border);
             border-radius: 4px;
             background: var(--dark-bg);
-            }
+        }
 
         .song-item {
             padding: 0.8rem;
@@ -107,7 +104,6 @@
             margin-top: 0.5rem;
         }
 
-        /* 既存のスタイル（mode-switch, input-field, result等）は変更なし */
         .mode-switch {
             display: flex;
             gap: 1rem;
@@ -236,19 +232,16 @@
     </div>
 
     <script>
-        // Theme Management
         function applySystemTheme() {
             const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
         }
 
-        // Watch for system theme changes
         function watchSystemTheme() {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             mediaQuery.addEventListener('change', applySystemTheme);
         }
 
-        // Input Validation
         function validateInput(input, min, max, errorElement) {
             const value = parseFloat(input.value);
             if (isNaN(value) || value < min || value > max) {
@@ -262,7 +255,6 @@
             return true;
         }
 
-        // Main Calculation
         function calculate() {
             const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
             let result = '-';
@@ -310,7 +302,6 @@
             document.getElementById('result-text').textContent = result;
         }
 
-        // Rate Calculation
         function calculateRate(chart, score) {
             let rate = chart;
 
@@ -332,7 +323,6 @@
             return Math.max(rate, 0).toFixed(2);
         }
 
-        // Score Calculation
         function calculateScore(chart, target) {
             const maxRate = chart + 2;
             if (target > 17.7) return 'Max: 17.7';
@@ -359,12 +349,11 @@
             return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
         }
 
-        // Song Databaseクラス
         class SongDatabase {
             constructor() {
                 this.songs = [];
                 this.loadData();
-                this.firstDisplay = true; // 初回表示フラグ
+                this.firstDisplay = true;
             }
 
             async loadData() {
@@ -377,7 +366,6 @@
                     }));
                     this.initializeSearch();
 
-                    // データロード後、検索ボックスの幅を調整
                     setTimeout(() => {
                       setSongSearchWidth();
                     }, 0);
@@ -397,8 +385,7 @@
                     clearTimeout(timeoutId);
                     timeoutId = setTimeout(() => {
                         let query = searchInput.value.toLowerCase();
-                        query = String(query); // クエリを文字列に変換
-
+                        query = String(query);
 
                         if (!query) {
                             this.displayResults(query, []);
@@ -409,7 +396,7 @@
                             song.title.toLowerCase().includes(query) ||
                             song.genre.toLowerCase().includes(query) ||
                             song.difficulty.toLowerCase().includes(query) ||
-                            song.constant.toFixed(1).includes(query) // 定数での検索
+                            song.constant.toFixed(1).includes(query)
                         );
                         this.displayResults(query, results);
                     }, 250);
@@ -444,7 +431,6 @@
                     });
                 });
 
-                // 初回表示時のみ、検索ボックスの幅を調整
                 if (this.firstDisplay) {
                     setTimeout(() => {
                         setSongSearchWidth();
@@ -489,7 +475,6 @@
             }
 
             calculate() {
-                // ... (calculate メソッドの内容は変更なし) ...
                 const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
                 let result = '-';
 
@@ -539,15 +524,20 @@
 
 
         function setSongSearchWidth() {
-            const inputField = document.querySelector('.input-field');
             const searchInput = document.getElementById('song-search');
-            if (inputField && searchInput) {
-                const width = inputField.getBoundingClientRect().width;
-                searchInput.style.width = `${width}px`;
+            const inputFields = document.querySelectorAll('.input-field');
+
+            if (searchInput && inputFields.length > 0) {
+                const width = searchInput.getBoundingClientRect().width;
+                inputFields.forEach(field => {
+                    const input = field.querySelector('input');
+                    if (input) {
+                        input.style.width = `${width}px`;
+                    }
+                });
             }
         }
 
-        // Initialize
         function init() {
             applySystemTheme();
             watchSystemTheme();
@@ -558,10 +548,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('resize', () => {
-          // setSongSearchWidth をここで直接呼び出す
-          setSongSearchWidth();
-        });
+        window.addEventListener('resize', setSongSearchWidth);
     </script>
 </body>
 </html>
