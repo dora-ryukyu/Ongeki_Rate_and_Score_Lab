@@ -239,119 +239,12 @@
         mediaQuery.addEventListener('change', applySystemTheme);
     }
 
-    function validateInput(input, min, max, errorElement) {
-        const value = parseFloat(input.value);
-        if (isNaN(value) || value < min || value > max) {
-            errorElement.style.display = 'block';
-            input.classList.add('invalid');
-            return false;
-        }
-        errorElement.style.display = 'none';
-        input.classList.remove('invalid');
-        return true;
-    }
-
-   function calculate() {
-        const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-        let result = '-';
-
-        try {
-            if (activeMode === 'rate') {
-                const chartValid = validateInput(
-                    document.getElementById('chart'),
-                    1.0, 15.7,
-                    document.getElementById('chart-error')
-                );
-                const rateValid = validateInput(
-                    document.getElementById('target-rate'),
-                    0, 17.7,
-                    document.getElementById('rate-error')
-                );
-
-                if (chartValid && rateValid) {
-                    const chart = parseFloat(document.getElementById('chart').value);
-                    const target = parseFloat(document.getElementById('target-rate').value);
-                    result = calculateScore(chart, target);
-                }
-            } else {
-                const chartValid = validateInput(
-                    document.getElementById('score-chart'),
-                    1.0, 15.7,
-                    document.getElementById('score-chart-error')
-                );
-                const scoreValid = validateInput(
-                    document.getElementById('score'),
-                    0, 1010000,
-                    document.getElementById('score-error')
-                );
-
-                if (chartValid && scoreValid) {
-                    const chart = parseFloat(document.getElementById('score-chart').value);
-                    const score = parseFloat(document.getElementById('score').value);
-                    result = calculateRate(chart, score);
-                }
-            }
-        } catch (error) {
-            result = 'Invalid Input';
-        }
-
-        document.getElementById('result-text').textContent = result;
-    }
-
-    function calculateRate(chart, score) {
-        let rate = chart;
-
-        if (score >= 1007500) return (chart + 2).toFixed(2);
-        if (score >= 1000000) {
-            rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
-        } else if (score >= 990000) {
-            rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
-        } else if (score >= 970000) {
-            rate += Math.floor((score - 970000) / 200) * 0.01;
-        } else if (score >= 940000) {
-            rate -= Math.floor((970000 - score) / 200) * 0.01;
-        } else if (score >= 900000) {
-            rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
-        } else {
-            rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
-        }
-
-        return Math.max(rate, 0).toFixed(2);
-    }
-
-    function calculateScore(chart, target) {
-        const maxRate = chart + 2;
-        if (target > 17.7) return 'Max: 17.7';
-        if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
-        if (target < 0) return 'Invalid';
-
-        const diff = target - chart;
-        let score = 0;
-
-        if (diff >= 2) return '1,007,500';
-        if (diff >= 1.5) {
-            score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
-        } else if (diff >= 1) {
-            score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
-        } else if (diff >= 0) {
-            score = 970000 + Math.floor(diff / 0.01) * 200;
-        } else if (diff >= -1.5) {
-            score = 970000 - Math.floor(-diff / 0.01) * 200;
-        } else {
-            score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
-        }
-
-        score = Math.min(Math.max(score, 0), 1010000);
-        return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
-    }
-
     class SongDatabase {
-      constructor(calculateFunction) {
-        this.songs = [];
-        this.loadData();
-        this.firstDisplay = true;
-        this.calculate = calculateFunction;
-      }
+        constructor() {
+            this.songs = [];
+            this.firstDisplay = true; // 初回表示フラグ
+            this.loadData();
+        }
 
         async loadData() {
             try {
@@ -365,13 +258,13 @@
 
                 // 非同期でデータロード後に幅調整と初期計算
                 setTimeout(() => {
-                    setSongSearchWidth(); // 初期幅調整
-                    this.calculate();      // 初期計算
+                    this.setSongSearchWidth(); // 初期幅調整
+                    this.calculate();       // 初期計算
 
                     // MutationObserverで.resultの変化を監視
                     const observer = new MutationObserver(() => {
-                        setSongSearchWidth(); // 幅再調整
-                        this.calculate();      // 再計算
+                      this.setSongSearchWidth();
+                      this.calculate();
                     });
                     const config = { childList: true, subtree: true, characterData: true, attributes: true };
                     observer.observe(document.querySelector('.result'), config);
@@ -440,13 +333,13 @@
 
             if (this.firstDisplay) {
                 setTimeout(() => {
-                    setSongSearchWidth();
+                    this.setSongSearchWidth();
                 }, 0);
                 this.firstDisplay = false;
             }
         }
 
-      setConstantToInputs(constant) {
+        setConstantToInputs(constant) {
             const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
             const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
             const input = document.getElementById(inputId);
@@ -462,9 +355,15 @@
                 btn.addEventListener('click', this.handleModeSwitch.bind(this));
             });
 
+            // input要素に対するイベントリスナーをSongDatabaseのメソッドとして設定
             document.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', this.calculate.bind(this));
+                input.addEventListener('input', this.handleInputChange.bind(this));
             });
+        }
+
+        // input要素の変更を処理するメソッド
+        handleInputChange(event) {
+            this.calculate(); // 入力が変更されたら再計算
         }
 
         handleModeSwitch(e) {
@@ -479,25 +378,131 @@
             document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
 
             this.calculate(); // モード切り替え時も再計算
-    }
-    }
+        }
 
-    function setSongSearchWidth() {
-        const resultElement = document.querySelector('.result');
-        const searchInput = document.getElementById('song-search');
-        const inputFields = document.querySelectorAll('.input-field');
+        setSongSearchWidth() {
+            const resultElement = document.querySelector('.result');
+            const searchInput = document.getElementById('song-search');
+            const inputFields = document.querySelectorAll('.input-field');
 
-        if (resultElement && searchInput && inputFields.length > 0) {
-            const targetWidth = resultElement.getBoundingClientRect().width;
+            if (resultElement && searchInput && inputFields.length > 0) {
+                const targetWidth = resultElement.getBoundingClientRect().width;
 
-            searchInput.style.width = `${targetWidth}px`;
+                searchInput.style.width = `${targetWidth}px`;
 
-            inputFields.forEach(field => {
-                const input = field.querySelector('input');
-                if (input) {
-                    input.style.width = `${targetWidth}px`;
+                inputFields.forEach(field => {
+                    const input = field.querySelector('input');
+                    if (input) {
+                        input.style.width = `${targetWidth}px`;
+                    }
+                });
+            }
+        }
+
+        validateInput(input, min, max, errorElement) {
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value < min || value > max) {
+                errorElement.style.display = 'block';
+                input.classList.add('invalid');
+                return false;
+            }
+            errorElement.style.display = 'none';
+            input.classList.remove('invalid');
+            return true;
+        }
+
+        calculate() {
+            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+            let result = '-';
+
+            try {
+                if (activeMode === 'rate') {
+                    const chartValid = this.validateInput(
+                        document.getElementById('chart'),
+                        1.0, 15.7,
+                        document.getElementById('chart-error')
+                    );
+                    const rateValid = this.validateInput(
+                        document.getElementById('target-rate'),
+                        0, 17.7,
+                        document.getElementById('rate-error')
+                    );
+
+                    if (chartValid && rateValid) {
+                        const chart = parseFloat(document.getElementById('chart').value);
+                        const target = parseFloat(document.getElementById('target-rate').value);
+                        result = this.calculateScore(chart, target);
+                    }
+                } else {
+                    const chartValid = this.validateInput(
+                        document.getElementById('score-chart'),
+                        1.0, 15.7,
+                        document.getElementById('score-chart-error')
+                    );
+                    const scoreValid = this.validateInput(
+                        document.getElementById('score'),
+                        0, 1010000,
+                        document.getElementById('score-error')
+                    );
+
+                    if (chartValid && scoreValid) {
+                        const chart = parseFloat(document.getElementById('score-chart').value);
+                        const score = parseFloat(document.getElementById('score').value);
+                        result = this.calculateRate(chart, score);
+                    }
                 }
-            });
+            } catch (error) {
+                result = 'Invalid Input';
+            }
+
+            document.getElementById('result-text').textContent = result;
+        }
+
+        calculateRate(chart, score) {
+            let rate = chart;
+
+            if (score >= 1007500) return (chart + 2).toFixed(2);
+            if (score >= 1000000) {
+                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
+            } else if (score >= 990000) {
+                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
+            } else if (score >= 970000) {
+                rate += Math.floor((score - 970000) / 200) * 0.01;
+            } else if (score >= 940000) {
+                rate -= Math.floor((970000 - score) / 200) * 0.01;
+            } else if (score >= 900000) {
+                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
+            } else {
+                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
+            }
+
+            return Math.max(rate, 0).toFixed(2);
+        }
+
+        calculateScore(chart, target) {
+            const maxRate = chart + 2;
+            if (target > 17.7) return 'Max: 17.7';
+            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
+            if (target < 0) return 'Invalid';
+
+            const diff = target - chart;
+            let score = 0;
+
+            if (diff >= 2) return '1,007,500';
+            if (diff >= 1.5) {
+                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
+            } else if (diff >= 1) {
+                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
+            } else if (diff >= 0) {
+                score = 970000 + Math.floor(diff / 0.01) * 200;
+            } else if (diff >= -1.5) {
+                score = 970000 - Math.floor(-diff / 0.01) * 200;
+            } else {
+                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+            }
+
+            score = Math.min(Math.max(score, 0), 1010000);
+            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
         }
     }
 
@@ -505,12 +510,15 @@
         applySystemTheme();
         watchSystemTheme();
 
-        const songDB = new SongDatabase(calculate);
+        const songDB = new SongDatabase(); // SongDatabaseのインスタンス作成
         songDB.setupEventListeners();
     }
 
     document.addEventListener('DOMContentLoaded', init);
-    window.addEventListener('resize', setSongSearchWidth);
+    window.addEventListener('resize', () => {
+        const songDB = new SongDatabase();
+        songDB.setSongSearchWidth();
+    });
 </script>
 </body>
 </html>
