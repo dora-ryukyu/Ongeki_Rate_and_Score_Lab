@@ -254,7 +254,8 @@
                     constant: parseFloat(song.constant)
                 }));
                 this.initializeSearch();
-                this.setupEventListeners(); // イベントリスナーをここで設定
+                this.setupEventListeners();
+                this.setSongSearchWidth();
 
             } catch (error) {
                 console.error('楽曲データの読み込みに失敗しました:', error);
@@ -315,6 +316,7 @@
                     this.setConstantToInputs(constant);
                 });
             });
+          this.setSongSearchWidth();
         }
 
         setConstantToInputs(constant) {
@@ -324,24 +326,25 @@
 
             if (input) {
                 input.value = constant;
-                this.calculate(); // 定数を変更したら再計算
+                this.calculate();
             }
+            this.setSongSearchWidth();
         }
 
         setupEventListeners() {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', this.handleModeSwitch.bind(this));
-            });
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            if(modeButtons.length > 0){
+                modeButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleModeSwitch(e));
+                });
+           }
 
-            // input要素に対するイベントリスナーをSongDatabaseのメソッドとして設定
-            document.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', this.handleInputChange.bind(this));
-            });
-        }
-
-        // input要素の変更を処理するメソッド
-        handleInputChange(event) {
-            this.calculate(); // 入力が変更されたら再計算
+            const inputFields = document.querySelectorAll('input');
+            if(inputFields.length > 0){
+                inputFields.forEach(input => {
+                    input.addEventListener('input', () => this.calculate());
+                });
+            }
         }
 
         handleModeSwitch(e) {
@@ -355,10 +358,10 @@
             });
             document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
 
-            this.calculate(); // モード切り替え時も再計算
+            this.calculate();
+            this.setSongSearchWidth();
         }
-
-        setSongSearchWidth() {
+      setSongSearchWidth() {
             const resultElement = document.querySelector('.result');
             const searchInput = document.getElementById('song-search');
             const inputFields = document.querySelectorAll('.input-field');
@@ -488,7 +491,10 @@
         applySystemTheme();
         watchSystemTheme();
 
-        new SongDatabase(); // インスタンス化のみ
+        const songDB = new SongDatabase(); // インスタンス作成
+        window.addEventListener('resize', () => {
+            songDB.setSongSearchWidth();
+        });
     }
 
     document.addEventListener('DOMContentLoaded', init);
