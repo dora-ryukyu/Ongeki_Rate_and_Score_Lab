@@ -146,7 +146,6 @@
         }
 
         input {
-           /* width: calc(100% - 1.6rem);  この行は不要になるので削除 */
             padding: clamp(0.3rem, 1.5vw, 0.8rem);
             background: rgba(0, 0, 0, 0.1);
             border: 1px solid var(--input-border);
@@ -188,7 +187,7 @@
     <div class="header">
         <h1>OngekiScoreCalculator</h1>
     </div>
-    
+
     <div class="calculator">
         <div class="search-container">
             <input type="text" id="song-search" placeholder="曲名、ジャンル、難易度で検索...">
@@ -255,7 +254,7 @@
             return true;
         }
 
-        function calculate() {
+       function calculate() {
             const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
             let result = '-';
 
@@ -366,10 +365,16 @@
                     }));
                     this.initializeSearch();
 
+                    // 非同期でデータロード後に幅調整
                     setTimeout(() => {
-                      setSongSearchWidth();
-                    }, 0);
+                        setSongSearchWidth(); // 初期幅調整
 
+                        // MutationObserverで.resultの変化を監視
+                        const observer = new MutationObserver(setSongSearchWidth);
+                        const config = { childList: true, subtree: true, characterData: true, attributes: true };
+                        observer.observe(document.querySelector('.result'), config);
+
+                    }, 0);
 
                 } catch (error) {
                     console.error('楽曲データの読み込みに失敗しました:', error);
@@ -439,14 +444,14 @@
                 }
             }
 
-            setConstantToInputs(constant) {
+          setConstantToInputs(constant) {
                 const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
                 const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
                 const input = document.getElementById(inputId);
 
                 if (input) {
                     input.value = constant;
-                    calculate();
+                    calculate(); // 定数を変更したら再計算
                 }
             }
 
@@ -471,54 +476,7 @@
                 });
                 document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
 
-                this.calculate();
-            }
-
-            calculate() {
-                const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-                let result = '-';
-
-                try {
-                    if (activeMode === 'rate') {
-                        const chartValid = validateInput(
-                            document.getElementById('chart'),
-                            1.0, 15.7,
-                            document.getElementById('chart-error')
-                        );
-                        const rateValid = validateInput(
-                            document.getElementById('target-rate'),
-                            0, 17.7,
-                            document.getElementById('rate-error')
-                        );
-
-                        if (chartValid && rateValid) {
-                            const chart = parseFloat(document.getElementById('chart').value);
-                            const target = parseFloat(document.getElementById('target-rate').value);
-                            result = calculateScore(chart, target);
-                        }
-                    } else {
-                        const chartValid = validateInput(
-                            document.getElementById('score-chart'),
-                            1.0, 15.7,
-                            document.getElementById('score-chart-error')
-                        );
-                        const scoreValid = validateInput(
-                            document.getElementById('score'),
-                            0, 1010000,
-                            document.getElementById('score-error')
-                        );
-
-                        if (chartValid && scoreValid) {
-                            const chart = parseFloat(document.getElementById('score-chart').value);
-                            const score = parseFloat(document.getElementById('score').value);
-                            result = calculateRate(chart, score);
-                        }
-                    }
-                } catch (error) {
-                    result = 'Invalid Input';
-                }
-
-                document.getElementById('result-text').textContent = result;
+                this.calculate(); // モード切り替え時も再計算
             }
         }
 
@@ -545,13 +503,12 @@
             applySystemTheme();
             watchSystemTheme();
 
-            const songDB = new SongDatabase();
+            const songDB = new SongDatabase(); // SongDatabaseのインスタンスを作成
             songDB.setupEventListeners();
-            songDB.calculate();
         }
 
         document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('resize', setSongSearchWidth);
+        window.addEventListener('resize', setSongSearchWidth); // ウィンドウリサイズ時も幅調整
     </script>
 </body>
 </html>
