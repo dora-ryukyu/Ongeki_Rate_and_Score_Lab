@@ -15,504 +15,502 @@
             --input-border: rgba(255, 255, 255, 0.1);
             --error-color: #ff4444;
         }
+[data-theme="light"] {
+        --dark-bg: #f6f8fa;
+        --glass-bg: rgba(0, 0, 0, 0.05);
+        --text-primary: #24292e;
+        --input-border: rgba(0, 0, 0, 0.1);
+        --neon-blue: #0366d6;
+        --neon-purple: #6f42c1;
+        --error-color: #cc0000;
+    }
 
-        [data-theme="light"] {
-            --dark-bg: #f6f8fa;
-            --glass-bg: rgba(0, 0, 0, 0.05);
-            --text-primary: #24292e;
-            --input-border: rgba(0, 0, 0, 0.1);
-            --neon-blue: #0366d6;
-            --neon-purple: #6f42c1;
-            --error-color: #cc0000;
-        }
+    body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--dark-bg);
+        color: var(--text-primary);
+        min-height: 100vh;
+        margin: 0;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: background 0.3s, color 0.3s;
+    }
 
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            margin: 0;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.3s, color 0.3s;
-        }
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    .header h1 {
+        color: var(--neon-blue);
+        font-size: clamp(1.5rem, 6vw, 2.5rem);
+        margin: 0;
+        text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+    }
 
-        .header h1 {
-            color: var(--neon-blue);
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
-            margin: 0;
-            text-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
-        }
+    .calculator {
+        width: 90vw;
+        max-width: 800px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        padding: clamp(1rem, 3vw, 1.5rem);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--neon-blue);
+        transition: all 0.3s;
+    }
 
-        .calculator {
-            width: 90vw;
-            max-width: 800px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            padding: clamp(1rem, 3vw, 1.5rem);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--neon-blue);
-            transition: all 0.3s;
-        }
+    .search-container {
+        margin-bottom: 2rem;
+    }
 
-        .search-container {
-            margin-bottom: 2rem;
-        }
+    #song-search {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
 
-        #song-search {
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            background: rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
+    #search-results {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        background: var(--dark-bg);
+    }
 
-        #search-results {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            background: var(--dark-bg);
-        }
+    .song-item {
+        padding: 0.8rem;
+        border-bottom: 1px solid var(--input-border);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
 
-        .song-item {
-            padding: 0.8rem;
-            border-bottom: 1px solid var(--input-border);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+    .song-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
 
-        .song-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
+    .song-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
 
-        .song-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
+    .mode-switch {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
 
-        .mode-switch {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
+    .mode-btn {
+        flex: 1;
+        background: none;
+        border: 1px solid var(--neon-blue);
+        color: var(--neon-blue);
+        padding: clamp(0.5rem, 2vw, 1rem);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.2s;
+        text-align: center;
+        font-size: clamp(0.8rem, 3vw, 1rem);
+    }
 
-        .mode-btn {
-            flex: 1;
-            background: none;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: clamp(0.5rem, 2vw, 1rem);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-        }
+    .mode-btn.active {
+        background: var(--neon-blue);
+        color: var(--dark-bg);
+        border-color: transparent;
+    }
 
-        .mode-btn.active {
-            background: var(--neon-blue);
-            color: var(--dark-bg);
-            border-color: transparent;
-        }
+    .input-group {
+        margin-bottom: 1.2rem;
+    }
 
-        .input-group {
-            margin-bottom: 1.2rem;
-        }
+    .input-field {
+        margin-bottom: 1rem;
+        position: relative;
+    }
 
-        .input-field {
-            margin-bottom: 1rem;
-            position: relative;
-        }
+    label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-size: clamp(0.85rem, 3vw, 1rem);
+        color: var(--neon-blue);
+    }
 
-        label {
-            display: block;
-            margin-bottom: 0.3rem;
-            font-size: clamp(0.85rem, 3vw, 1rem);
-            color: var(--neon-blue);
-        }
+    input {
+        padding: clamp(0.3rem, 1.5vw, 0.8rem);
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        color: var(--text-primary);
+        font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+        box-sizing: border-box;
+    }
 
-        input {
-            padding: clamp(0.3rem, 1.5vw, 0.8rem);
-            background: rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
-            color: var(--text-primary);
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-            box-sizing: border-box;
-        }
+    input:focus {
+        outline: 2px solid var(--neon-blue);
+        outline-offset: 2px;
+    }
 
-        input:focus {
-            outline: 2px solid var(--neon-blue);
-            outline-offset: 2px;
-        }
+    .input-error {
+        color: var(--error-color);
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        display: none;
+    }
 
-        .input-error {
-            color: var(--error-color);
-            font-size: 0.8rem;
-            margin-top: 0.3rem;
-            display: none;
-        }
+    .result {
+        text-align: center;
+        padding: 1.2rem;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        margin-top: 1.5rem;
+    }
 
-        .result {
-            text-align: center;
-            padding: 1.2rem;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            margin-top: 1.5rem;
-        }
+    .result h2 {
+        margin: 0;
+        font-size: clamp(1.5rem, 6vw, 2rem);
+        color: var(--neon-blue);
+    }
 
-        .result h2 {
-            margin: 0;
-            font-size: clamp(1.5rem, 6vw, 2rem);
-            color: var(--neon-blue);
-        }
-
-    </style>
+</style>
 </head>
 <body>
     <div class="header">
         <h1>OngekiScoreCalculator</h1>
     </div>
+<div class="calculator">
+    <div class="search-container">
+        <input type="text" id="song-search" placeholder="曲名、ジャンル、難易度で検索...">
+        <div id="search-results"></div>
+    </div>
 
-    <div class="calculator">
-        <div class="search-container">
-            <input type="text" id="song-search" placeholder="曲名、ジャンル、難易度で検索...">
-            <div id="search-results"></div>
+    <div class="mode-switch">
+        <button class="mode-btn active" data-mode="rate">Rate → Score</button>
+        <button class="mode-btn" data-mode="score">Score → Rate</button>
+    </div>
+
+    <div class="input-group rate-mode">
+        <div class="input-field">
+            <label>Chart Constant (1.0 - 15.7)</label>
+            <input type="number" id="chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
+            <div class="input-error" id="chart-error">値は1.0から15.7の間で入力してください</div>
         </div>
-
-        <div class="mode-switch">
-            <button class="mode-btn active" data-mode="rate">Rate → Score</button>
-            <button class="mode-btn" data-mode="score">Score → Rate</button>
-        </div>
-
-        <div class="input-group rate-mode">
-            <div class="input-field">
-                <label>Chart Constant (1.0 - 15.7)</label>
-                <input type="number" id="chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
-                <div class="input-error" id="chart-error"></div>
-            </div>
-            <div class="input-field">
-                <label>Target Rate (0 - 17.7)</label>
-                <input type="number" id="target-rate" placeholder="14.0">
-                <div class="input-error" id="rate-error"></div>
-            </div>
-        </div>
-
-        <div class="input-group score-mode" style="display:none">
-            <div class="input-field">
-                <label>Chart Constant (1.0 - 15.7)</label>
-                <input type="number" id="score-chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
-                <div class="input-error" id="score-chart-error"></div>
-            </div>
-            <div class="input-field">
-                <label>Music Score (0 - 1010000)</label>
-                <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
-                <div class="input-error" id="score-error"></div>
-            </div>
-        </div>
-
-        <div class="result">
-            <h2 id="result-text">-</h2>
+        <div class="input-field">
+            <label>Target Rate (0 - 17.7)</label>
+            <input type="number" id="target-rate" placeholder="14.0" min="0" max="17.7">
+            <div class="input-error" id="rate-error">値は0から17.7の間で入力してください</div>
         </div>
     </div>
 
-    <script>
-        function applySystemTheme() {
-            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
-        }
+    <div class="input-group score-mode" style="display:none">
+        <div class="input-field">
+            <label>Chart Constant (1.0 - 15.7)</label>
+            <input type="number" id="score-chart" placeholder="12.5" min="1.0" max="15.7" step="0.1">
+            <div class="input-error" id="score-chart-error">値は1.0から15.7の間で入力してください</div>
+        </div>
+        <div class="input-field">
+            <label>Music Score (0 - 1010000)</label>
+            <input type="number" id="score" placeholder="1007500" min="0" max="1010000">
+            <div class="input-error" id="score-error">値は0から1010000の間で入力してください</div>
+        </div>
+    </div>
 
-        function watchSystemTheme() {
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            mediaQuery.addEventListener('change', applySystemTheme);
-        }
+    <div class="result">
+        <h2 id="result-text">-</h2>
+    </div>
+</div>
 
-        function validateInput(input, min, max, errorElement) {
-            const value = parseFloat(input.value);
-            if (isNaN(value) || value < min || value > max) {
-                errorElement.textContent = `値は${min}から${max}の間で入力してください`;
-                errorElement.style.display = 'block';
-                input.classList.add('invalid');
-                return false;
+<script>
+    function applySystemTheme() {
+        const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.dataset.theme = isDarkMode ? 'dark' : 'light';
+    }
+
+    function watchSystemTheme() {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', applySystemTheme);
+    }
+
+    function validateInput(input, min, max, errorElement) {
+        const value = parseFloat(input.value);
+        if (isNaN(value) || value < min || value > max) {
+            errorElement.style.display = 'block';
+            input.classList.add('invalid');
+            return false;
+        }
+        errorElement.style.display = 'none';
+        input.classList.remove('invalid');
+        return true;
+    }
+
+   function calculate() {
+        const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+        let result = '-';
+
+        try {
+            if (activeMode === 'rate') {
+                const chartValid = validateInput(
+                    document.getElementById('chart'),
+                    1.0, 15.7,
+                    document.getElementById('chart-error')
+                );
+                const rateValid = validateInput(
+                    document.getElementById('target-rate'),
+                    0, 17.7,
+                    document.getElementById('rate-error')
+                );
+
+                if (chartValid && rateValid) {
+                    const chart = parseFloat(document.getElementById('chart').value);
+                    const target = parseFloat(document.getElementById('target-rate').value);
+                    result = calculateScore(chart, target);
+                }
+            } else {
+                const chartValid = validateInput(
+                    document.getElementById('score-chart'),
+                    1.0, 15.7,
+                    document.getElementById('score-chart-error')
+                );
+                const scoreValid = validateInput(
+                    document.getElementById('score'),
+                    0, 1010000,
+                    document.getElementById('score-error')
+                );
+
+                if (chartValid && scoreValid) {
+                    const chart = parseFloat(document.getElementById('score-chart').value);
+                    const score = parseFloat(document.getElementById('score').value);
+                    result = calculateRate(chart, score);
+                }
             }
-            errorElement.style.display = 'none';
-            input.classList.remove('invalid');
-            return true;
+        } catch (error) {
+            result = 'Invalid Input';
         }
 
-       function calculate() {
-            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-            let result = '-';
+        document.getElementById('result-text').textContent = result;
+    }
 
+    function calculateRate(chart, score) {
+        let rate = chart;
+
+        if (score >= 1007500) return (chart + 2).toFixed(2);
+        if (score >= 1000000) {
+            rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
+        } else if (score >= 990000) {
+            rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
+        } else if (score >= 970000) {
+            rate += Math.floor((score - 970000) / 200) * 0.01;
+        } else if (score >= 940000) {
+            rate -= Math.floor((970000 - score) / 200) * 0.01;
+        } else if (score >= 900000) {
+            rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
+        } else {
+            rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
+        }
+
+        return Math.max(rate, 0).toFixed(2);
+    }
+
+    function calculateScore(chart, target) {
+        const maxRate = chart + 2;
+        if (target > 17.7) return 'Max: 17.7';
+        if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
+        if (target < 0) return 'Invalid';
+
+        const diff = target - chart;
+        let score = 0;
+
+        if (diff >= 2) return '1,007,500';
+        if (diff >= 1.5) {
+            score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
+        } else if (diff >= 1) {
+            score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
+        } else if (diff >= 0) {
+            score = 970000 + Math.floor(diff / 0.01) * 200;
+        } else if (diff >= -1.5) {
+            score = 970000 - Math.floor(-diff / 0.01) * 200;
+        } else {
+            score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
+        }
+
+        score = Math.min(Math.max(score, 0), 1010000);
+        return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
+    }
+
+    class SongDatabase {
+      constructor(calculateFunction) {
+        this.songs = [];
+        this.loadData();
+        this.firstDisplay = true;
+        this.calculate = calculateFunction;
+      }
+
+        async loadData() {
             try {
-                if (activeMode === 'rate') {
-                    const chartValid = validateInput(
-                        document.getElementById('chart'),
-                        1.0, 15.7,
-                        document.getElementById('chart-error')
-                    );
-                    const rateValid = validateInput(
-                        document.getElementById('target-rate'),
-                        0, 17.7,
-                        document.getElementById('rate-error')
-                    );
+                const response = await fetch('constants.json');
+                const data = await response.json();
+                this.songs = data.map(song => ({
+                    ...song,
+                    constant: parseFloat(song.constant)
+                }));
+                this.initializeSearch();
 
-                    if (chartValid && rateValid) {
-                        const chart = parseFloat(document.getElementById('chart').value);
-                        const target = parseFloat(document.getElementById('target-rate').value);
-                        result = calculateScore(chart, target);
-                    }
-                } else {
-                    const chartValid = validateInput(
-                        document.getElementById('score-chart'),
-                        1.0, 15.7,
-                        document.getElementById('score-chart-error')
-                    );
-                    const scoreValid = validateInput(
-                        document.getElementById('score'),
-                        0, 1010000,
-                        document.getElementById('score-error')
-                    );
+                // 非同期でデータロード後に幅調整と初期計算
+                setTimeout(() => {
+                    setSongSearchWidth(); // 初期幅調整
+                    this.calculate();      // 初期計算
 
-                    if (chartValid && scoreValid) {
-                        const chart = parseFloat(document.getElementById('score-chart').value);
-                        const score = parseFloat(document.getElementById('score').value);
-                        result = calculateRate(chart, score);
-                    }
-                }
-            } catch (error) {
-                result = 'Invalid Input';
-            }
-
-            document.getElementById('result-text').textContent = result;
-        }
-
-        function calculateRate(chart, score) {
-            let rate = chart;
-
-            if (score >= 1007500) return (chart + 2).toFixed(2);
-            if (score >= 1000000) {
-                rate += 1.5 + Math.floor((score - 1000000) / 150) * 0.01;
-            } else if (score >= 990000) {
-                rate += 1 + Math.floor((score - 990000) / 200) * 0.01;
-            } else if (score >= 970000) {
-                rate += Math.floor((score - 970000) / 200) * 0.01;
-            } else if (score >= 940000) {
-                rate -= Math.floor((970000 - score) / 200) * 0.01;
-            } else if (score >= 900000) {
-                rate -= Math.floor((940000 - score) / 175) * 0.01 + 1.5;
-            } else {
-                rate -= 1.5 + Math.floor(40000 / 175) * 0.01 + Math.floor((900000 - score) / 175) * 0.01;
-            }
-
-            return Math.max(rate, 0).toFixed(2);
-        }
-
-        function calculateScore(chart, target) {
-            const maxRate = chart + 2;
-            if (target > 17.7) return 'Max: 17.7';
-            if (target > maxRate) return `Max: ${maxRate.toFixed(2)}`;
-            if (target < 0) return 'Invalid';
-
-            const diff = target - chart;
-            let score = 0;
-
-            if (diff >= 2) return '1,007,500';
-            if (diff >= 1.5) {
-                score = 1000000 + Math.floor((diff - 1.5) / 0.01) * 150;
-            } else if (diff >= 1) {
-                score = 990000 + Math.floor((diff - 1) / 0.01) * 200;
-            } else if (diff >= 0) {
-                score = 970000 + Math.floor(diff / 0.01) * 200;
-            } else if (diff >= -1.5) {
-                score = 970000 - Math.floor(-diff / 0.01) * 200;
-            } else {
-                score = 940000 - Math.floor((-diff - 1.5) / 0.01) * 175;
-            }
-
-            score = Math.min(Math.max(score, 0), 1010000);
-            return score >= 1007500 ? '1,007,500 (MAX)' : score.toLocaleString();
-        }
-
-        class SongDatabase {
-            constructor() {
-                this.songs = [];
-                this.loadData();
-                this.firstDisplay = true;
-            }
-
-            async loadData() {
-                try {
-                    const response = await fetch('constants.json');
-                    const data = await response.json();
-                    this.songs = data.map(song => ({
-                        ...song,
-                        constant: parseFloat(song.constant)
-                    }));
-                    this.initializeSearch();
-
-                    // 非同期でデータロード後に幅調整と初期計算
-                    setTimeout(() => {
-                        setSongSearchWidth(); // 初期幅調整
-                        this.calculate();      // 初期計算
-
-                        // MutationObserverで.resultの変化を監視
-                        const observer = new MutationObserver(() => {
-                            setSongSearchWidth(); // 幅再調整
-                            this.calculate();      // 再計算
-                        });
-                        const config = { childList: true, subtree: true, characterData: true, attributes: true };
-                        observer.observe(document.querySelector('.result'), config);
-
-                    }, 0);
-
-                } catch (error) {
-                    console.error('楽曲データの読み込みに失敗しました:', error);
-                    document.getElementById('search-results').textContent = "楽曲データの読み込みに失敗しました。";
-                }
-            }
-
-            initializeSearch() {
-                const searchInput = document.getElementById('song-search');
-                let timeoutId;
-
-                const performSearch = () => {
-                    clearTimeout(timeoutId);
-                    timeoutId = setTimeout(() => {
-                        let query = searchInput.value.toLowerCase();
-                        query = String(query);
-
-                        if (!query) {
-                            this.displayResults(query, []);
-                            return;
-                        }
-
-                        const results = this.songs.filter(song =>
-                            song.title.toLowerCase().includes(query) ||
-                            song.genre.toLowerCase().includes(query) ||
-                            song.difficulty.toLowerCase().includes(query) ||
-                            song.constant.toFixed(1).includes(query)
-                        );
-                        this.displayResults(query, results);
-                    }, 250);
-                };
-
-                searchInput.addEventListener('input', performSearch);
-            }
-
-            displayResults(query, results) {
-                const resultsContainer = document.getElementById('search-results');
-
-                if (!query || results.length === 0) {
-                    resultsContainer.innerHTML = '';
-                    return;
-                }
-
-                resultsContainer.innerHTML = results.map(song => `
-                    <div class="song-item" data-constant="${song.constant}">
-                        <div>${song.title}</div>
-                        <div class="song-details">
-                            <span>${song.difficulty}</span>
-                            <span>${song.genre}</span>
-                            <span>定数: ${song.constant.toFixed(1)}</span>
-                        </div>
-                    </div>
-                `).join('');
-
-                document.querySelectorAll('.song-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const constant = parseFloat(item.dataset.constant);
-                        this.setConstantToInputs(constant);
+                    // MutationObserverで.resultの変化を監視
+                    const observer = new MutationObserver(() => {
+                        setSongSearchWidth(); // 幅再調整
+                        this.calculate();      // 再計算
                     });
-                });
+                    const config = { childList: true, subtree: true, characterData: true, attributes: true };
+                    observer.observe(document.querySelector('.result'), config);
 
-                if (this.firstDisplay) {
-                    setTimeout(() => {
-                        setSongSearchWidth();
-                    }, 0);
-                    this.firstDisplay = false;
-                }
-            }
+                }, 0);
 
-          setConstantToInputs(constant) {
-                const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
-                const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
-                const input = document.getElementById(inputId);
-
-                if (input) {
-                    input.value = constant;
-                    calculate(); // 定数を変更したら再計算
-                }
-            }
-
-            setupEventListeners() {
-                document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.addEventListener('click', this.handleModeSwitch.bind(this));
-                });
-
-                document.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', this.calculate.bind(this));
-                });
-            }
-
-            handleModeSwitch(e) {
-                document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                e.target.classList.add('active');
-
-                document.querySelectorAll('.input-group').forEach(group => {
-                    group.style.display = 'none';
-                });
-                document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
-
-                this.calculate(); // モード切り替え時も再計算
+            } catch (error) {
+                console.error('楽曲データの読み込みに失敗しました:', error);
+                document.getElementById('search-results').textContent = "楽曲データの読み込みに失敗しました。";
             }
         }
 
-        function setSongSearchWidth() {
-            const resultElement = document.querySelector('.result');
+        initializeSearch() {
             const searchInput = document.getElementById('song-search');
-            const inputFields = document.querySelectorAll('.input-field');
+            let timeoutId;
 
-            if (resultElement && searchInput && inputFields.length > 0) {
-                const targetWidth = resultElement.getBoundingClientRect().width;
+            const performSearch = () => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    let query = searchInput.value.toLowerCase();
+                    query = String(query);
 
-                searchInput.style.width = `${targetWidth}px`;
-
-                inputFields.forEach(field => {
-                    const input = field.querySelector('input');
-                    if (input) {
-                        input.style.width = `${targetWidth}px`;
+                    if (!query) {
+                        this.displayResults(query, []);
+                        return;
                     }
+
+                    const results = this.songs.filter(song =>
+                        song.title.toLowerCase().includes(query) ||
+                        song.genre.toLowerCase().includes(query) ||
+                        song.difficulty.toLowerCase().includes(query) ||
+                        song.constant.toFixed(1).includes(query)
+                    );
+                    this.displayResults(query, results);
+                }, 250);
+            };
+
+            searchInput.addEventListener('input', performSearch);
+        }
+
+        displayResults(query, results) {
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!query || results.length === 0) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(song => `
+                <div class="song-item" data-constant="${song.constant}">
+                    <div>${song.title}</div>
+                    <div class="song-details">
+                        <span>${song.difficulty}</span>
+                        <span>${song.genre}</span>
+                        <span>定数: ${song.constant.toFixed(1)}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const constant = parseFloat(item.dataset.constant);
+                    this.setConstantToInputs(constant);
                 });
+            });
+
+            if (this.firstDisplay) {
+                setTimeout(() => {
+                    setSongSearchWidth();
+                }, 0);
+                this.firstDisplay = false;
             }
         }
 
-        function init() {
-            applySystemTheme();
-            watchSystemTheme();
+      setConstantToInputs(constant) {
+            const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
+            const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
+            const input = document.getElementById(inputId);
 
-            const songDB = new SongDatabase(); // SongDatabaseのインスタンスを作成
-            songDB.setupEventListeners();
+            if (input) {
+                input.value = constant;
+                this.calculate(); // 定数を変更したら再計算
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('resize', setSongSearchWidth); // ウィンドウリサイズ時も幅調整
-    </script>
+        setupEventListeners() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', this.handleModeSwitch.bind(this));
+            });
+
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', this.calculate.bind(this));
+            });
+        }
+
+        handleModeSwitch(e) {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+
+            document.querySelectorAll('.input-group').forEach(group => {
+                group.style.display = 'none';
+            });
+            document.querySelector(`.${e.target.dataset.mode}-mode`).style.display = 'block';
+
+            this.calculate(); // モード切り替え時も再計算
+    }
+    }
+
+    function setSongSearchWidth() {
+        const resultElement = document.querySelector('.result');
+        const searchInput = document.getElementById('song-search');
+        const inputFields = document.querySelectorAll('.input-field');
+
+        if (resultElement && searchInput && inputFields.length > 0) {
+            const targetWidth = resultElement.getBoundingClientRect().width;
+
+            searchInput.style.width = `${targetWidth}px`;
+
+            inputFields.forEach(field => {
+                const input = field.querySelector('input');
+                if (input) {
+                    input.style.width = `${targetWidth}px`;
+                }
+            });
+        }
+    }
+
+    function init() {
+        applySystemTheme();
+        watchSystemTheme();
+
+        const songDB = new SongDatabase(calculate);
+        songDB.setupEventListeners();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('resize', setSongSearchWidth);
+</script>
 </body>
 </html>
