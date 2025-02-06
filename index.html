@@ -8,7 +8,7 @@
     <style>
         /* 合体後のCSS */
         :root {
-            --neon-blue: #00f3ff; /* 2つ目のコードの値を優先 */
+            --neon-blue: #00f3ff;
             --neon-purple: #bc13fe;
             --dark-bg: #0a0e14;
             --glass-bg: rgba(255, 255, 255, 0.05);
@@ -69,8 +69,8 @@
         }
 
         #song-search {
-            width: 100%; /* 変更前 */
-            max-width: calc(100% - 1rem); /* 変更後: 最大幅を calculator の幅に合わせる */
+            /*width: 100%;*/ /* 削除 */
+            /*max-width: calc(100% - 1rem);*/ /* 削除 */
             padding: 0.8rem;
             margin-bottom: 1rem;
             background: rgba(0, 0, 0, 0.1);
@@ -157,6 +157,7 @@
             border-radius: 4px;
             color: var(--text-primary);
             font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            box-sizing: border-box; /* 追加 */
         }
 
         input:focus {
@@ -400,7 +401,8 @@
                         const results = this.songs.filter(song =>
                             song.title.toLowerCase().includes(query) ||
                             song.genre.toLowerCase().includes(query) ||
-                            song.difficulty.toLowerCase().includes(query)
+                            song.difficulty.toLowerCase().includes(query) ||
+                            String(song.constant).includes(query) // 定数での検索を追加
                         );
                         this.displayResults(query, results);
                     }, 250); // 250ms のdebounce
@@ -408,6 +410,7 @@
 
                 searchInput.addEventListener('input', performSearch);
             }
+
 
             displayResults(query, results) {
                 const resultsContainer = document.getElementById('search-results');
@@ -441,7 +444,7 @@
                 const activeMode = document.querySelector('.mode-btn.active').dataset.mode;
                 const inputId = activeMode === 'rate' ? 'chart' : 'score-chart';
                 const input = document.getElementById(inputId);
-                
+
                 if (input) {
                     input.value = constant;
                     calculate();
@@ -520,7 +523,16 @@
             }
         }
 
-        // Event Listeners (最初のコードから)
+
+        function setSongSearchWidth() {
+            const inputField = document.querySelector('.input-field');
+            const searchInput = document.getElementById('song-search');
+
+            if (inputField && searchInput) {
+                const width = inputField.offsetWidth;
+                searchInput.style.width = `${width}px`;
+            }
+        }
 
         // Initialize (両方のコードの初期化処理をまとめる)
         function init() {
@@ -530,10 +542,15 @@
             const songDB = new SongDatabase(); // 2つ目のコードの初期化
             songDB.setupEventListeners(); // イベントリスナーのセットアップを SongDatabase 経由で行う
             songDB.calculate();
+
+
+            // 検索ボックスの幅を初期設定
+            setSongSearchWidth();
         }
 
-        // Start the app
-        init();
+        // DOMContentLoaded と resize イベントで幅を調整
+        document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('resize', setSongSearchWidth);
     </script>
 </body>
 </html>
