@@ -365,12 +365,16 @@
                     }));
                     this.initializeSearch();
 
-                    // 非同期でデータロード後に幅調整
+                    // 非同期でデータロード後に幅調整と初期計算
                     setTimeout(() => {
                         setSongSearchWidth(); // 初期幅調整
+                        this.calculate();      // 初期計算
 
                         // MutationObserverで.resultの変化を監視
-                        const observer = new MutationObserver(setSongSearchWidth);
+                        const observer = new MutationObserver(() => {
+                            setSongSearchWidth(); // 幅再調整
+                            this.calculate();      // 再計算
+                        });
                         const config = { childList: true, subtree: true, characterData: true, attributes: true };
                         observer.observe(document.querySelector('.result'), config);
 
