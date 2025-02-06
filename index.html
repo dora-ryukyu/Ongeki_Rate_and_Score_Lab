@@ -242,7 +242,6 @@
     class SongDatabase {
         constructor() {
             this.songs = [];
-            this.firstDisplay = true; // 初回表示フラグ
             this.loadData();
         }
 
@@ -255,21 +254,7 @@
                     constant: parseFloat(song.constant)
                 }));
                 this.initializeSearch();
-
-                // 非同期でデータロード後に幅調整と初期計算
-                setTimeout(() => {
-                    this.setSongSearchWidth(); // 初期幅調整
-                    this.calculate();       // 初期計算
-
-                    // MutationObserverで.resultの変化を監視
-                    const observer = new MutationObserver(() => {
-                      this.setSongSearchWidth();
-                      this.calculate();
-                    });
-                    const config = { childList: true, subtree: true, characterData: true, attributes: true };
-                    observer.observe(document.querySelector('.result'), config);
-
-                }, 0);
+                this.setupEventListeners(); // イベントリスナーをここで設定
 
             } catch (error) {
                 console.error('楽曲データの読み込みに失敗しました:', error);
@@ -305,7 +290,7 @@
             searchInput.addEventListener('input', performSearch);
         }
 
-        displayResults(query, results) {
+      displayResults(query, results) {
             const resultsContainer = document.getElementById('search-results');
 
             if (!query || results.length === 0) {
@@ -330,13 +315,6 @@
                     this.setConstantToInputs(constant);
                 });
             });
-
-            if (this.firstDisplay) {
-                setTimeout(() => {
-                    this.setSongSearchWidth();
-                }, 0);
-                this.firstDisplay = false;
-            }
         }
 
         setConstantToInputs(constant) {
@@ -510,15 +488,11 @@
         applySystemTheme();
         watchSystemTheme();
 
-        const songDB = new SongDatabase(); // SongDatabaseのインスタンス作成
-        songDB.setupEventListeners();
+        new SongDatabase(); // インスタンス化のみ
     }
 
     document.addEventListener('DOMContentLoaded', init);
-    window.addEventListener('resize', () => {
-        const songDB = new SongDatabase();
-        songDB.setSongSearchWidth();
-    });
+
 </script>
 </body>
 </html>
