@@ -1,0 +1,632 @@
+/* --- Design System v3.5 --- */
+:root {
+    /* Fonts */
+    --font-primary: 'Poppins', 'Noto Sans JP', sans-serif;
+    --font-secondary: 'Noto Sans JP', sans-serif;
+
+    /* Base Colors (Dark Theme - Default) */
+    --color-bg: #16181d;
+    --color-surface: #1f232b;
+    --color-primary-light: #63b3ed;
+    --color-primary: #4299e1;
+    --color-secondary-light: #b794f4;
+    --color-secondary: #9f7aea;
+    --color-text-primary: #e2e8f0;
+    --color-text-secondary: #a0aec0;
+    --color-text-placeholder: #718096;
+    --color-border: rgba(255, 255, 255, 0.12);
+    --color-input-bg: #2d3748;
+    --color-hover-bg: rgba(255, 255, 255, 0.07);
+    --color-selected-text-on-dark: #ffffff;
+    --color-selected-text-on-light: #1A202C; /* Used for Advanced/Lunatic selected state */
+    --color-error: #f56565;
+    --color-info: var(--color-text-secondary);
+    --color-success: var(--color-primary-light);
+    --color-unknown: #718096;
+    --color-lunatic-tag: var(--color-secondary-light); /* Tag color in search results */
+
+    /* Difficulty Colors (Dark) */
+    --diff-basic: rgb(40, 204, 48);
+    --diff-advanced: rgb(249, 194, 32);
+    --diff-expert: rgb(255, 69, 69);
+    --diff-master: rgb(177, 112, 216);
+    --diff-lunatic: rgb(213, 213, 213);
+
+    /* Sizes & Transitions */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --transition-speed: 0.2s ease-out;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] {
+    --color-bg: #f8f9fa;
+    --color-surface: #ffffff;
+    --color-primary-light: #63b3ed;
+    --color-primary: #3182ce;
+    --color-secondary-light: #b794f4;
+    --color-secondary: #805ad5;
+    --color-text-primary: #1a202c;
+    --color-text-secondary: #4a5568;
+    --color-text-placeholder: #a0aec0;
+    --color-border: #e2e8f0;
+    --color-input-bg: #f7fafc;
+    --color-hover-bg: #edf2f7;
+    --color-selected-text-on-dark: #ffffff; /* Keep consistent name, value changes */
+    --color-selected-text-on-light: #1A202C; /* Keep consistent name, value changes */
+    --color-error: #c53030;
+    --color-info: var(--color-text-secondary);
+    --color-success: var(--color-primary);
+    --color-unknown: #a0aec0;
+    --color-lunatic-tag: var(--color-secondary);
+
+    /* Difficulty Colors (Light) */
+    --diff-basic: rgb(40, 180, 48);
+    --diff-advanced: rgb(220, 170, 25);
+    --diff-expert: rgb(220, 50, 50);
+    --diff-master: rgb(150, 90, 190);
+    --diff-lunatic: rgb(100, 100, 100);
+
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+/* Base & General Styles */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-secondary);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background var(--transition-speed), color var(--transition-speed);
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+a:hover {
+    color: var(--color-secondary);
+}
+
+::placeholder {
+    color: var(--color-text-placeholder);
+    opacity: 1;
+}
+
+/* Layout & Calculator Card */
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+.header h1 {
+    color: var(--color-text-primary);
+    font-size: clamp(2rem, 7vw, 3rem);
+    margin: 0; /* Remove default margin */
+}
+.header h1 span {
+    color: var(--color-primary);
+}
+
+.calculator {
+    width: 90vw;
+    max-width: 650px;
+    background: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    transition: background var(--transition-speed), border-color var(--transition-speed);
+}
+
+/* Search */
+.search-container {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+#song-search {
+    padding: 0.9rem 1.2rem;
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    width: 100%;
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed);
+    font-family: var(--font-secondary);
+}
+#song-search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent); /* Use color-mix for alpha */
+}
+
+#search-results {
+    max-height: 50vh;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background: var(--color-surface);
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    display: none; /* Controlled by JS */
+    box-shadow: var(--shadow-md);
+    margin-top: 0.25rem;
+    transition: background var(--transition-speed), border-color var(--transition-speed);
+}
+
+/* Song Item */
+.song-item {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background var(--transition-speed), border-color var(--transition-speed);
+    position: relative;
+}
+.song-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+.song-item:hover {
+    background: var(--color-hover-bg);
+}
+.song-item.selected-song { /* Class added when accordion is open */
+    background: var(--color-hover-bg);
+}
+.song-item .song-info {
+    transition: margin-bottom var(--transition-speed);
+    margin-bottom: 0; /* Default state */
+}
+.song-item.open .song-info {
+    margin-bottom: 1rem; /* State when accordion is open */
+}
+.song-item .title {
+    display: block; /* Ensure title takes full width */
+    font-weight: 600;
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    margin-bottom: 0.15em;
+}
+.song-item .artist {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    display: block; /* Ensure artist takes full width */
+}
+.song-item .lunatic-tag {
+    color: var(--color-lunatic-tag);
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-left: 0.4em;
+    vertical-align: baseline;
+}
+
+/* Difficulty Accordion */
+.difficulty-container {
+    max-height: 0; /* Collapsed by default */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    /* Adjust padding for border */
+    margin: 0 -1.2rem -1rem; /* Negative margins to align with parent padding */
+    padding: 0 1.2rem; /* Inner padding */
+}
+.song-item.open .difficulty-container {
+    max-height: 200px; /* Expanded height (adjust as needed) */
+    padding-bottom: 1rem; /* Space at the bottom when open */
+}
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.6rem;
+}
+
+/* Difficulty Buttons Styles */
+.difficulty-btn {
+    background: transparent;
+    border: 2px solid;
+    color: var(--color-text-secondary);
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    font-family: var(--font-primary);
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.3;
+}
+.difficulty-btn.diff-basic { border-color: var(--diff-basic); }
+.difficulty-btn.diff-advanced { border-color: var(--diff-advanced); }
+.difficulty-btn.diff-expert { border-color: var(--diff-expert); }
+.difficulty-btn.diff-master { border-color: var(--diff-master); }
+.difficulty-btn.diff-lunatic { border-color: var(--diff-lunatic); }
+
+/* Hover states maintain border color */
+.difficulty-btn:hover {
+    background: var(--color-hover-bg);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+    transform: scale(1.02);
+}
+.difficulty-btn:hover.diff-basic { border-color: var(--diff-basic); }
+.difficulty-btn:hover.diff-advanced { border-color: var(--diff-advanced); }
+.difficulty-btn:hover.diff-expert { border-color: var(--diff-expert); }
+.difficulty-btn:hover.diff-master { border-color: var(--diff-master); }
+.difficulty-btn:hover.diff-lunatic { border-color: var(--diff-lunatic); }
+
+/* Selected states */
+.difficulty-btn.selected {
+    font-weight: 700;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transform: scale(1.00); /* Reset scale slightly */
+}
+.difficulty-btn.selected.diff-basic { background-color: var(--diff-basic); border-color: var(--diff-basic); color: var(--color-selected-text-on-dark); }
+.difficulty-btn.selected.diff-expert { background-color: var(--diff-expert); border-color: var(--diff-expert); color: var(--color-selected-text-on-dark); }
+.difficulty-btn.selected.diff-master { background-color: var(--diff-master); border-color: var(--diff-master); color: var(--color-selected-text-on-dark); }
+/* Advanced/Lunatic use different text color based on theme */
+.difficulty-btn.selected.diff-advanced { background-color: var(--diff-advanced); border-color: var(--diff-advanced); color: var(--color-selected-text-on-light); }
+[data-theme="light"] .difficulty-btn.selected.diff-advanced { color: var(--color-selected-text-on-dark); } /* Override for light theme if needed */
+.difficulty-btn.selected.diff-lunatic { background-color: var(--diff-lunatic); border-color: var(--diff-lunatic); color: var(--color-selected-text-on-light); }
+[data-theme="light"] .difficulty-btn.selected.diff-lunatic { color: var(--color-selected-text-on-dark); } /* Override for light theme if needed */
+
+.difficulty-btn .const-value {
+    font-weight: 400;
+    margin-top: 0.1em;
+    opacity: 0.8;
+    font-size: 0.9em;
+    display: block;
+}
+.difficulty-btn.selected .const-value {
+    opacity: 1;
+    font-weight: 600;
+}
+.difficulty-btn .unknown { /* Class added by JS if constant is unknown */
+    color: var(--color-unknown);
+    font-style: italic;
+}
+
+/* Calculator Core */
+#calculator-core {
+    margin-top: 1.5rem;
+}
+
+/* Mode Switch */
+.mode-switch {
+    display: flex;
+    gap: 0; /* Buttons touch */
+    margin-bottom: 2rem;
+    background: var(--color-input-bg);
+    border-radius: var(--border-radius-md);
+    padding: 0.3rem;
+    position: relative;
+    border: 1px solid var(--color-border);
+    transition: background var(--transition-speed), border-color var(--transition-speed);
+}
+.mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    padding: 0.7rem;
+    border-radius: var(--border-radius-sm); /* For focus outline */
+    cursor: pointer;
+    transition: color var(--transition-speed);
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    z-index: 1; /* Above the sliding background */
+    position: relative;
+}
+.mode-btn.active {
+    color: var(--color-text-primary);
+}
+.mode-switch::before { /* Sliding background */
+    content: '';
+    position: absolute;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    width: calc(50% - 0.3rem); /* Width adjusted for padding */
+    background: var(--color-surface);
+    border-radius: var(--border-radius-sm); /* Slightly smaller radius than container */
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1), background var(--transition-speed);
+    z-index: 0; /* Below buttons */
+}
+/* Position the slider based on active mode */
+.mode-switch[data-active-mode="score"]::before {
+    transform: translateX(0.3rem); /* Left position */
+}
+.mode-switch[data-active-mode="rate"]::before {
+    transform: translateX(calc(100% - 0.3rem)); /* Right position */
+}
+.mode-btn:focus-visible { /* Accessibility focus */
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+
+/* Inputs */
+.input-group {
+    margin-bottom: 1.8rem;
+}
+.input-field {
+    margin-bottom: 1.3rem;
+}
+label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+    transition: color var(--transition-speed);
+}
+/* Specific label styling for chart inputs */
+label[for="chart"], label[for="score-chart"] {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.chart-info { /* Span inside the label */
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-left: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%; /* Prevent info from pushing label too much */
+    text-align: right; /* Align info to the right */
+    transition: color var(--transition-speed);
+}
+
+/* General Input/Select Styling */
+input, select {
+    padding: 0.9rem 1.1rem;
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    width: 100%;
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed);
+    font-family: var(--font-secondary);
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+input[type="number"] {
+    font-family: var(--font-primary);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+/* Keep native select appearance */
+select {
+    cursor: pointer;
+    /* appearance: none; Optional: uncomment for custom arrow */
+    /* background-image: url('data:image/svg+xml,...'); Optional */
+}
+
+/* Checkbox Styling */
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+}
+.checkbox-container input[type="checkbox"] {
+    appearance: none; /* Remove default appearance */
+    flex-shrink: 0;
+    height: 1.25em;
+    width: 1.25em;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-input-bg);
+    margin-right: 0.6em;
+    cursor: pointer;
+    position: relative;
+    transition: background-color var(--transition-speed), border-color var(--transition-speed);
+    display: inline-block;
+    vertical-align: middle;
+}
+.checkbox-container input[type="checkbox"]::after { /* Custom checkmark */
+    content: '';
+    display: block;
+    width: 0.3em;
+    height: 0.65em;
+    border-style: solid;
+    border-color: var(--color-selected-text-on-dark); /* Checkmark color */
+    border-width: 0 2.5px 2.5px 0; /* L-shape */
+    position: absolute;
+    left: 50%;
+    top: 45%; /* Fine-tune position */
+    transform: translate(-50%, -50%) rotate(45deg);
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.15s ease-in-out;
+}
+.checkbox-container input[type="checkbox"]:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.checkbox-container input[type="checkbox"]:checked::after {
+    opacity: 1; /* Show checkmark when checked */
+}
+.checkbox-container input[type="checkbox"]:focus-visible { /* Accessibility focus */
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+.checkbox-container label { /* Label associated with checkbox */
+    margin-bottom: 0; /* Override general label margin */
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    vertical-align: middle;
+    cursor: pointer;
+    text-transform: none; /* Override general label style */
+    letter-spacing: normal; /* Override general label style */
+    transition: color var(--transition-speed);
+}
+
+/* Bonus Section */
+.bonus-section {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.2rem 0.5rem; /* Adjust padding */
+    margin-top: 1.5rem;
+    transition: border-color var(--transition-speed);
+}
+.bonus-section legend {
+    padding: 0 0.5em;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color var(--transition-speed);
+}
+.bonus-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem; /* Row and column gap */
+    align-items: center; /* Align items vertically */
+}
+.bonus-controls .input-field {
+    flex: 1; /* Allow input field to grow */
+    min-width: 120px; /* Minimum width for responsiveness */
+    margin-bottom: 0.8rem; /* Spacing within the controls */
+}
+/* Fine-tune checkbox vertical alignment within bonus controls */
+.bonus-controls .checkbox-container {
+    margin-bottom: 0.8rem; /* Consistent spacing */
+    position: relative;
+    top: 5px; /* Small adjustment for visual alignment with select */
+}
+
+/* Error Styling */
+.input-error {
+    color: var(--color-error);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: block;
+    min-height: 1.2em; /* Reserve space to prevent layout shift */
+    font-weight: 500;
+    opacity: 0; /* Hidden by default */
+    transition: opacity var(--transition-speed), color var(--transition-speed);
+}
+input.invalid + .input-error,
+select.invalid + .input-error {
+    opacity: 1; /* Show error message */
+}
+input.invalid, select.invalid {
+    border-color: var(--color-error) !important; /* Ensure error border overrides focus */
+}
+input.invalid:focus, select.invalid:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 30%, transparent); /* Error focus ring */
+}
+
+/* Result Display */
+.result {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, var(--color-input-bg), var(--color-surface));
+    border-radius: var(--border-radius-md);
+    margin-top: 2rem;
+    min-height: 5.5em; /* Ensure minimum height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    transition: background var(--transition-speed), border-color var(--transition-speed);
+}
+.result h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    color: var(--color-success);
+    font-weight: 700;
+    transition: color var(--transition-speed), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: var(--font-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+/* Different states for result text */
+.result h2.info {
+    color: var(--color-info);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+}
+.result h2.error {
+    color: var(--color-error);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-secondary);
+}
+.result h2.success .value { /* Apply scale to the value span */
+    display: inline-block; /* Needed for transform */
+    transform: scale(1.03);
+}
+.result h2 .feather { /* Icon styling */
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em; /* Align icon with text */
+}
+
+/* Footer */
+.footer {
+    margin-top: 4rem;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    width: 100%;
+    opacity: 0.8;
+    transition: color var(--transition-speed);
+}
+
+/* Loading Indicator */
+#loading-indicator {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-primary);
+    display: block; /* Show by default, JS hides it after load */
+    font-weight: 500;
+    transition: color var(--transition-speed);
+}
+
+/* Hide calculator core initially, JS will show it */
+#calculator-core {
+    display: none;
+}
