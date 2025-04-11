@@ -9,239 +9,107 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSSファイルをリンク -->
+    <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/feather-icons"></script>
-    <style>
-        /* --- Design System v3.5 --- */
-        :root {
-            /* Fonts */
-            --font-primary: 'Poppins', 'Noto Sans JP', sans-serif;
-            --font-secondary: 'Noto Sans JP', sans-serif;
-            /* Base Colors (Dark Theme - Default) */
-            --color-bg: #16181d; --color-surface: #1f232b;
-            --color-primary-light: #63b3ed; --color-primary: #4299e1;
-            --color-secondary-light: #b794f4; --color-secondary: #9f7aea;
-            --color-text-primary: #e2e8f0; --color-text-secondary: #a0aec0; --color-text-placeholder: #718096;
-            --color-border: rgba(255, 255, 255, 0.12); --color-input-bg: #2d3748;
-            --color-hover-bg: rgba(255, 255, 255, 0.07);
-            --color-selected-text-on-dark: #ffffff; --color-selected-text-on-light: #1A202C;
-            --color-error: #f56565; --color-info: var(--color-text-secondary); --color-success: var(--color-primary-light);
-            --color-unknown: #718096; --color-lunatic: var(--color-secondary-light);
-            /* Difficulty Colors (Dark) */
-            --diff-basic: rgb(40, 204, 48); --diff-advanced: rgb(249, 194, 32); --diff-expert: rgb(255, 69, 69);
-            --diff-master: rgb(177, 112, 216); --diff-lunatic: rgb(213, 213, 213);
-            /* Sizes & Transitions */
-            --border-radius-sm: 4px; --border-radius-md: 8px; --transition-speed: 0.2s ease-out;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.1); --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.2); --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.25);
-        }
-        [data-theme="light"] {
-            --color-bg: #f8f9fa; --color-surface: #ffffff; --color-primary-light: #63b3ed; --color-primary: #3182ce;
-            --color-secondary-light: #b794f4; --color-secondary: #805ad5; --color-text-primary: #1a202c;
-            --color-text-secondary: #4a5568; --color-text-placeholder: #a0aec0; --color-border: #e2e8f0;
-            --color-input-bg: #f7fafc; --color-hover-bg: #edf2f7;
-            --color-selected-text-on-light: #ffffff;
-            --color-error: #c53030; --color-info: var(--color-text-secondary); --color-success: var(--color-primary);
-            --color-unknown: #a0aec0; --color-lunatic: var(--color-secondary);
-            /* Difficulty Colors (Light) */
-            --diff-basic: rgb(40, 180, 48); --diff-advanced: rgb(220, 170, 25); --diff-expert: rgb(220, 50, 50);
-            --diff-master: rgb(150, 90, 190); --diff-lunatic: rgb(100, 100, 100);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-        }
-        /* Base & General Styles ... */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: var(--font-secondary); background: var(--color-bg); color: var(--color-text-primary); min-height: 100vh; margin: 0; padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; transition: background var(--transition-speed), color var(--transition-speed); line-height: 1.6; }
-        h1, h2, h3 { font-family: var(--font-primary); font-weight: 700; letter-spacing: -0.02em; }
-        a { color: var(--color-primary); text-decoration: none; transition: color var(--transition-speed); } a:hover { color: var(--color-secondary); }
-        ::placeholder { color: var(--color-text-placeholder); opacity: 1; }
-        /* Layout & Calculator Card ... */
-         .header { text-align: center; margin-bottom: 2.5rem; } .header h1 { color: var(--color-text-primary); font-size: clamp(2rem, 7vw, 3rem); } .header h1 span { color: var(--color-primary); }
-        .calculator { width: 90vw; max-width: 650px; background: var(--color-surface); border-radius: var(--border-radius-md); padding: clamp(1.5rem, 5vw, 2.5rem); box-shadow: var(--shadow-lg); border: 1px solid var(--color-border); }
-        /* Search ... */
-        .search-container { margin-bottom: 1.5rem; position: relative; }
-        #song-search { padding: 0.9rem 1.2rem; background: var(--color-input-bg); border: 1px solid var(--color-border); border-radius: var(--border-radius-sm); color: var(--color-text-primary); font-size: 1rem; width: 100%; transition: border-color var(--transition-speed), box-shadow var(--transition-speed); font-family: var(--font-secondary); }
-        #song-search:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.3); }
-        #search-results { max-height: 50vh; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--border-radius-md); background: var(--color-surface); position: absolute; z-index: 10; width: 100%; display: none; box-shadow: var(--shadow-md); margin-top: 0.25rem; }
-        /* Song Item ... */
-         .song-item { padding: 1rem 1.2rem; border-bottom: 1px solid var(--color-border); cursor: pointer; transition: background var(--transition-speed); position: relative; }
-        .song-item:last-child { border-bottom: none; border-radius: 0 0 var(--border-radius-md) var(--border-radius-md); }
-        .song-item:hover { background: var(--color-hover-bg); }
-        .song-item.selected-song { background: var(--color-hover-bg); }
-        .song-item .song-info { transition: margin-bottom var(--transition-speed); margin-bottom: 0; }
-        .song-item.open .song-info { margin-bottom: 1rem; }
-        .song-item .title { display: block; font-weight: 600; font-family: var(--font-primary); font-size: 1rem; margin-bottom: 0.15em;}
-        .song-item .artist { font-size: 0.8rem; color: var(--color-text-secondary); display: block; }
-        .song-item .lunatic-tag { color: var(--color-lunatic); font-weight: 700; font-size: 0.8rem; margin-left: 0.4em; vertical-align: baseline;}
-        /* Difficulty Accordion ... */
-         .difficulty-container { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin: 0 -1.2rem -1rem; padding: 0 1.2rem; }
-        .song-item.open .difficulty-container { max-height: 200px; padding-bottom: 1rem; }
-        .difficulty-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.6rem; }
-        /* Difficulty Buttons Styles ... */
-        .difficulty-btn { background: transparent; border: 2px solid; color: var(--color-text-secondary); padding: 0.6rem 0.8rem; border-radius: var(--border-radius-sm); cursor: pointer; transition: all var(--transition-speed); font-size: 0.8rem; font-weight: 600; text-align: center; font-family: var(--font-primary); box-shadow: none; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.3; }
-        .difficulty-btn.diff-basic { border-color: var(--diff-basic); } .difficulty-btn.diff-advanced { border-color: var(--diff-advanced); } .difficulty-btn.diff-expert { border-color: var(--diff-expert); } .difficulty-btn.diff-master { border-color: var(--diff-master); } .difficulty-btn.diff-lunatic { border-color: var(--diff-lunatic); }
-        .difficulty-btn:hover { background: var(--color-hover-bg); color: var(--color-text-primary); box-shadow: var(--shadow-sm); transform: scale(1.02); }
-        .difficulty-btn:hover.diff-basic { border-color: var(--diff-basic); } .difficulty-btn:hover.diff-advanced { border-color: var(--diff-advanced); } .difficulty-btn:hover.diff-expert { border-color: var(--diff-expert); } .difficulty-btn:hover.diff-master { border-color: var(--diff-master); } .difficulty-btn:hover.diff-lunatic { border-color: var(--diff-lunatic); }
-        .difficulty-btn.selected { font-weight: 700; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transform: scale(1.00); }
-        .difficulty-btn.selected.diff-basic { background-color: var(--diff-basic); border-color: var(--diff-basic); color: var(--color-selected-text-on-dark); }
-        .difficulty-btn.selected.diff-advanced { background-color: var(--diff-advanced); border-color: var(--diff-advanced); color: var(--color-selected-text-on-light); }
-        [data-theme="light"] .difficulty-btn.selected.diff-advanced { color: var(--color-selected-text-on-dark); }
-        .difficulty-btn.selected.diff-expert { background-color: var(--diff-expert); border-color: var(--diff-expert); color: var(--color-selected-text-on-dark); }
-        .difficulty-btn.selected.diff-master { background-color: var(--diff-master); border-color: var(--diff-master); color: var(--color-selected-text-on-dark); }
-        .difficulty-btn.selected.diff-lunatic { background-color: var(--diff-lunatic); border-color: var(--diff-lunatic); color: var(--color-selected-text-on-light); }
-        [data-theme="light"] .difficulty-btn.selected.diff-lunatic { color: var(--color-selected-text-on-dark); }
-        .difficulty-btn .const-value { font-weight: 400; margin-top: 0.1em; opacity: 0.8; font-size: 0.9em; display: block;}
-        .difficulty-btn.selected .const-value { opacity: 1; font-weight: 600;}
-        .difficulty-btn .unknown { color: var(--color-unknown); font-style: italic; }
-
-        /* Calculator Core ... */
-         #calculator-core { margin-top: 1.5rem; }
-        /* Mode Switch ... */
-         .mode-switch { display: flex; gap: 0; margin-bottom: 2rem; background: var(--color-input-bg); border-radius: var(--border-radius-md); padding: 0.3rem; position: relative; border: 1px solid var(--color-border); }
-        .mode-btn { flex: 1; background: none; border: none; color: var(--color-text-secondary); padding: 0.7rem; border-radius: var(--border-radius-sm); cursor: pointer; transition: color var(--transition-speed); text-align: center; font-size: 0.9rem; font-weight: 600; font-family: var(--font-primary); z-index: 1; position: relative; }
-        .mode-btn.active { color: var(--color-text-primary); }
-        .mode-switch::before { content: ''; position: absolute; top: 0.3rem; bottom: 0.3rem; width: calc(50% - 0.3rem); background: var(--color-surface); border-radius: var(--border-radius-sm); box-shadow: var(--shadow-sm); transition: transform var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 0; }
-        .mode-switch[data-active-mode="score"]::before { transform: translateX(0.3rem); }
-        .mode-switch[data-active-mode="rate"]::before { transform: translateX(calc(100% - 0.3rem)); }
-        /* Inputs ... */
-         .input-group { margin-bottom: 1.8rem; }
-        .input-field { margin-bottom: 1.3rem; } /* Default spacing */
-        label { display: block; font-size: 0.85rem; color: var(--color-text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
-        label[for="chart"], label[for="score-chart"] { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.6rem; }
-        .chart-info { font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 400; text-transform: none; letter-spacing: normal; margin-left: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
-        input, select { padding: 0.9rem 1.1rem; background: var(--color-input-bg); border: 1px solid var(--color-border); border-radius: var(--border-radius-sm); color: var(--color-text-primary); font-size: 1rem; width: 100%; transition: border-color var(--transition-speed), box-shadow var(--transition-speed); font-family: var(--font-secondary); }
-        input:focus, select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.3); }
-        input[type="number"] { font-family: var(--font-primary); font-weight: 500; letter-spacing: 0.02em; }
-
-        /* --- ★★★ Reverted Select Box Style ★★★ --- */
-        select {
-            /* Remove appearance reset and background image */
-            /* appearance: none; - Removed */
-            /* background-image: none; - Removed */
-            /* background-repeat: no-repeat; - Removed */
-            /* background-position: right 1.1rem center; - Removed */
-            /* background-size: 0.8em 0.8em; - Removed */
-
-            /* Keep general input styles */
-            padding: 0.9rem 1.1rem;
-            background-color: var(--color-input-bg);
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius-sm);
-            color: var(--color-text-primary);
-            font-size: 1rem;
-            width: 100%;
-            font-family: var(--font-secondary);
-            cursor: pointer; /* Keep pointer */
-            /* Adjust padding-right if text overlaps with default arrow */
-            /* padding-right: 2.5rem; Example */
-        }
-        /* --- ★★★ End Reverted Select Box Style ★★★ --- */
-
-
-        /* Checkbox CSS (Keep refined style) */
-        .checkbox-container { display: inline-flex; align-items: center; cursor: pointer; position: relative; vertical-align: middle; }
-        .checkbox-container input[type="checkbox"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; flex-shrink: 0; height: 1.25em; width: 1.25em; border: 1.5px solid var(--color-border); border-radius: var(--border-radius-sm); background-color: var(--color-input-bg); margin-right: 0.6em; cursor: pointer; position: relative; transition: background-color var(--transition-speed), border-color var(--transition-speed); display: inline-block; vertical-align: middle; }
-        .checkbox-container input[type="checkbox"]::after { content: ''; display: block; width: 0.3em; height: 0.65em; border-style: solid; border-color: var(--color-selected-text-on-dark); border-width: 0 2.5px 2.5px 0; position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%) rotate(45deg); opacity: 0; transition: opacity 0.15s ease-in-out; }
-        .checkbox-container input[type="checkbox"]:checked { background-color: var(--color-primary); border-color: var(--color-primary); }
-        .checkbox-container input[type="checkbox"]:checked::after { opacity: 1; }
-        .checkbox-container input[type="checkbox"]:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.4); }
-        .checkbox-container label { margin-bottom: 0; color: var(--color-text-primary); font-size: 0.95rem; font-weight: 500; vertical-align: middle; cursor: pointer; }
-
-        /* Bonus Section */
-         .bonus-section { border: 1px solid var(--color-border); border-radius: var(--border-radius-md); padding: 1rem 1.2rem 0.5rem; margin-top: 1.5rem; }
-         .bonus-section legend { padding: 0 0.5em; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-         .bonus-controls {
-             display: flex;
-             flex-wrap: wrap;
-             gap: 1rem 1.5rem; /* Keep gap */
-             align-items: center; /* Keep center alignment */
-         }
-         .bonus-controls .input-field {
-              flex: 1;
-              min-width: 120px;
-              margin-bottom: 0.8rem; /* Restore margin */
-         }
-          .bonus-controls .checkbox-container {
-              margin-bottom: 0.8rem; /* Restore margin */
-              /* Keep fine-tuned position */
-              position: relative;
-              top: 5px;
-         }
-
-
-        /* Error ... */
-         .input-error { color: var(--color-error); font-size: 0.8rem; margin-top: 0.5rem; display: block; min-height: 1.2em; font-weight: 500; opacity: 0; transition: opacity var(--transition-speed); }
-        input.invalid + .input-error, select.invalid + .input-error { opacity: 1; }
-        input.invalid, select.invalid { border-color: var(--color-error) !important; }
-        input.invalid:focus, select.invalid:focus { box-shadow: 0 0 0 3px rgba(var(--color-error), 0.3); }
-        /* Result ... */
-         .result { text-align: center; padding: 1.5rem 1rem; background: linear-gradient(135deg, var(--color-input-bg), var(--color-surface)); border-radius: var(--border-radius-md); margin-top: 2rem; min-height: 5.5em; display: flex; justify-content: center; align-items: center; border: 1px solid var(--color-border); box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
-        .result h2 { margin: 0; font-size: clamp(1.8rem, 7vw, 2.5rem); color: var(--color-success); font-weight: 700; transition: color var(--transition-speed), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-family: var(--font-primary); display: flex; align-items: center; gap: 0.5rem; }
-        .result h2.info { color: var(--color-info); font-size: 1rem; font-weight: 500; font-family: var(--font-secondary); }
-        .result h2.error { color: var(--color-error); font-size: 1rem; font-weight: 500; font-family: var(--font-secondary); }
-        .result h2.success .value { transform: scale(1.03); }
-        .result h2 .feather { width: 1em; height: 1em; vertical-align: -0.125em; }
-        /* Footer ... */
-         .footer { margin-top: 4rem; padding: 1rem; text-align: center; font-size: 0.85rem; color: var(--color-text-secondary); width: 100%; opacity: 0.8; }
-        /* Loading ... */
-         #loading-indicator { text-align: center; padding: 3rem 1rem; color: var(--color-primary); display: none; font-weight: 500; }
-
-    </style>
 </head>
 <body data-theme="dark">
-    <div class="header"><h1>Ongeki<span> Rate & Score Lab</span></h1></div>
-    <div class="calculator">
-        <div class="search-container"><input type="text" id="song-search" placeholder="曲名、譜面定数で検索..."><div id="search-results"></div></div>
-        <div id="loading-indicator">データをロード中...</div>
-        <div id="calculator-core">
-            <div class="mode-switch" data-active-mode="score"><button class="mode-btn active" data-mode="score">Score → Rate</button><button class="mode-btn" data-mode="rate">Rate → Score</button></div>
-            <div class="input-group score-mode">
-                <div class="input-field"><label for="score-chart">譜面定数 <span class="chart-info" id="score-chart-info"></span></label><input type="number" id="score-chart" placeholder="譜面選択 or 直接入力 (1.0-15.7)" min="1.0" max="15.7" step="0.1"><div class="input-error" id="score-chart-error"></div></div>
-                <div class="input-field"><label for="score">スコア</label><input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000"><div class="input-error" id="score-error"></div></div>
-                <fieldset class="bonus-section"><legend>達成ボーナス</legend><div class="bonus-controls">
-                    <div class="input-field"><label for="score-lamp-bonus">ランプ</label><select id="score-lamp-bonus"><option value="0">未達成</option><option value="0.100">FC</option><option value="0.300">AB</option><option value="0.350">AB+</option></select></div>
-                    <div class="checkbox-container"><input type="checkbox" id="score-fb-bonus" value="0.050"><label for="score-fb-bonus">FULL BELL</label></div>
-                </div></fieldset>
+
+    <header class="header">
+        <h1>Ongeki<span> Rate & Score Lab</span></h1>
+    </header>
+
+    <!-- 主要コンテンツをmainで囲む -->
+    <main class="calculator">
+        <div class="search-container">
+            <input type="search" id="song-search" placeholder="曲名、譜面定数で検索...">
+            <div id="search-results" aria-live="polite"></div>
+        </div>
+
+        <div id="loading-indicator" role="status">データをロード中...</div>
+
+        <div id="calculator-core" style="display: none;"> <!-- 初期状態では非表示にしておく -->
+            <div class="mode-switch" data-active-mode="score" role="tablist">
+                <button class="mode-btn active" data-mode="score" role="tab" aria-selected="true">Score → Rate</button>
+                <button class="mode-btn" data-mode="rate" role="tab" aria-selected="false">Rate → Score</button>
             </div>
-            <div class="input-group rate-mode" style="display:none;">
-                <div class="input-field"><label for="chart">譜面定数 <span class="chart-info" id="chart-info"></span></label><input type="number" id="chart" placeholder="譜面選択 or 直接入力 (1.0-15.7)" min="1.0" max="15.7" step="0.1"><div class="input-error" id="chart-error"></div></div>
-                <div class="input-field"><label for="target-rate">目標レート</label><input type="number" id="target-rate" placeholder="例: 15.50" min="0" max="18.4" step="0.01"><div class="input-error" id="rate-error"></div></div>
-                <fieldset class="bonus-section"><legend>達成ボーナス</legend><div class="bonus-controls">
-                    <div class="input-field"><label for="rate-lamp-bonus">ランプ</label><select id="rate-lamp-bonus"><option value="0">未達成</option><option value="0.100">FC</option><option value="0.300">AB</option><option value="0.350">AB+</option></select></div>
-                    <div class="checkbox-container"><input type="checkbox" id="rate-fb-bonus" value="0.050"><label for="rate-fb-bonus">FULL BELL</label></div>
-                </div></fieldset>
+
+            <!-- Score to Rate Mode Panel -->
+            <div class="input-group score-mode" role="tabpanel">
+                <div class="input-field">
+                    <label for="score-chart">譜面定数 <span class="chart-info" id="score-chart-info"></span></label>
+                    <input type="number" id="score-chart" placeholder="譜面選択 or 直接入力 (1.0-15.7)" min="1.0" max="15.7" step="0.1">
+                    <div class="input-error" id="score-chart-error"></div>
+                </div>
+                <div class="input-field">
+                    <label for="score">スコア</label>
+                    <input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000">
+                    <div class="input-error" id="score-error"></div>
+                </div>
+                <fieldset class="bonus-section">
+                    <legend>達成ボーナス</legend>
+                    <div class="bonus-controls">
+                        <div class="input-field">
+                            <label for="score-lamp-bonus">ランプ</label>
+                            <select id="score-lamp-bonus">
+                                <option value="0">未達成</option>
+                                <option value="0.100">FC</option>
+                                <option value="0.300">AB</option>
+                                <option value="0.350">AB+</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="score-fb-bonus" value="0.050">
+                            <label for="score-fb-bonus">FULL BELL</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Rate to Score Mode Panel -->
+            <div class="input-group rate-mode" style="display:none;" role="tabpanel">
+                <div class="input-field">
+                    <label for="chart">譜面定数 <span class="chart-info" id="chart-info"></span></label>
+                    <input type="number" id="chart" placeholder="譜面選択 or 直接入力 (1.0-15.7)" min="1.0" max="15.7" step="0.1">
+                    <div class="input-error" id="chart-error"></div>
+                </div>
+                <div class="input-field">
+                    <label for="target-rate">目標レート</label>
+                    <input type="number" id="target-rate" placeholder="例: 15.50" min="0" max="18.4" step="0.01">
+                    <div class="input-error" id="rate-error"></div>
+                </div>
+                <fieldset class="bonus-section">
+                    <legend>達成ボーナス</legend>
+                    <div class="bonus-controls">
+                        <div class="input-field">
+                            <label for="rate-lamp-bonus">ランプ</label>
+                            <select id="rate-lamp-bonus">
+                                <option value="0">未達成</option>
+                                <option value="0.100">FC</option>
+                                <option value="0.300">AB</option>
+                                <option value="0.350">AB+</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="rate-fb-bonus" value="0.050">
+                            <label for="rate-fb-bonus">FULL BELL</label>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
         </div>
-        <div class="result"><h2 id="result-text" class="info"><i data-feather="info"></i><span>譜面を選択または定数を入力してください</span></h2></div>
-    </div>
-    <div class="footer"><p><a href="https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/" target="_blank" rel="noopener noreferrer">GitHub Repository</a></p><p><small>Music data provided by <a href="https://reiwa.f5.si/" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></small></p></div>
 
-<script>
-    // --- JavaScript (変更なし) ---
-    function debounce(func, wait) { let timeout; return function(...args) { const later = () => { clearTimeout(timeout); func.apply(this, args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
-    class OngekiCalculator {
-        constructor() { this._cacheDOMElements(); this.songList = []; this.songDetails = {}; this.apiUrl = 'https://reiwa.f5.si/ongeki_all.json'; this.currentSelectedInternalId = null; this.currentOpenSongItem = null; this.currentSelectedDifficultyBtn = null; this.activeMode = 'score'; this.debouncedCalculate = debounce(this.calculate.bind(this), 300); this.debouncedPerformSearch = debounce(this._performSearch.bind(this), 250); this._initTheme(); this._loadDataAndInitUI(); }
-        _cacheDOMElements() { this.searchInput=document.getElementById('song-search');this.searchResultsContainer=document.getElementById('search-results');this.loadingIndicator=document.getElementById('loading-indicator');this.calculatorCore=document.getElementById('calculator-core');this.resultTextElement=document.getElementById('result-text');this.chartInput=document.getElementById('chart');this.scoreChartInput=document.getElementById('score-chart');this.targetRateInput=document.getElementById('target-rate');this.scoreInput=document.getElementById('score');this.chartError=document.getElementById('chart-error');this.scoreChartError=document.getElementById('score-chart-error');this.rateError=document.getElementById('rate-error');this.scoreError=document.getElementById('score-error');this.modeSwitchContainer=document.querySelector('.mode-switch'); this.chartInfoSpan = document.getElementById('chart-info'); this.scoreChartInfoSpan = document.getElementById('score-chart-info'); }
-        _initTheme() { const a=()=>{const d=window.matchMedia?.('(prefers-color-scheme: dark)').matches;document.body.dataset.theme=d?'dark':'light';};a();window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',a); }
-        async _loadDataAndInitUI() { this.loadingIndicator.style.display='block';try{await this._fetchAndProcessData();this._initializeSearch();this._setupEventListeners();this.showResult('譜面を選択または定数を入力してください','info');}catch(e){console.error('Data load/process error:',e);this.showResult(`データ読み込みエラー: ${e.message}`,'error');}finally{this.loadingIndicator.style.display='none';} }
-        async _fetchAndProcessData() { const r=await fetch(this.apiUrl);if(!r.ok)throw new Error(`API Error ${r.status}`);const d=await r.json();this.songList=[];this.songDetails={};const pI=new Set();d.forEach(s=>{if(!s.meta||s.meta.is_bonus||!s.data||!s.meta.id||!s.meta.title)return;const hL=s.data.hasOwnProperty('LUN');const hS=Object.keys(s.data).some(k=>k!=='LUN');const bId=s.meta.id;const t=s.meta.title;const a=s.meta.artist||'Unknown';if(hL){const i=`${bId}_LUN`;if(!pI.has(i)){this.songList.push({internalId:i,title:t,artist:a,isLunatic:true});const df={};if(s.data['LUN']?.const!=null)df['LUN']={c:s.data['LUN'].const,u:!!s.data['LUN'].is_const_unknown};this.songDetails[i]=df;pI.add(i);}}if(hS){const i=`${bId}_STD`;if(!pI.has(i)){this.songList.push({internalId:i,title:t,artist:a,isLunatic:false});const df={};for(const k in s.data){if(k!=='LUN'&&s.data[k]?.const!=null)df[k]={c:s.data[k].const,u:!!s.data[k].is_const_unknown};}this.songDetails[i]=df;pI.add(i);}}});this.songList.sort((a,b)=>{const tc=a.title.localeCompare(b.title,'ja');return tc!==0?tc:a.isLunatic-b.isLunatic;});console.log(`Loaded ${this.songList.length}`); }
-        _initializeSearch() { let hT;this.searchInput.addEventListener('input',this.debouncedPerformSearch);this.searchInput.addEventListener('blur',()=>{hT=setTimeout(()=>{this.searchResultsContainer.style.display='none';},200);});this.searchInput.addEventListener('focus',()=>{clearTimeout(hT);if(this.searchInput.value.trim()){this.debouncedPerformSearch();}});document.addEventListener('click',(e)=>{const sC=this.searchInput.parentElement;if(sC&&!sC.contains(e.target)&&this.searchResultsContainer.style.display!=='none'){this.searchResultsContainer.style.display='none';}}); }
-        _setupEventListeners() { this.modeSwitchContainer.addEventListener('click',(e)=>{if(e.target.matches('.mode-btn')&&!e.target.classList.contains('active')){this._handleModeSwitch(e.target);}});this.searchResultsContainer.addEventListener('mousedown',(e)=>{const tI=e.target.closest('.song-item');if(tI){e.preventDefault();this._toggleDifficultyAccordion(tI);}});this.searchResultsContainer.addEventListener('click',(e)=>{const tB=e.target.closest('.difficulty-btn');if(tB){e.stopPropagation();const iId=tB.closest('.song-item')?.dataset.internalId;const cV=parseFloat(tB.dataset.const);if(iId&&!isNaN(cV)){this._selectDifficulty(iId,tB,cV);}}});const f=[this.targetRateInput,this.scoreInput,this.chartInput,this.scoreChartInput,document.getElementById('rate-lamp-bonus'),document.getElementById('score-lamp-bonus'),document.getElementById('rate-fb-bonus'),document.getElementById('score-fb-bonus')];f.forEach(el=>{if(el){const eT=(el.tagName==='SELECT'||el.type==='checkbox')?'change':'input';el.addEventListener(eT,(e)=>{if(e.target.id==='chart'||e.target.id==='score-chart'){this._handleManualConstantInput(e.target);}this.debouncedCalculate();});if(el.type==='number')el.addEventListener('change',this.debouncedCalculate);}}); }
-        _performSearch() { let q=this.searchInput.value.trim().toLowerCase();q=q.replace(/[．０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0));if(!q){this.searchResultsContainer.innerHTML='';this.searchResultsContainer.style.display='none';return;}const iC=/^\d+(\.\d?)?$/.test(q);const r=this.songList.filter(s=>{if(s.title.toLowerCase().includes(q))return true;if(iC&&this.songDetails[s.internalId]){for(const k in this.songDetails[s.internalId]){if(this.songDetails[s.internalId][k].c.toFixed(1)===q)return true;}}return false;}).slice(0,30);this._displayResults(r); }
-        _displayResults(results) { this.searchResultsContainer.innerHTML='';if(results.length===0){this.searchResultsContainer.innerHTML='<div style="padding:1rem;text-align:center;color:var(--color-text-secondary);">該当なし</div>';this.searchResultsContainer.style.display='block';return;}const f=document.createDocumentFragment();results.forEach(s=>{const i=document.createElement('div');i.classList.add('song-item');i.dataset.internalId=s.internalId;const lT=s.isLunatic?'<span class="lunatic-tag">(LUNATIC)</span>':'';i.innerHTML=`<div class="song-info"><span class="title">${s.title}${lT}</span><span class="artist">${s.artist}</span></div><div class="difficulty-container"><div class="difficulty-buttons"></div></div>`;f.appendChild(i);});this.searchResultsContainer.appendChild(f);this.searchResultsContainer.style.display='block'; }
-        _toggleDifficultyAccordion(songItemElement) { const iO=songItemElement.classList.contains('open');if(this.currentOpenSongItem&&this.currentOpenSongItem!==songItemElement){this.currentOpenSongItem.classList.remove('open','selected-song');}if(iO){songItemElement.classList.remove('open','selected-song');this.currentOpenSongItem=null;}else{this._populateDifficultyButtons(songItemElement);songItemElement.classList.add('open','selected-song');this.currentOpenSongItem=songItemElement;} }
-        _populateDifficultyButtons(songItemElement) { const iId=songItemElement.dataset.internalId; const bC=songItemElement.querySelector('.difficulty-buttons'); if(!iId||!bC||bC.children.length>0)return; const diffs=this.songDetails[iId]; bC.innerHTML=''; if(!diffs||Object.keys(diffs).length===0){bC.innerHTML='<span style="font-size:0.8em; color:var(--text-secondary);">難易度なし</span>'; return;} const map={"BAS":"BASIC","ADV":"ADVANCED","EXP":"EXPERT","MAS":"MASTER","LUN":"LUNATIC"}; const classNameMap={"BAS":"basic","ADV":"advanced","EXP":"expert","MAS":"master","LUN":"lunatic"}; const order=["BAS","ADV","EXP","MAS","LUN"]; const keys=Object.keys(diffs).sort((a,b)=>order.indexOf(a)-order.indexOf(b)); const f=document.createDocumentFragment(); keys.forEach(k=>{const d=diffs[k];const b=document.createElement('button');const fN=map[k]||k; const cS=classNameMap[k]; if(cS){b.classList.add('difficulty-btn',`diff-${cS}`);}else{b.classList.add('difficulty-btn');} b.dataset.difficultyKey=k;b.dataset.const=d.c.toFixed(1);b.dataset.unknown=d.u; let cT=d.c.toFixed(1);let uC='';if(d.u){cT+='?';uC=' unknown';} b.innerHTML=`${fN} <span class="const-value${uC}">(${cT})</span>`; f.appendChild(b);}); bC.appendChild(f); }
-        _selectDifficulty(internalId, buttonElement, constantValue) { this.currentSelectedInternalId=internalId;if(this.currentSelectedDifficultyBtn)this.currentSelectedDifficultyBtn.classList.remove('selected');buttonElement.classList.add('selected');this.currentSelectedDifficultyBtn=buttonElement;this._setConstantToInputs(constantValue);this._updateChartInfo();this._clearErrors();this.calculate();if(this.currentOpenSongItem){this.currentOpenSongItem.classList.remove('open','selected-song');}this.searchResultsContainer.style.display='none';this.searchInput.value=''; }
-        _handleManualConstantInput(inputElement) { if(this.currentSelectedDifficultyBtn){this.currentSelectedDifficultyBtn.classList.remove('selected');this.currentSelectedDifficultyBtn=null;}this.currentSelectedInternalId=null;const tId=inputElement.id==='chart'?'score-chart':'chart';document.getElementById(tId).value=inputElement.value;this._updateChartInfo();}
-        _clearConstantInputs() { this.chartInput.value='';this.scoreChartInput.value='';this.chartInput.placeholder='-';this.scoreChartInput.placeholder='-';if(this.currentSelectedDifficultyBtn)this.currentSelectedDifficultyBtn.classList.remove('selected');this.currentSelectedDifficultyBtn=null;this.currentSelectedInternalId=null;this._updateChartInfo();this.showResult('譜面を選択または定数を入力してください','info'); }
-        _setConstantToInputs(constant) { const s=constant.toFixed(1);this.chartInput.value=s;this.scoreChartInput.value=s;this.chartInput.placeholder=s;this.scoreChartInput.placeholder=s; }
-        _updateChartInfo() { let iT='';if(this.currentSelectedInternalId&&this.currentSelectedDifficultyBtn){const s=this.songList.find(s=>s.internalId===this.currentSelectedInternalId);const dK=this.currentSelectedDifficultyBtn.dataset.difficultyKey;const map={"BAS":"BASIC","ADV":"ADVANCED","EXP":"EXPERT","MAS":"MASTER","LUN":"LUNATIC"};if(s&&dK){iT=`${s.title} (${map[dK]||dK})`;if(s.isLunatic&&!s.title.includes('(LUNATIC)'))iT=`${s.title} (LUNATIC)`;}}else if(this.chartInput.value||this.scoreChartInput.value){iT='(手動入力)';}if(this.chartInfoSpan)this.chartInfoSpan.textContent=iT;if(this.scoreChartInfoSpan)this.scoreChartInfoSpan.textContent=iT; }
-        _handleModeSwitch(targetButton) { const n=targetButton.dataset.mode;if(n===this.activeMode)return;this.activeMode=n;this.modeSwitchContainer.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));targetButton.classList.add('active');this.modeSwitchContainer.dataset.activeMode=n;document.querySelectorAll('.input-group').forEach(g=>g.style.display=g.classList.contains(`${this.activeMode}-mode`)?'block':'none');const sI=(this.activeMode==='rate')?this.scoreChartInput:this.chartInput;const tI=(this.activeMode==='rate')?this.chartInput:this.scoreChartInput;if(tI&&sI&&sI.value)tI.value=sI.value;this._clearErrors();this.calculate();}
-        _clearErrors() { [this.chartError,this.scoreChartError,this.rateError,this.scoreError].forEach(el=>el.textContent='');[this.chartInput,this.scoreChartInput,this.targetRateInput,this.scoreInput].forEach(el=>el.classList.remove('invalid')); }
-        showResult(content, type = 'success') { let i='check-circle';if(type==='error')i='alert-circle';if(type==='info')i='info';this.resultTextElement.className=type;this.resultTextElement.innerHTML=`<i data-feather="${i}" class="feather"></i> <span class="${type==='success'?'value':'message'}">${content}</span>`;if(typeof feather!=='undefined'){feather.replace();} }
-        calculate() { this._clearErrors();let iV=true;let c,oV,cI,eE,oI,oEE;let lBE,fBE;if(this.activeMode==='rate'){cI=this.chartInput;eE=this.chartError;oI=this.targetRateInput;oEE=this.rateError;lBE=document.getElementById('rate-lamp-bonus');fBE=document.getElementById('rate-fb-bonus');}else{cI=this.scoreChartInput;eE=this.scoreChartError;oI=this.scoreInput;oEE=this.scoreError;lBE=document.getElementById('score-lamp-bonus');fBE=document.getElementById('score-fb-bonus');}const cS=cI.value.trim();if(!cS){iV=false;eE.textContent='値を入力してください';cI.classList.add('invalid');}else{c=parseFloat(cS);if(isNaN(c)||c<1.0||c>15.7){iV=false;eE.textContent='1.0～15.7で入力';cI.classList.add('invalid');}}const oS=oI.value.trim();const min=parseFloat(oI.min);const max=parseFloat(oI.max);if(!oS){iV=false;oEE.textContent='値を入力してください';oI.classList.add('invalid');}else{oV=parseFloat(oS);if(isNaN(oV)||oV<min||oV>max){iV=false;oEE.textContent=`${min}～${max}で入力`;oI.classList.add('invalid');}}if(!iV){this.showResult('-','info');return;}try{const l=parseFloat(lBE.value);const f=fBE.checked?parseFloat(fBE.value):0;let rV;if(this.activeMode==='rate'){rV=this._calculateScoreInternal(c,oV,l,f);if(typeof rV==='string'&&!/^[0-9,]+$/.test(rV.replace(/\s?\(MAX\)/,''))){this.showResult(rV,'error');}else{this.showResult(rV,'success');}}else{rV=this._calculateRateInternal(c,oV,l,f);this.showResult(rV,'success');}}catch(error){console.error("Calc error:",error);this.showResult('計算エラー発生','error');} }
-        _calculateRateInternal(c, s, l, f) { s=Math.floor(s);let tB=0,rB=0;if(s>=1010000)tB=2.000;else if(s>=1007500)tB=1.750+Math.floor((s-1007500)/10)*.001;else if(s>=1000000)tB=1.250+Math.floor((s-1000000)/15)*.001;else if(s>=990000)tB=0.750+Math.floor((s-990000)/20)*.001;else if(s>=970000)tB=Math.floor((s-970000)/(80/3))*.001;if(s>=1007500)rB=0.300;else if(s>=1000000)rB=0.200;else if(s>=990000)rB=0.100;tB=parseFloat(tB.toFixed(3));rB=parseFloat(rB.toFixed(3));l=parseFloat(l.toFixed(3));f=parseFloat(f.toFixed(3));const r=c+tB+rB+l+f;return Math.max(0,r).toFixed(3); }
-        _calculateScoreInternal(c, t, l, f) { const M=1010000,Sp=1007500,S3=1000000,S2=990000,S=970000;const mR=parseFloat((c+2.3+l+f).toFixed(3));const nR=parseFloat((c+l+f).toFixed(3));if(t>mR)return`レート上限 (${mR.toFixed(3)}) 超過`;if(t<nR)return`レート下限 (${nR.toFixed(3)}) 未満`;if(t===mR)return M.toLocaleString()+' (MAX)';const tB=parseFloat((t-c-l-f).toFixed(3));let rS=0;if(tB>=1.750){rS=Sp+Math.ceil(Math.max(0,tB-0.3-1.750)/.001)*10;}else if(tB>=1.250){rS=S3+Math.ceil(Math.max(0,tB-0.2-1.250)/.001)*15;}else if(tB>=0.750){rS=S2+Math.ceil(Math.max(0,tB-0.1-0.750)/.001)*20;}else if(tB>=0){rS=Math.ceil(S+Math.ceil(Math.max(0,tB)/.001)*(80/3));rS=Math.max(S,rS);}else return`計算エラー`;rS=Math.min(rS,M);return rS.toLocaleString();}
-    }
-    document.addEventListener('DOMContentLoaded',()=>{new OngekiCalculator();if(typeof feather!=='undefined'){feather.replace();}});
-</script>
+        <div class="result" aria-live="polite">
+            <h2 id="result-text" class="info"><i data-feather="info"></i><span>譜面を選択または定数を入力してください</span></h2>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p><a href="https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/" target="_blank" rel="noopener noreferrer">GitHub Repository</a></p>
+        <p><small>Music data provided by <a href="https://reiwa.f5.si/" target="_blank" rel="noopener noreferrer">reiwa.f5.si</a></small></p>
+    </footer>
+
+    <!-- JavaScriptファイルをdeferで読み込み -->
+    <script src="script.js" defer></script>
 </body>
 </html>
