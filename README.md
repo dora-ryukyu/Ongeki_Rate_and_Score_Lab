@@ -2,9 +2,6 @@
 
 オンゲキのスコアとレートの相互計算、そして必要な情報の探索をサポートするモダンなWebアプリケーションです。
 
-[![GitHub Pages Deploy](https://github.com/dora-ryukyu/Ongeki_Rate_and_Score_Lab/actions/workflows/deploy.yml/badge.svg)](https://dora-ryukyu.github.io/Ongeki_Rate_and_Score_Lab/) <!-- Replace with your actual badge URL if you set up Actions -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
 **サイトURL:** [https://dora-ryukyu.github.io/Ongeki_Rate_and_Score_Lab/](https://dora-ryukyu.github.io/Ongeki_Rate_and_Score_Lab/) <!-- Replace with your actual GitHub Pages URL -->
 
 ## 🚀 主な機能
