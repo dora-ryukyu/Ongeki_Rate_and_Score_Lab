@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ongeki Rate & Score Lab</title>
+    <!-- Libraries for image generation and icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ---
+        Theme: "Futuristic Glass - Green Theme"
+        Designer: Gemini (Revised based on user feedback)
+        Concept: A sleek, futuristic theme combining glassmorphism with the game's signature bright green color palette.
+                 Supports both light and dark modes, while ensuring generated images remain in a consistent light theme.
+        --- */
+
+        /* --- CSS Variables --- */
+        :root {
+            --font-primary: 'Inter', 'Noto Sans JP', sans-serif;
+            --font-display: 'Inter', 'Noto Sans JP', sans-serif;
+
+            /* Light Mode Colors */
+            --color-bg: #f4fce3;
+            --color-bg-gradient: radial-gradient(ellipse at top left, rgba(118, 185, 0, 0.1), transparent 50%), radial-gradient(ellipse at bottom right, rgba(153, 208, 48, 0.1), transparent 50%);
+            --color-surface: rgba(255, 255, 255, 0.6);
+            --color-surface-hover: rgba(255, 255, 255, 0.9);
+            --color-border: rgba(118, 185, 0, 0.3);
+            --color-border-focus: rgba(118, 185, 0, 0.8);
+            --color-shadow: rgba(0, 0, 0, 0.1);
+            --color-text-primary: #1c1e21;
+            --color-text-secondary: #5a6151;
+            --color-text-placeholder: #a2a89c;
+            --color-accent-primary: #76b900;
+            --color-accent-secondary: #99d030;
+            --color-error: #ef5350;
+
+            /* Original Difficulty Colors (Restored) */
+            --diff-master-color: #8e24aa; /* Purple */
+            --diff-lunatic-color: #d81b60; /* Pink */
+            --diff-expert-color: #ef5350; /* Red */
+            --diff-advanced-color: #ff9800; /* Orange */
+            --diff-basic-color: #7cb342;  /* Green */
+
+            --backdrop-blur: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #121212;
+                --color-bg-gradient: radial-gradient(ellipse at top left, rgba(118, 185, 0, 0.1), transparent 50%), radial-gradient(ellipse at bottom right, rgba(153, 208, 48, 0.1), transparent 50%);
+                --color-surface: rgba(28, 30, 25, 0.6);
+                --color-surface-hover: rgba(40, 43, 35, 0.7);
+                --color-border: rgba(118, 185, 0, 0.3);
+                --color-border-focus: rgba(118, 185, 0, 0.7);
+                --color-shadow: rgba(0, 0, 0, 0.3);
+                --color-text-primary: #e0e5f0;
+                --color-text-secondary: #8a94a6;
+                --color-text-placeholder: #5c667a;
+                --color-accent-primary: #81c784;
+                --color-accent-secondary: #9ad29d;
+
+                /* Dark Mode Difficulty Colors (Restored & Adjusted) */
+                --diff-master-color: #ab47bc;
+                --diff-lunatic-color: #ec407a;
+                --diff-expert-color: #ef5350;
+                --diff-advanced-color: #ffa726;
+                --diff-basic-color: #9ccc65;
+            }
+        }
+
+        /* --- Base & Layout --- */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg);
+            background-image: var(--color-bg-gradient);
+            background-attachment: fixed;
+            color: var(--color-text-primary);
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 var(--color-shadow);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .header-logo {
+            max-width: 450px;
+            width: 90%;
+            height: auto;
+            display: block;
+            margin: 0 auto 2rem auto;
+        }
+        
+        /* --- Typography --- */
+        h1, h2, h3, h4 {
+            font-family: var(--font-display);
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+        h1 { display: none; }
+        h2 { font-size: 1.5rem; color: var(--color-accent-primary); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+        h3 { font-size: 1.2rem; color: var(--color-text-primary); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        h4 { font-size: 1.1rem; color: var(--color-accent-primary); }
+
+        .intro-text { text-align: center; margin-bottom: 2rem; font-size: 1rem; color: var(--color-text-secondary); }
+
+        /* --- Forms & Buttons (Mobile First) --- */
+        .input-area { 
+            display: flex; 
+            flex-direction: column; /* Stack on mobile */
+            gap: 0.75rem; 
+            margin-bottom: 1.5rem; 
+        }
+        
+        #userId, #songSearchInput, .calculator-pane input, .calculator-pane select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--color-border);
+            background-color: rgba(0,0,0,0.05);
+            color: var(--color-text-primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #userId::placeholder, #songSearchInput::placeholder, .calculator-pane input::placeholder { color: var(--color-text-placeholder); }
+        #userId:focus, #songSearchInput:focus, .calculator-pane input:focus, .calculator-pane select:focus {
+            outline: none;
+            border-color: var(--color-border-focus);
+            box-shadow: 0 0 10px 2px rgba(118, 185, 0, 0.25);
+        }
+
+        #calculateBtn, #songSearchBtn, #generateImageBtn, .modal-actions button {
+            width: 100%;
+            padding: 0.8rem 1.5rem;
+            background: var(--color-accent-primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: var(--font-display);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        #calculateBtn:hover, #songSearchBtn:hover, #generateImageBtn:hover, .modal-actions button:hover {
+            transform: translateY(-2px);
+            background-color: var(--color-accent-secondary);
+            box-shadow: 0 6px 20px rgba(118, 185, 0, 0.3);
+        }
+        #calculateBtn:disabled, #songSearchBtn:disabled, #generateImageBtn:disabled {
+            background: #555; color: #aaa; cursor: not-allowed; transform: none; box-shadow: none;
+        }
+
+        /* Responsive adjustments for larger screens */
+        @media (min-width: 600px) {
+            .input-area {
+                flex-direction: row; /* Side-by-side on larger screens */
+                align-items: center;
+            }
+            #userId { flex: 1 1 60%; }
+            #calculateBtn { flex: 1 1 40%; width: auto; }
+        }
+
+
+        /* --- Loaders & Spinners --- */
+        #loader, #image-loader { text-align: center; padding: 20px; font-size: 18px; display: none; color: var(--color-accent-primary); }
+        .spinner {
+            border: 4px solid var(--color-border);
+            width: 36px; height: 36px; border-radius: 50%;
+            border-left-color: var(--color-accent-primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Tables --- */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; min-width: 550px; }
+        th, td {
+            border-bottom: 1px solid var(--color-border);
+            padding: 12px 10px; text-align: left;
+            word-break: normal; white-space: nowrap;
+        }
+        td.col-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+        th { color: var(--color-accent-primary); font-weight: bold; position: relative; font-family: var(--font-display); }
+        tr { transition: background-color 0.2s ease; }
+        tbody tr:hover { background-color: var(--color-surface-hover); }
+        .col-rank { width: 40px; text-align: center; } 
+        .col-diff { width: 50px; } 
+        .col-const { width: 60px; } 
+        .col-score { width: 80px; text-align: right;} 
+        .col-lamp { width: 60px; } 
+        .col-rate { width: 80px; text-align: right;}
+        td.col-score, td.col-rate { font-weight: bold; text-align: right; }
+        td.col-rate strong { color: var(--color-accent-primary); }
+        th.sortable { cursor: pointer; }
+        th.sortable::after { content: ' '; position: absolute; right: 8px; top: 50%; margin-top: -8px; width: 0; height: 0; border-style: solid; border-width: 5px 5px 0 5px; border-color: var(--color-text-secondary) transparent transparent transparent; opacity: 0.3; transition: all 0.2s ease; }
+        th.sortable.asc::after { border-width: 0 5px 5px 5px; border-color: transparent transparent var(--color-accent-primary) transparent; opacity: 1; }
+        th.sortable.desc::after { opacity: 1; transform: rotate(180deg); }
+
+        @media (max-width: 600px) {
+            table { font-size: 12px; min-width: 500px; }
+            th, td { padding: 8px 5px; }
+            td.col-title { max-width: 120px; }
+        }
+
+        /* --- Difficulty & Status Colors --- */
+        .diff-master { color: var(--diff-master-color); font-weight: bold; }
+        .diff-lunatic { color: var(--diff-lunatic-color); font-weight: bold; }
+        .diff-expert { color: var(--diff-expert-color); font-weight: bold; }
+        .diff-advanced { color: var(--diff-advanced-color); font-weight: bold; }
+        .diff-basic { color: var(--diff-basic-color); font-weight: bold; }
+        .error { color: #fff; background-color: var(--color-error); padding: 12px; border-radius: 8px; text-align: center; }
+
+        /* --- Tabs --- */
+        .tab-links { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-link {
+            padding: 10px 15px; cursor: pointer; border: none; background: none;
+            font-size: 1rem; font-weight: bold; color: var(--color-text-secondary);
+            position: relative; transition: color 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-link.active { color: var(--color-accent-primary); border-bottom-color: var(--color-accent-primary); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Specific Sections --- */
+        .player-info {
+            background: linear-gradient(135deg, rgba(118, 185, 0, 0.1), rgba(153, 208, 48, 0.1));
+            padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;
+            border: 1px solid var(--color-border);
+        }
+        .player-info h2 { margin-top: 0; border: none; }
+        .player-info p { font-size: 1.1em; margin: 8px 0; color: var(--color-text-secondary); }
+        .player-info strong { color: var(--color-text-primary); font-weight: bold; }
+
+        .recommend-logic { background-color: rgba(0,0,0,0.05); border: 1px solid var(--color-border); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+        #debugLog { background-color: #1c1e21; color: #abb2bf; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', Courier, monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+
+        /* --- Calculator UI (Revised) --- */
+        .calculator-pane .search-container { margin-bottom: 1.5rem; position: relative; }
+        .calculator-pane #search-results-calc {
+            max-height: 50vh; overflow-y: auto;
+            border: 1px solid var(--color-border); border-radius: 12px;
+            background: var(--color-surface);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            position: absolute; z-index: 10; width: 100%;
+            display: none; box-shadow: 0 8px 32px 0 var(--color-shadow); margin-top: 0.5rem;
+        }
+        .calculator-pane .song-item { padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--color-border); cursor: pointer; transition: background 0.2s; }
+        .calculator-pane .song-item:last-child { border-bottom: none; }
+        .calculator-pane .song-item:hover { background: var(--color-surface-hover); }
+        .calculator-pane .song-item .title { font-weight: 700; display: block; }
+        .calculator-pane .song-item .artist { font-size: 0.85em; color: var(--color-text-secondary); display: block; }
+        .calculator-pane .song-item .lunatic-tag { color: var(--diff-lunatic-color); font-weight: 700; font-size: 0.8rem; margin-left: 0.4em; }
+        
+        .calculator-pane .difficulty-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
+        .calculator-pane .difficulty-btn {
+            background: transparent; border: 2px solid; color: var(--color-text-secondary);
+            padding: 0.6rem 0.8rem; border-radius: 4px; cursor: pointer;
+            transition: all 0.2s; font-size: 0.8rem; font-weight: 600; text-align: center;
+        }
+        .calculator-pane .difficulty-btn:hover { transform: scale(1.05); }
+        .calculator-pane .difficulty-btn.selected { color: white; }
+        .calculator-pane .difficulty-btn.diff-basic { border-color: var(--diff-basic-color); }
+        .calculator-pane .difficulty-btn.diff-advanced { border-color: var(--diff-advanced-color); }
+        .calculator-pane .difficulty-btn.diff-expert { border-color: var(--diff-expert-color); }
+        .calculator-pane .difficulty-btn.diff-master { border-color: var(--diff-master-color); }
+        .calculator-pane .difficulty-btn.diff-lunatic { border-color: var(--diff-lunatic-color); }
+        .calculator-pane .difficulty-btn.selected.diff-basic { background-color: var(--diff-basic-color); }
+        .calculator-pane .difficulty-btn.selected.diff-advanced { background-color: var(--diff-advanced-color); color: #fff; }
+        .calculator-pane .difficulty-btn.selected.diff-expert { background-color: var(--diff-expert-color); }
+        .calculator-pane .difficulty-btn.selected.diff-master { background-color: var(--diff-master-color); }
+        .calculator-pane .difficulty-btn.selected.diff-lunatic { background-color: var(--diff-lunatic-color); }
+        
+        .calculator-pane .input-group { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.8rem; }
+        .calculator-pane .input-field { flex: 1 1 calc(50% - 0.75rem); min-width: 150px; }
+        .calculator-pane label { font-size: 0.85rem; color: var(--color-text-secondary); font-weight: 600; margin-bottom: 0.6rem; display: block; }
+        
+        .calculator-pane .result { text-align: center; padding: 1.5rem 1rem; background: rgba(0,0,0,0.05); border-radius: 12px; margin-top: 2rem; border: 1px solid var(--color-border); }
+        .calculator-pane .result h2 { margin: 0; font-size: clamp(1.8rem, 7vw, 2.5rem); color: var(--color-accent-primary); font-weight: 900; text-decoration: none; border: none; padding: 0; }
+        .calculator-pane .result h2.info, .calculator-pane .result h2.error { color: var(--color-text-secondary); font-size: 1rem; font-weight: 500; }
+        .calculator-pane .feather { width: 1em; height: 1em; vertical-align: -0.125em; }
+        
+        .calculator-pane .bonus-section { width: 100%; border: 1px solid var(--color-border); border-radius: 12px; padding: 1rem 1.2rem 0.5rem; margin-top: 1rem; }
+        .calculator-pane .bonus-section legend { padding: 0 0.5em; font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 600; text-transform: uppercase; }
+        .calculator-pane .bonus-controls { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .calculator-pane .bonus-controls .input-field { flex: 1; min-width: 120px; margin-bottom: 0.8rem; }
+        .calculator-pane .bonus-controls label { display: inline-block; margin-right: 0.5rem; }
+        .calculator-pane .checkbox-container { display: inline-flex; align-items: center; cursor: pointer; margin-bottom: 0.8rem; flex-shrink: 0; }
+        .calculator-pane .checkbox-container input[type="checkbox"] { margin-right: 0.5em; }
+        .calculator-pane .checkbox-container label { margin-bottom: 0; }
+        
+        .input-error { color: var(--color-error); font-size: 0.8rem; margin-top: 0.25rem; min-height: 1em; }
+        
+        /* --- Image Generation & Modal --- */
+        #image-capture-wrapper { position: absolute; left: -9999px; top: 0; z-index: -1; }
+        #preview-modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(10, 10, 16, 0.8);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+        }
+        .modal-content {
+            margin: 2% auto; padding: 20px; width: 90%; max-width: 1400px;
+            background: var(--color-surface); border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+        #preview-image { width: 100%; height: auto; border-radius: 8px; margin-top: 15px; }
+        .modal-actions { text-align: center; margin-bottom: 10px; display: flex; justify-content: center; gap: 1rem; }
+        #modal-download-btn { background: var(--color-accent-primary); }
+        #modal-share-btn { background: #42a5f5; }
+        #modal-close-btn { background: #888; }
+        
+        @media (max-width: 600px) {
+            .modal-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .modal-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="Ongeki Rate & Score Lab" class="header-logo">
+    
+    <div class="container">
+        <h1 style="display:none;">Ongeki Rate & Score Lab</h1>
+        <div class="intro-text">
+            <p>単曲のレート計算や、OngekiScoreLogのID入力でベスト枠の確認ができます。</p>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userId" placeholder="OngekiScoreLog USER IDを入力">
+            <button id="calculateBtn">データ取得</button>
+        </div>
+        <div id="loader"><div class="spinner"></div>データを取得・計算中です...</div>
+        <div id="results">
+            <div id="initial-calculator-container">
+                 <div class="tabs">
+                    <div class="tab-links">
+                        <button class="tab-link active" data-tab="score-rate-calc-initial">Score → Rate</button>
+                        <button class="tab-link" data-tab="rate-score-calc-initial">Rate → Score</button>
+                    </div>
+                    <div class="tab-content">
+                        <div id="score-rate-calc-initial" class="tab-pane active"></div>
+                        <div id="rate-score-calc-initial" class="tab-pane"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="best-frame-results-container"></div>
+        </div>
+        <div id="image-loader"><div class="spinner"></div>画像を生成中です...</div>
+    </div>
+    
+    <div class="container info-section">
+        <h2>ツールの使い方</h2>
+        <ol>
+            <li><strong>レート計算機:</strong> 上部のタブ（Score → Rate / Rate → Score）で、単曲のレート値や目標スコアを計算できます。曲名検索や譜面定数の直接入力に対応しています。</li>
+            <li><strong>ベスト枠計算:</strong> OngekiScoreLogのユーザーIDを入力し「データ取得」ボタンを押すと、ご自身のベスト枠、新曲枠、おすすめ楽曲などが表示されます。</li>
+        </ol>
+        <h2>注意事項</h2>
+        <ul>
+            <li>同レート値の楽曲が複数存在する場合、公式のベスト枠と一部楽曲が入れ替わることがあります。</li>
+            <li>楽曲の譜面定数は、非公式の情報を参照しているため、実際の値と異なる場合があります。</li>
+        </ul>
+    </div>
+
+    <div class="container" id="debug-log-container">
+        <h3>デバッグログ</h3>
+        <pre id="debugLog"></pre>
+    </div>
+    <div id="image-capture-wrapper"></div>
+    <div id="preview-modal">
+        <div class="modal-content">
+            <div class="modal-actions">
+                <button id="modal-download-btn">ダウンロード</button>
+                <button id="modal-share-btn">共有</button>
+                <button id="modal-close-btn">閉じる</button>
+            </div>
+            <img id="preview-image" src="" alt="生成された画像プレビュー">
+        </div>
+    </div>
+
+    <script>
+        const NEW_SONG_DATE_THRESHOLD = 20250326;
+        const BEST_FRAME_COUNT = 50;
+        const NEW_FRAME_COUNT = 10;
+        const MUSIC_DATA_URL = "https://reiwa.f5.si/ongeki_all.json";
+        const PROXY_URL = "https://capturer.qmc.workers.dev";
+        const JACKET_BASE_URL = "https://reiwa.f5.si/musicjackets/ongeki/";
+        const MUSIC_DATA_CACHE_KEY = 'ongekiMusicData';
+
+        const userIdInput = document.getElementById('userId');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const loader = document.getElementById('loader');
+        const imageLoader = document.getElementById('image-loader');
+        const initialCalculatorContainer = document.getElementById('initial-calculator-container');
+        const bestFrameResultsContainer = document.getElementById('best-frame-results-container');
+        const debugLogEl = document.getElementById('debugLog');
+        const imageCaptureWrapper = document.getElementById('image-capture-wrapper');
+        const previewModal = document.getElementById('preview-modal');
+        const previewImage = document.getElementById('preview-image');
+        const modalDownloadBtn = document.getElementById('modal-download-btn');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalShareBtn = document.getElementById('modal-share-btn');
+
+        let musicDataPromise = null;
+        let calculatorHtmlContent = '';
+
+        function logDebug(message) {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            debugLogEl.textContent += `[${timestamp}] ${message}\n`;
+            debugLogEl.scrollTop = debugLogEl.scrollHeight;
+        }
+
+        // --- Data Fetching with Caching ---
+        function getMusicData() {
+            if (!musicDataPromise) {
+                const cachedData = sessionStorage.getItem(MUSIC_DATA_CACHE_KEY);
+                if (cachedData) {
+                    logDebug("キャッシュから楽曲データを読み込みました。");
+                    musicDataPromise = Promise.resolve(JSON.parse(cachedData));
+                } else {
+                    logDebug("楽曲データ (ongeki_all.json) の読み込みを開始します...");
+                    musicDataPromise = fetch(MUSIC_DATA_URL)
+                        .then(res => { if (!res.ok) throw new Error(`API Error ${res.status}`); return res.json(); })
+                        .then(data => {
+                            logDebug(`楽曲データ ${data.length} 件の読み込みが完了しました。キャッシュに保存します。`);
+                            try {
+                                sessionStorage.setItem(MUSIC_DATA_CACHE_KEY, JSON.stringify(data));
+                            } catch (e) {
+                                logDebug(`キャッシュの保存に失敗しました: ${e.message}`);
+                            }
+                            return data;
+                        })
+                        .catch(err => {
+                            logDebug(`楽曲データの読み込みに失敗しました: ${err.message}`);
+                            musicDataPromise = null; // Allow retrying
+                            throw err;
+                        });
+                }
+            }
+            return musicDataPromise;
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            logDebug("DOMの読み込みが完了しました。初期化を開始します。");
+            const savedUserId = localStorage.getItem('ongekiUserId');
+            if (savedUserId) { userIdInput.value = savedUserId; logDebug(`保存されたユーザーID (${savedUserId}) を読み込みました。`); }
+            setupInitialCalculator();
+            feather.replace();
+        });
+
+        calculateBtn.addEventListener('click', handleCalculation);
+        modalCloseBtn.addEventListener('click', () => previewModal.style.display = 'none');
+
+        async function handleCalculation() {
+            const userId = userIdInput.value.trim();
+            if (!userId) {
+                bestFrameResultsContainer.innerHTML = `<div class="error">USER IDを入力してください。</div>`;
+                initialCalculatorContainer.style.display = 'none';
+                bestFrameResultsContainer.style.display = 'block';
+                return;
+            }
+            localStorage.setItem('ongekiUserId', userId);
+            logDebug(`ユーザーID (${userId}) のベスト枠計算を開始します。`);
+            bestFrameResultsContainer.innerHTML = '';
+            debugLogEl.textContent = '';
+            logDebug("デバッグログをクリアしました。");
+            loader.style.display = 'block';
+            initialCalculatorContainer.style.display = 'none';
+            bestFrameResultsContainer.style.display = 'none';
+            calculateBtn.disabled = true;
+
+            try {
+                logDebug("楽曲データとスコアページの並行読み込みを開始します。");
+                const [musicData, scorePageJson] = await Promise.all([
+                    getMusicData(),
+                    fetch(`${PROXY_URL}?id=${userId}&type=normal`).then(res => res.json())
+                ]);
+                logDebug("楽曲データとスコアページのJSON取得完了。");
+
+                const doc = new DOMParser().parseFromString(scorePageJson.txt, "text/html");
+                if (doc.querySelector('title')?.innerText.includes("404 Not Found")) throw new Error("ユーザーが見つかりませんでした。");
+                
+                const playerInfo = {};
+                doc.querySelectorAll('article.box table.is-striped tbody tr').forEach(row => {
+                    const key = row.querySelector('th')?.innerText.trim();
+                    const value = row.querySelector('td')?.innerText.trim();
+                    if (key && value) playerInfo[key] = value;
+                });
+                playerInfo['プレイヤーネーム'] = doc.querySelector('h1.title')?.innerText.trim() || '取得不可';
+                logDebug(`プレイヤー情報: ${playerInfo['プレイヤーネーム']} / レート: ${playerInfo['レーティング']}`);
+
+                const allPlayerSongs = parseSongsFromTechnicalPage(doc, musicData);
+                if (allPlayerSongs.length === 0) throw new Error("楽曲データが見つかりませんでした。");
+                
+                const newSongs = allPlayerSongs.filter(song => song.releaseDateNumeric >= NEW_SONG_DATE_THRESHOLD);
+                const oldSongs = allPlayerSongs.filter(song => song.releaseDateNumeric < NEW_SONG_DATE_THRESHOLD);
+                newSongs.sort((a, b) => (b.tsRate || 0) - (a.tsRate || 0));
+                oldSongs.sort((a, b) => (b.tsRate || 0) - (a.tsRate || 0));
+                
+                const newSongsBest = newSongs.slice(0, NEW_FRAME_COUNT);
+                const oldSongsBest = oldSongs.slice(0, BEST_FRAME_COUNT);
+                const newSongsNext = newSongs.slice(NEW_FRAME_COUNT, NEW_FRAME_COUNT + 10);
+                const oldSongsNext = oldSongs.slice(BEST_FRAME_COUNT, BEST_FRAME_COUNT + 10);
+                const potentialOldSongs = [...oldSongsBest].sort((a,b) => a.score - b.score).slice(0, 10);
+
+                displayResults(playerInfo, newSongsBest, oldSongsBest, {newSongsNext, oldSongsNext, potentialOldSongs});
+                logDebug("結果の表示が完了しました。");
+            } catch (error) {
+                console.error("エラー:", error);
+                logDebug(`エラー発生: ${error.message}`);
+                bestFrameResultsContainer.innerHTML = `<div class="error">処理に失敗しました: ${error.message}</div>`;
+            } finally {
+                loader.style.display = 'none';
+                bestFrameResultsContainer.style.display = 'block';
+                calculateBtn.disabled = false;
+            }
+        }
+        
+        function parseSongsFromTechnicalPage(doc, musicData) {
+            const songElements = doc.querySelectorAll('#sort_table tbody.list tr');
+            const allSongs = [];
+            const difficultyMap = { 'basic': 'BAS', 'advanced': 'ADV', 'expert': 'EXP', 'master': 'MAS', 'lunatic': 'LUN' };
+            songElements.forEach(row => {
+                try {
+                    const titleElement = row.querySelector('.sort_title a');
+                    const scoreElement = row.querySelector('.sort_ts .sort-key');
+                    const difficultyElement = row.querySelector('.sort_raw_difficulty');
+                    const lampElement = row.querySelector('.sort_raw_lamp');
+                    if (!titleElement || !scoreElement || !difficultyElement) return;
+                    
+                    const musicIdMatch = titleElement.href.match(/\/music\/(\d+)/);
+                    if (!musicIdMatch) return;
+                    
+                    const musicId = parseInt(musicIdMatch[1], 10);
+                    const difficulty = difficultyElement.innerText.trim().toLowerCase();
+                    const score = parseInt(scoreElement.innerText, 10);
+                    if (!difficulty || isNaN(score) || score === 0) return;
+
+                    const difficultyKey = difficultyMap[difficulty];
+                    const musicInfo = musicData.find(m => m.meta.id === musicId && m.data && m.data[difficultyKey]);
+                    if (!musicInfo || musicInfo.meta.is_bonus) return;
+
+                    const difficultyData = musicInfo.data[difficultyKey];
+                    if (!difficultyData || difficultyData.const === null) return;
+
+                    let releaseDateStr = difficultyData.release || musicInfo.meta.release;
+                    let releaseDateNumeric = 20000101;
+                    if (releaseDateStr) { try { releaseDateNumeric = parseInt(releaseDateStr.replace(/-/g, ''), 10); } catch (e) {} }
+
+                    const lampText = lampElement?.innerText || '';
+                    const lamps = { is_fullbell: lampText.includes('FB'), is_fullcombo: lampText.includes('FC'), is_allbreak: lampText.includes('AB') };
+                    const tsRate = calculateBestFrameTsRate(difficultyData.const, score, lamps.is_fullcombo, lamps.is_allbreak, lamps.is_fullbell);
+
+                    allSongs.push({ title: titleElement.innerText.trim(), artist: musicInfo.meta.artist, difficulty, score, musicConst: difficultyData.const, tsRate, lamps, releaseDateNumeric });
+                } catch (e) { logDebug(`[Parser] スコアページの行解析中にエラー: ${e.message}.`); }
+            });
+            return allSongs;
+        }
+
+        function calculateBestFrameTsRate(levelConst, score, is_fullcombo, is_allbreak, is_fullbell) {
+            let scoreCoeff = 0;
+            if (score >= 1010000) scoreCoeff = 2.0;
+            else if (score >= 1007500) scoreCoeff = 1.75 + (score - 1007500) / 2500 * 0.25;
+            else if (score >= 1000000) scoreCoeff = 1.25 + (score - 1000000) / 7500 * 0.50;
+            else if (score >= 990000) scoreCoeff = 0.75 + (score - 990000) / 10000 * 0.50;
+            else if (score >= 970000) scoreCoeff = 0.00 + (score - 970000) / 20000 * 0.75;
+            else if (score >= 900000) scoreCoeff = -3.00 + (score - 900000) / 70000 * 3.00;
+            else return 0;
+            let gradeBonus = 0;
+            if (score >= 1007500) gradeBonus = 0.30;
+            else if (score >= 1000000) gradeBonus = 0.20;
+            else if (score >= 990000) gradeBonus = 0.10;
+            let comboBonus = 0;
+            if (is_allbreak) comboBonus = (score === 1010000) ? 0.35 : 0.30;
+            else if (is_fullcombo) comboBonus = 0.10;
+            const bellBonus = is_fullbell ? 0.05 : 0;
+            return Math.floor(Math.max(0, levelConst + scoreCoeff + gradeBonus + comboBonus + bellBonus) * 1000) / 1000;
+        }
+
+        function calculateAverageRate(songs) {
+            if (songs.length === 0) return 0;
+            return songs.reduce((sum, s) => sum + (s.tsRate || 0), 0) / songs.length;
+        }
+
+        function setupInitialCalculator() {
+            logDebug("初期計算機UIのセットアップを開始します。");
+            calculatorHtmlContent = `
+                <div class="calculator-pane">
+                    <div class="search-container">
+                        <input type="search" id="song-search-calc" placeholder="曲名、譜面定数で検索...">
+                        <div id="search-results-calc" aria-live="polite"></div>
+                    </div>
+                    <div id="loading-indicator-calc" role="status" style="text-align:center; padding: 2rem 0;">データをロード中...</div>
+                    <div id="calculator-core" style="display: none;">
+                        <div class="score-mode">
+                             <div class="input-group">
+                                <div class="input-field"><label for="score-chart">譜面定数 <span class="chart-info" id="score-chart-info"></span></label><input type="number" id="score-chart" placeholder="1.0-15.7" min="1.0" max="15.7" step="0.1"><div class="input-error" id="score-chart-error"></div></div>
+                                <div class="input-field"><label for="score">スコア</label><input type="number" id="score" placeholder="例: 1007500" min="0" max="1010000"><div class="input-error" id="score-error"></div></div>
+                                <fieldset class="bonus-section"><legend>達成ボーナス</legend><div class="bonus-controls"><div class="input-field"><label for="score-lamp-bonus">ランプ</label><select id="score-lamp-bonus"><option value="0">未達成</option><option value="0.100">FC</option><option value="0.300">AB</option><option value="0.350">AB+</option></select></div><div class="checkbox-container"><input type="checkbox" id="score-fb-bonus" value="0.050"><label for="score-fb-bonus">FULL BELL</label></div></div></fieldset>
+                            </div>
+                        </div>
+                        <div class="rate-mode" style="display:none;">
+                            <div class="input-group">
+                                <div class="input-field"><label for="chart">譜面定数 <span class="chart-info" id="chart-info"></span></label><input type="number" id="chart" placeholder="1.0-15.7" min="1.0" max="15.7" step="0.1"><div class="input-error" id="chart-error"></div></div>
+                                <div class="input-field"><label for="target-rate">目標レート</label><input type="number" id="target-rate" placeholder="例: 15.50" min="0" max="18.4" step="0.01"><div class="input-error" id="rate-error"></div></div>
+                                <fieldset class="bonus-section"><legend>達成ボーナス</legend><div class="bonus-controls"><div class="input-field"><label for="rate-lamp-bonus">ランプ</label><select id="rate-lamp-bonus"><option value="0">未達成</option><option value="0.100">FC</option><option value="0.300">AB</option><option value="0.350">AB+</option></select></div><div class="checkbox-container"><input type="checkbox" id="rate-fb-bonus" value="0.050"><label for="rate-fb-bonus">FULL BELL</label></div></div></fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result" aria-live="polite"><h2 id="result-text" class="info"><i data-feather="info"></i><span>譜面を選択または定数を入力してください</span></h2></div>
+                </div>`;
+            const scorePane = document.getElementById('score-rate-calc-initial');
+            const ratePane = document.getElementById('rate-score-calc-initial');
+            scorePane.innerHTML = calculatorHtmlContent;
+            ratePane.innerHTML = calculatorHtmlContent;
+            initRateCalculator(scorePane, 'score');
+            initRateCalculator(ratePane, 'rate');
+            setupTabEvents('#initial-calculator-container');
+            logDebug("初期計算機UIのセットアップが完了しました。");
+        }
+        
+        function setupTabEvents(containerSelector) {
+            const container = document.querySelector(containerSelector);
+            if (!container) return;
+            const tabLinks = container.querySelectorAll('.tab-link');
+            const tabPanes = container.querySelectorAll('.tab-pane');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const tabId = e.currentTarget.dataset.tab;
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    container.querySelector(`#${tabId}`).classList.add('active');
+                });
+            });
+        }
+
+        function displayResults(playerInfo, newSongs, oldSongs, recommendedSongs) {
+            const newAvg = calculateAverageRate(newSongs);
+            const oldAvg = calculateAverageRate(oldSongs);
+            const newAvgStr = (Math.floor(newAvg * 1000) / 1000).toFixed(3);
+            const oldAvgStr = (Math.floor(oldAvg * 1000) / 1000).toFixed(3);
+            const imageBtnHtml = `<div style="text-align: center; margin: 20px 0;"><button id="generateImageBtn">ベスト枠を画像化</button></div>`;
+            bestFrameResultsContainer.innerHTML = `
+                <div class="player-info">
+                    <h2>プレイヤー情報</h2>
+                    <p>名前: <strong>${playerInfo['プレイヤーネーム'] || '取得不可'}</strong></p>
+                    <p>レーティング: <strong>${playerInfo['レーティング'] || '取得不可'}</strong></p>
+                    <p>新曲枠平均レート: <strong>${newAvgStr}</strong> / ベスト枠平均レート: <strong>${oldAvgStr}</strong></p>
+                </div>
+                ${imageBtnHtml}
+                <div class="tabs">
+                    <div class="tab-links">
+                        <button class="tab-link active" data-tab="best">ベスト枠</button>
+                        <button class="tab-link" data-tab="new">新曲枠</button>
+                        <button class="tab-link" data-tab="recommend">おすすめ曲</button>
+                        <button class="tab-link" data-tab="score-rate-calc">Score → Rate</button>
+                        <button class="tab-link" data-tab="rate-score-calc">Rate → Score</button>
+                    </div>
+                    <div class="tab-content">
+                        <div id="best" class="tab-pane active"><div class="table-wrapper">${createTableHtml('old-songs-table', oldSongs)}</div></div>
+                        <div id="new" class="tab-pane"><div class="table-wrapper">${createTableHtml('new-songs-table', newSongs)}</div></div>
+                        <div id="recommend" class="tab-pane">
+                            <h3>レート向上 おすすめ楽曲</h3>
+                            <div class="recommend-logic"><strong><h4>次点候補 (あと少しで枠に入る曲)</h4></strong><p>ベスト枠/新曲枠のレート値下限に最も近い、枠外の楽曲です。スコアを少し伸ばすだけで枠内の楽曲と入れ替わる可能性が高いです。</p></div>
+                            <div class="table-wrapper">${createTableHtml('recommend-next-old-table', recommendedSongs.oldSongsNext, true)}</div>
+                            <div class="table-wrapper">${createTableHtml('recommend-next-new-table', recommendedSongs.newSongsNext, true)}</div>
+                            <div class="recommend-logic"><strong><h4>伸びしろ枠 (枠内でもっともレートを伸ばしやすい曲)</h4></strong><p>ベスト枠に入っている楽曲の中で、スコアが低い順に表示しています。スコアを伸ばすことで直接レートの底上げに繋がりやすい曲です。</p></div>
+                            <div class="table-wrapper">${createTableHtml('recommend-potential-table', recommendedSongs.potentialOldSongs, true)}</div>
+                        </div>
+                        <div id="score-rate-calc" class="tab-pane"></div>
+                        <div id="rate-score-calc" class="tab-pane"></div>
+                    </div>
+                </div>`;
+            
+            const scorePane = bestFrameResultsContainer.querySelector('#score-rate-calc');
+            const ratePane = bestFrameResultsContainer.querySelector('#rate-score-calc');
+            scorePane.innerHTML = calculatorHtmlContent;
+            ratePane.innerHTML = calculatorHtmlContent;
+            initRateCalculator(scorePane, 'score');
+            initRateCalculator(ratePane, 'rate');
+            setupTabEvents('#best-frame-results-container');
+            bestFrameResultsContainer.querySelector('#generateImageBtn').onclick = () => generateBestFrameImage(playerInfo, newSongs, oldSongs, newAvgStr, oldAvgStr);
+            bestFrameResultsContainer.querySelectorAll('th.sortable').forEach(headerCell => {
+                headerCell.addEventListener('click', () => {
+                    const tableElement = headerCell.closest('table');
+                    const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
+                    const currentIsAsc = headerCell.classList.contains('asc');
+                    tableElement.querySelectorAll('th').forEach(th => th.classList.remove('asc', 'desc'));
+                    headerCell.classList.add(currentIsAsc ? 'desc' : 'asc');
+                    sortTableByColumn(tableElement, headerIndex, !currentIsAsc);
+                });
+            });
+        }
+        
+        function sortTableByColumn(table, columnIndex, asc = true) {
+            const dirModifier = asc ? 1 : -1;
+            const tBody = table.tBodies[0];
+            const rows = Array.from(tBody.querySelectorAll("tr"));
+            const sortedRows = rows.sort((a, b) => {
+                const aCell = a.querySelector(`td:nth-child(${columnIndex + 1})`);
+                const bCell = b.querySelector(`td:nth-child(${columnIndex + 1})`);
+                if (!aCell || !bCell) return 0;
+                const aVal = parseFloat(aCell.textContent.trim().replace(/,/g, '')) || aCell.textContent.trim();
+                const bVal = parseFloat(bCell.textContent.trim().replace(/,/g, '')) || bCell.textContent.trim();
+                if (typeof aVal === 'number' && typeof bVal === 'number') { return (aVal > bVal ? 1 : -1) * dirModifier; }
+                else { return aVal.localeCompare(bVal) * dirModifier; }
+            });
+            tBody.append(...sortedRows);
+        }
+
+        // --- Image Generation Logic ---
+        function imageToDataUrl(imgElement) {
+            return new Promise((resolve) => {
+                if (imgElement && imgElement.complete) {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = imgElement.naturalWidth;
+                        canvas.height = imgElement.naturalHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(imgElement, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                        return;
+                    } catch (e) {
+                        logDebug(`Error converting image to data URL: ${e.message}`);
+                    }
+                }
+                // Fallback if image not loaded or element not found
+                resolve('https://placehold.co/450x150/e8f5e9/7cb342?text=Logo+Error'); 
+            });
+        }
+
+        async function generateBestFrameImage(playerInfo, newSongs, oldSongs, newAvg, oldAvg) {
+            imageLoader.style.display = 'block';
+            const generateBtn = document.getElementById('generateImageBtn');
+            if(generateBtn) generateBtn.disabled = true;
+
+            try {
+                logDebug("画像生成開始 (ライトテーマ固定)");
+                const mainLogoEl = document.querySelector('.header-logo');
+                const logoDataUrl = await imageToDataUrl(mainLogoEl);
+
+                const songCardHtml = (song, rank) => {
+                    const filename = md5(song.title + song.artist) + ".webp";
+                    const jacketUrl = JACKET_BASE_URL + filename;
+                    const lampParts = [];
+                    if (song.lamps.is_allbreak) lampParts.push(`<div class="lamp-badge">${song.score === 1010000 ? 'AB+' : 'AB'}</div>`);
+                    else if (song.lamps.is_fullcombo) lampParts.push(`<div class="lamp-badge">FC</div>`);
+                    if (song.lamps.is_fullbell) lampParts.push(`<div class="lamp-badge">FB</div>`);
+                    const lampsHtml = lampParts.length > 0 ? `<div class="jacket-lamps-container">${lampParts.join('')}</div>` : '';
+                    return `<div class="image-song-card"><div class="rank">#${rank}</div><div class="difficulty-badge diff-${song.difficulty}">${song.difficulty.slice(0,3).toUpperCase()}<br>${song.musicConst.toFixed(1)}</div><div class="jacket-container"><img src="${jacketUrl}" class="jacket" crossorigin="anonymous" onerror="this.src='https://placehold.co/100x100/e8f5e9/7cb342?text=No+Art'">${lampsHtml}</div><div class="title">${song.title}</div><div class="details"><span class="score-value">${song.score.toLocaleString()}</span><span class="rate-value">${(song.tsRate || 0).toFixed(3)}</span></div></div>`;
+                };
+                const bestSongsHtml = oldSongs.map((song, i) => songCardHtml(song, i + 1)).join('');
+                const newSongsHtml = newSongs.map((song, i) => songCardHtml(song, i + 1)).join('');
+                const cleanedRatingForImage = playerInfo['レーティング'] ? playerInfo['レーティング'].split('(')[0].trim() : 'N/A';
+                
+                const imageGenerationStyles = `
+                    <style>
+                        .image-container { 
+                            width: 1450px; 
+                            font-family: 'Inter', 'Noto Sans JP', sans-serif; 
+                            padding: 40px;
+                            box-sizing: border-box; 
+                            background-color: #e0f8d8;
+                            background-image:
+                                linear-gradient(135deg, hsla(100, 80%, 90%, 1), hsla(80, 70%, 90%, 1)),
+                                radial-gradient(at 80% 10%, hsla(190, 80%, 70%, 0.4) 0px, transparent 50%),
+                                radial-gradient(at 10% 90%, hsla(320, 90%, 70%, 0.4) 0px, transparent 50%);
+                            position: relative; 
+                            overflow: hidden; 
+                        }
+                        .image-header { 
+                            margin-bottom: 40px; 
+                            position: relative; 
+                            z-index: 2; 
+                            text-align: center;
+                        }
+                        .image-logo { 
+                            position: absolute;
+                            top: 30px;
+                            left: 30px;
+                            height: 180px;
+                            width: auto;
+                            z-index: 5;
+                        }
+                        .image-header-info { 
+                            display: inline-block;
+                            position: relative; 
+                            padding: 10px 30px; 
+                        }
+                        .image-header-info::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.75); border-radius: 12px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1; }
+                        .header-content { position: relative; z-index: 2; }
+                        .image-header .player-name { font-size: 42px; font-weight: 900; color: #0c3b0e; font-family: 'Inter', sans-serif; }
+                        .image-header .rating-info { font-size: 22px; margin-top: 8px; font-weight: 700; color: #388e3c; }
+                        .image-songs-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; position: relative; z-index: 2; }
+                        .image-song-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 12px; padding: 8px; text-align: center; font-size: 10px; position: relative; color: #1b5e20; display: flex; flex-direction: column; }
+                        .image-song-card .rank { position: absolute; top: 4px; left: 4px; background: rgba(40, 40, 40, 0.8); color: white; font-weight: bold; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; font-size: 11px; z-index: 4; border: 1px solid rgba(255,255,255,0.5); }
+                        .image-song-card .jacket-container { width: 100%; aspect-ratio: 1 / 1; border-radius: 6px; margin-bottom: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; flex-shrink: 0; position: relative; }
+                        .image-song-card .jacket { width: 100%; height: 100%; object-fit: cover; }
+                        .image-song-card .title { font-weight: 700; margin-bottom: 3px; height: 2.4em; line-height: 1.2em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex-grow: 1; }
+                        .image-song-card .details { display: flex; justify-content: space-between; align-items: center; width: 100%; flex-shrink: 0; }
+                        .image-song-card .rate-value { font-size: 14px; font-weight: 900; color: #1b5e20; background: #ffffff; padding: 2px 5px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+                        .image-song-card .score-value { font-size: 10px; font-weight: 700; }
+                        .jacket-lamps-container { position: absolute; bottom: 4px; left: 4px; z-index: 3; display: flex; gap: 3px; }
+                        .lamp-badge { font-size: 9px; font-weight: 700; background: rgba(40, 40, 40, 0.8); color: white; padding: 2px 4px; border-radius: 4px; line-height: 1; }
+                        .difficulty-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; font-weight: 900; color: white; padding: 3px 5px; border-radius: 4px; line-height: 1.1; text-align: center; z-index: 3; text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
+                        .difficulty-badge.diff-master { background-color: #8e24aa; } .difficulty-badge.diff-lunatic { background-color: #d81b60; } .difficulty-badge.diff-expert { background-color: #ef5350; } .difficulty-badge.diff-advanced { background-color: #ff9800; } .difficulty-badge.diff-basic { background-color: #7cb342; }
+                        .image-footer { text-align: center; margin-top: 25px; font-size: 12px; color: #558b2f; position: relative; z-index: 2; }
+                        .section-title { font-size: 24px; font-weight: 900; text-align: center; margin: 12px 0 4px 0; color: #558b2f; text-shadow: 0 1px 2px rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; }
+                    </style>
+                `;
+                imageCaptureWrapper.innerHTML = `${imageGenerationStyles}<div class="image-container"><img src="${logoDataUrl}" class="image-logo"><div class="image-header"><div class="image-header-info"><div class="header-content"><div class="player-name">${playerInfo['プレイヤーネーム']}</div><div class="rating-info">RATING: ${cleanedRatingForImage} (NEW: ${newAvg} / BEST: ${oldAvg})</div></div></div></div><div class="section-title">BEST (${BEST_FRAME_COUNT})</div><div class="image-songs-grid">${bestSongsHtml}</div><div class="section-title">NEW (${NEW_FRAME_COUNT})</div><div class="image-songs-grid">${newSongsHtml}</div><div class="image-footer">Generated by Ongeki Rate & Score Lab</div></div>`;
+                logDebug("HTML生成完了。ジャケット画像の読み込み待機...");
+                
+                const images = imageCaptureWrapper.querySelectorAll('.jacket'); // Logo is now data URL, no need to wait
+                await Promise.all([...images].map(img => new Promise(resolve => {
+                    if (img.complete) return resolve();
+                    img.onload = resolve;
+                    img.onerror = resolve; 
+                })));
+                logDebug("全画像の読み込み完了。キャプチャ実行。");
+
+                const canvas = await html2canvas(imageCaptureWrapper.querySelector('.image-container'), { useCORS: true, scale: 1.5 });
+                const imageUrl = canvas.toDataURL("image/jpeg", 0.95); 
+                previewImage.src = imageUrl;
+                
+                if (navigator.share) {
+                    modalShareBtn.style.display = 'inline-block';
+                    modalShareBtn.onclick = async () => {
+                        try {
+                            const blob = await (await fetch(imageUrl)).blob();
+                            const file = new File([blob], `ongeki_best_frame_${playerInfo['プレイヤーネーム']}.jpeg`, { type: 'image/jpeg' });
+                            await navigator.share({ title: 'オンゲキ ベスト枠', text: `${playerInfo['プレイヤーネーム']}さんのベスト枠です。`, files: [file] });
+                        } catch (err) { console.error('Share failed:', err); logDebug(`共有エラー: ${err.message}`); }
+                    };
+                } else { modalShareBtn.style.display = 'none'; }
+                previewModal.style.display = 'block';
+                modalDownloadBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.download = `ongeki_best_frame_${playerInfo['プレイヤーネーム']}.jpeg`;
+                    link.href = imageUrl;
+                    link.click();
+                };
+                logDebug("プレビュー表示完了。");
+            } catch (error) {
+                console.error("エラー:", error);
+                logDebug(`画像生成エラー: ${error.message}`);
+                bestFrameResultsContainer.insertAdjacentHTML('afterbegin', `<div class="error">画像生成に失敗しました: ${error.message}</div>`);
+            } finally {
+                imageLoader.style.display = 'none';
+                if(generateBtn) generateBtn.disabled = false;
+                imageCaptureWrapper.innerHTML = '';
+            }
+        }
+
+        function createTableHtml(tableId, songs, isSearchResult = false) {
+            if (songs.length === 0) return '';
+            let table = `<table id="${tableId}"><thead><tr><th class="sortable col-rank">#</th><th class="sortable col-title">曲名</th><th class="sortable col-diff">難易度</th><th class="sortable col-const">定数</th><th class="sortable col-score">スコア</th><th class="col-lamp">ランプ</th><th class="sortable col-rate">レート値</th></tr></thead><tbody>`;
+            songs.forEach((song, index) => {
+                const lampParts = [];
+                if (song.lamps.is_allbreak) lampParts.push(song.score === 1010000 ? 'AB+' : 'AB');
+                else if (song.lamps.is_fullcombo) lampParts.push('FC');
+                if (song.lamps.is_fullbell) lampParts.push('FB');
+                const lampsText = lampParts.join(' / ') || '-';
+                table += `<tr><td class="col-rank">${isSearchResult ? '-' : index + 1}</td><td class="col-title" title="${song.title}">${song.title}</td><td class="col-diff diff-${song.difficulty}">${song.difficulty.slice(0,3).toUpperCase()}</td><td class="col-const">${(song.musicConst || 0).toFixed(1)}</td><td class="col-score">${(song.score || 0).toLocaleString()}</td><td class="col-lamp">${lampsText}</td><td class="col-rate"><strong>${(song.tsRate || 0).toFixed(3)}</strong></td></tr>`;
+            });
+            return table + `</tbody></table>`;
+        }
+    </script>
+    <script>
+        // --- Script for Calculator ---
+        function initRateCalculator(container, initialMode) {
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    const later = () => { clearTimeout(timeout); func.apply(this, args); };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            class OngekiCalculator {
+                static MAX_SCORE = 1010000;
+                static SCORE_THRESHOLD_SSS_PLUS = 1007500;
+                static SCORE_THRESHOLD_SSS = 1000000;
+                static SCORE_THRESHOLD_SS = 990000;
+                static SCORE_THRESHOLD_S = 970000;
+                static RATE_BONUS_MAX = 2.000;
+                static RATE_BONUS_SSS_PLUS_BASE = 1.750;
+                static RATE_BONUS_SSS_BASE = 1.250;
+                static RATE_BONUS_SS_BASE = 0.750;
+                static RATE_BONUS_S_BASE = 0.000;
+                static RANK_BONUS_SSS_PLUS = 0.300;
+                static RANK_BONUS_SSS = 0.200;
+                static RANK_BONUS_SS = 0.100;
+
+                constructor(container, initialMode) {
+                    this.container = container;
+                    this._cacheDOMElements();
+                    this.songList = []; this.songDetails = {};
+                    this.currentSelectedInternalId = null; this.currentOpenSongItem = null; this.currentSelectedDifficultyBtn = null;
+                    this.activeMode = initialMode || 'score';
+                    this.debouncedCalculate = debounce(this.calculate.bind(this), 300);
+                    this.debouncedPerformSearch = debounce(this._performSearch.bind(this), 250);
+                    this._loadDataAndInitUI();
+                }
+
+                _cacheDOMElements() {
+                    this.searchInput = this.container.querySelector('#song-search-calc');
+                    this.searchResultsContainer = this.container.querySelector('#search-results-calc');
+                    this.loadingIndicator = this.container.querySelector('#loading-indicator-calc');
+                    this.calculatorCore = this.container.querySelector('#calculator-core');
+                    this.resultTextElement = this.container.querySelector('#result-text');
+                    this.chartInput = this.container.querySelector('#chart');
+                    this.chartError = this.container.querySelector('#chart-error');
+                    this.chartInfoSpan = this.container.querySelector('#chart-info');
+                    this.targetRateInput = this.container.querySelector('#target-rate');
+                    this.rateError = this.container.querySelector('#rate-error');
+                    this.rateLampBonusSelect = this.container.querySelector('#rate-lamp-bonus');
+                    this.rateFullBellCheckbox = this.container.querySelector('#rate-fb-bonus');
+                    this.scoreChartInput = this.container.querySelector('#score-chart');
+                    this.scoreChartError = this.container.querySelector('#score-chart-error');
+                    this.scoreChartInfoSpan = this.container.querySelector('#score-chart-info');
+                    this.scoreInput = this.container.querySelector('#score');
+                    this.scoreError = this.container.querySelector('#score-error');
+                    this.scoreLampBonusSelect = this.container.querySelector('#score-lamp-bonus');
+                    this.scoreFullBellCheckbox = this.container.querySelector('#score-fb-bonus');
+                    this.interactiveElements = [this.chartInput, this.targetRateInput, this.rateLampBonusSelect, this.rateFullBellCheckbox, this.scoreChartInput, this.scoreInput, this.scoreLampBonusSelect, this.scoreFullBellCheckbox];
+                }
+
+                async _loadDataAndInitUI() {
+                    this.loadingIndicator.style.display = 'block';
+                    this.calculatorCore.style.display = 'none';
+                    try {
+                        const rawData = await getMusicData();
+                        this._processData(rawData);
+                        this._initializeSearch();
+                        this._setupEventListeners();
+                        this.showResult('譜面を選択または定数を入力してください', 'info');
+                        this.calculatorCore.style.display = 'block';
+                        this._handleModeSwitch();
+                    } catch (error) {
+                        console.error('Data loading error:', error);
+                        this.showResult(`データ読み込みエラー: ${error.message}`, 'error');
+                    } finally {
+                        this.loadingIndicator.style.display = 'none';
+                    }
+                }
+
+                _processData(data) {
+                    logDebug("計算機用の楽曲データ処理を開始します。");
+                    this.songList = []; this.songDetails = {}; const processedInternalIds = new Set();
+                    data.forEach(song => {
+                        if (!song.meta || song.meta.is_bonus || !song.data || !song.meta.id || !song.meta.title) return;
+                        const baseId = song.meta.id; const title = song.meta.title; const artist = song.meta.artist || 'Unknown Artist';
+                        const hasLunatic = song.data.hasOwnProperty('LUN');
+                        const hasStandard = Object.keys(song.data).some(key => key !== 'LUN');
+                        if (hasLunatic) {
+                            const internalId = `${baseId}_LUN`;
+                            if (!processedInternalIds.has(internalId)) {
+                                this.songList.push({ internalId, title, artist, isLunatic: true });
+                                const difficulties = {};
+                                if (song.data['LUN']?.const != null) difficulties['LUN'] = { constantValue: song.data['LUN'].const, isConstantUnknown: !!song.data['LUN'].is_const_unknown };
+                                this.songDetails[internalId] = difficulties; processedInternalIds.add(internalId);
+                            }
+                        }
+                        if (hasStandard) {
+                            const internalId = `${baseId}_STD`;
+                            if (!processedInternalIds.has(internalId)) {
+                                this.songList.push({ internalId, title, artist, isLunatic: false });
+                                const difficulties = {};
+                                for (const diffKey in song.data) {
+                                    if (diffKey !== 'LUN' && song.data[diffKey]?.const != null) difficulties[diffKey] = { constantValue: song.data[diffKey].const, isConstantUnknown: !!song.data[diffKey].is_const_unknown };
+                                }
+                                if (Object.keys(difficulties).length > 0) { this.songDetails[internalId] = difficulties; processedInternalIds.add(internalId); }
+                                else { const idx = this.songList.findIndex(item => item.internalId === internalId); if(idx > -1) this.songList.splice(idx, 1); }
+                            }
+                        }
+                    });
+                    this.songList.sort((a, b) => { const tc = a.title.localeCompare(b.title, 'ja'); return tc !== 0 ? tc : a.isLunatic - b.isLunatic; });
+                    logDebug("計算機用の楽曲データ処理が完了しました。");
+                }
+
+                _initializeSearch() {
+                    let blurTimeout;
+                    this.searchInput.addEventListener('input', this.debouncedPerformSearch);
+                    this.searchInput.addEventListener('focus', () => { clearTimeout(blurTimeout); if (this.searchInput.value.trim()) this.debouncedPerformSearch(); });
+                    this.searchInput.addEventListener('blur', () => { blurTimeout = setTimeout(() => { this.searchResultsContainer.style.display = 'none'; }, 200); });
+                    this.searchResultsContainer.addEventListener('mousedown', (event) => { clearTimeout(blurTimeout); const songItem = event.target.closest('.song-item'); if (songItem && !event.target.closest('.difficulty-btn')) { event.preventDefault(); this._toggleDifficultyAccordion(songItem); } });
+                    this.searchResultsContainer.addEventListener('click', (event) => {
+                        const btn = event.target.closest('.difficulty-btn');
+                        if (btn) {
+                            clearTimeout(blurTimeout); event.stopPropagation();
+                            const internalId = btn.closest('.song-item')?.dataset.internalId;
+                            const constVal = parseFloat(btn.dataset.const);
+                            const isUnknown = btn.dataset.unknown === 'true';
+                            if (internalId && !isNaN(constVal)) { this._selectDifficulty(internalId, btn, constVal, isUnknown); this.searchResultsContainer.style.display = 'none'; this.searchInput.blur(); }
+                        }
+                    });
+                    document.addEventListener('click', (event) => { if (!this.searchInput.contains(event.target) && !this.searchResultsContainer.contains(event.target)) this.searchResultsContainer.style.display = 'none'; });
+                }
+
+                _setupEventListeners() {
+                    this.interactiveElements.forEach(element => {
+                        if (element) {
+                            const eventType = (element.tagName === 'SELECT' || element.type === 'checkbox') ? 'change' : 'input';
+                            element.addEventListener(eventType, (event) => { if (event.target === this.chartInput || event.target === this.scoreChartInput) this._handleManualConstantInput(event.target); this.debouncedCalculate(); });
+                            if (element.type === 'number') element.addEventListener('change', this.debouncedCalculate);
+                        }
+                    });
+                }
+                
+                _performSearch() {
+                    let query = this.searchInput.value.trim().toLowerCase().replace(/[．０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+                    if (!query) { this.searchResultsContainer.innerHTML = ''; this.searchResultsContainer.style.display = 'none'; return; }
+                    const isConstQuery = /^\d+(\.\d)?$/.test(query);
+                    const results = this.songList.filter(song => {
+                        if (song.title.toLowerCase().includes(query)) return true;
+                        if (isConstQuery && this.songDetails[song.internalId]) { for (const key in this.songDetails[song.internalId]) { if (this.songDetails[song.internalId][key].constantValue.toFixed(1) === query) return true; } }
+                        return false;
+                    }).slice(0, 30);
+                    this._displayResults(results);
+                }
+
+                _displayResults(results) {
+                    this.searchResultsContainer.innerHTML = '';
+                    if (results.length === 0) { this.searchResultsContainer.innerHTML = '<div style="padding:1rem; text-align:center;">該当なし</div>'; this.searchResultsContainer.style.display = 'block'; return; }
+                    const fragment = document.createDocumentFragment();
+                    results.forEach(song => {
+                        const item = document.createElement('div');
+                        item.className = 'song-item'; item.dataset.internalId = song.internalId;
+                        const lunaticTag = song.isLunatic ? '<span class="lunatic-tag">(LUNATIC)</span>' : '';
+                        item.innerHTML = `<div class="song-info"><span class="title">${song.title}${lunaticTag}</span><span class="artist">${song.artist}</span></div><div class="difficulty-container"><div class="difficulty-buttons"></div></div>`;
+                        fragment.appendChild(item);
+                    });
+                    this.searchResultsContainer.appendChild(fragment); this.searchResultsContainer.style.display = 'block';
+                }
+
+                _toggleDifficultyAccordion(songItemElement) {
+                    const isOpen = songItemElement.classList.contains('open');
+                    if (this.currentOpenSongItem && this.currentOpenSongItem !== songItemElement) this.currentOpenSongItem.classList.remove('open');
+                    if (isOpen) { songItemElement.classList.remove('open'); this.currentOpenSongItem = null; }
+                    else { this._populateDifficultyButtons(songItemElement); songItemElement.classList.add('open'); this.currentOpenSongItem = songItemElement; songItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+                }
+
+                _populateDifficultyButtons(songItemElement) {
+                    const internalId = songItemElement.dataset.internalId;
+                    const container = songItemElement.querySelector('.difficulty-buttons');
+                    if (!internalId || !container || container.children.length > 0) return;
+                    const difficulties = this.songDetails[internalId];
+                    container.innerHTML = '';
+                    if (!difficulties || Object.keys(difficulties).length === 0) { container.innerHTML = '<span>難易度データなし</span>'; return; }
+                    const map = { "BAS": "BASIC", "ADV": "ADVANCED", "EXP": "EXPERT", "MAS": "MASTER", "LUN": "LUNATIC" };
+                    const classMap = { "BAS": "basic", "ADV": "advanced", "EXP": "expert", "MAS": "master", "LUN": "lunatic" };
+                    const order = ["BAS", "ADV", "EXP", "MAS", "LUN"];
+                    const sortedKeys = Object.keys(difficulties).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+                    sortedKeys.forEach(key => {
+                        const data = difficulties[key];
+                        const btn = document.createElement('button');
+                        btn.className = `difficulty-btn diff-${classMap[key]}`;
+                        btn.dataset.difficultyKey = key; btn.dataset.const = data.constantValue.toFixed(1); btn.dataset.unknown = data.isConstantUnknown;
+                        let constText = data.constantValue.toFixed(1);
+                        if (data.isConstantUnknown) constText += '?';
+                        btn.innerHTML = `${map[key]} <span class="const-value">(${constText})</span>`;
+                        container.appendChild(btn);
+                    });
+                }
+
+                _selectDifficulty(internalId, buttonElement, constantValue, isConstantUnknown) {
+                    this.currentSelectedInternalId = internalId;
+                    if (this.currentSelectedDifficultyBtn) this.currentSelectedDifficultyBtn.classList.remove('selected');
+                    buttonElement.classList.add('selected'); this.currentSelectedDifficultyBtn = buttonElement;
+                    
+                    const song = this.songList.find(s => s.internalId === this.currentSelectedInternalId);
+                    if (song) {
+                        this.searchInput.value = song.title;
+                    }
+
+                    this._setConstantToInputs(constantValue); this._updateChartInfo(); this._clearErrors(); this.calculate();
+                    if (this.currentOpenSongItem) { this.currentOpenSongItem.classList.remove('open'); this.currentOpenSongItem = null; }
+                }
+
+                _handleManualConstantInput(inputElement) {
+                    if (this.currentSelectedDifficultyBtn) { this.currentSelectedDifficultyBtn.classList.remove('selected'); this.currentSelectedDifficultyBtn = null; }
+                    this.currentSelectedInternalId = null;
+                    const targetId = inputElement === this.chartInput ? 'score-chart' : 'chart';
+                    this.container.querySelector(`#${targetId}`).value = inputElement.value;
+                    this._updateChartInfo();
+                }
+
+                _setConstantToInputs(constant) { const s = constant.toFixed(1); this.chartInput.value = s; this.scoreChartInput.value = s; }
+                
+                _updateChartInfo() {
+                    let infoText = '';
+                    if (this.currentSelectedInternalId && this.currentSelectedDifficultyBtn) {
+                        const song = this.songList.find(s => s.internalId === this.currentSelectedInternalId);
+                        const diffKey = this.currentSelectedDifficultyBtn.dataset.difficultyKey;
+                        const map = { "BAS": "BASIC", "ADV": "ADVANCED", "EXP": "EXPERT", "MAS": "MASTER", "LUN": "LUNATIC" };
+                        if (song && diffKey) infoText = `[${map[diffKey]}]`;
+                    } else if (this.chartInput.value || this.scoreChartInput.value) {
+                        if (this.chartInput.value.trim() !== '') infoText = '(手動入力)';
+                    }
+                    this.chartInfoSpan.textContent = infoText; this.scoreChartInfoSpan.textContent = infoText;
+                }
+
+                _handleModeSwitch() {
+                    const isScoreMode = this.activeMode === 'score';
+                    this.container.querySelector('.score-mode').style.display = isScoreMode ? 'block' : 'none';
+                    this.container.querySelector('.rate-mode').style.display = isScoreMode ? 'none' : 'block';
+                    this._updateChartInfo(); this._clearErrors(); this.calculate();
+                }
+
+                _clearErrors() {
+                    [this.chartError, this.scoreChartError, this.rateError, this.scoreError].forEach(el => { if (el) el.textContent = ''; });
+                    this.interactiveElements.forEach(el => { if (el) el.classList.remove('invalid'); });
+                }
+
+                showResult(content, type = 'success') {
+                    let iconName = 'check-circle';
+                    if (type === 'error') iconName = 'alert-circle';
+                    else if (type === 'info') iconName = 'info';
+                    this.resultTextElement.className = type;
+                    this.resultTextElement.innerHTML = `<i data-feather="${iconName}"></i> <span>${content}</span>`;
+                    if (typeof feather !== 'undefined') feather.replace();
+                }
+
+                calculate() {
+                    this._clearErrors();
+                    let isValid = true, chartConstant = NaN, otherValue = NaN, lampBonusValue = 0, fullBellBonusValue = 0;
+                    let constInput, constErr, otherInput, otherErr, lampSelect, fbCheckbox;
+                    if (this.activeMode === 'rate') { [constInput, constErr, otherInput, otherErr, lampSelect, fbCheckbox] = [this.chartInput, this.chartError, this.targetRateInput, this.rateError, this.rateLampBonusSelect, this.rateFullBellCheckbox]; }
+                    else { [constInput, constErr, otherInput, otherErr, lampSelect, fbCheckbox] = [this.scoreChartInput, this.scoreChartError, this.scoreInput, this.scoreError, this.scoreLampBonusSelect, this.scoreFullBellCheckbox]; }
+                    
+                    const constStr = constInput.value.trim();
+                    if (!constStr) { isValid = false; constErr.textContent = '譜面定数を入力してください'; constInput.classList.add('invalid'); }
+                    else { chartConstant = parseFloat(constStr); if (isNaN(chartConstant) || chartConstant < 1.0 || chartConstant > 15.7) { isValid = false; constErr.textContent = '定数は1.0～15.7の範囲で入力'; constInput.classList.add('invalid'); } }
+                    
+                    const otherStr = otherInput.value.trim();
+                    const min = parseFloat(otherInput.min), max = parseFloat(otherInput.max);
+                    if (!otherStr) { isValid = false; otherErr.textContent = (this.activeMode === 'rate' ? '目標レート' : 'スコア') + 'を入力してください'; otherInput.classList.add('invalid'); }
+                    else { otherValue = parseFloat(otherStr); if (isNaN(otherValue) || otherValue < min || otherValue > max) { isValid = false; otherErr.textContent = `${this.activeMode === 'rate' ? 'レート' : 'スコア'}は${min}～${max}の範囲で入力`; otherInput.classList.add('invalid'); } }
+                    
+                    if (!isValid) { this.showResult('-', 'info'); return; }
+                    
+                    try {
+                        lampBonusValue = parseFloat(lampSelect.value) || 0;
+                        fullBellBonusValue = fbCheckbox.checked ? (parseFloat(fbCheckbox.value) || 0) : 0;
+                        let resultValue;
+                        if (this.activeMode === 'rate') {
+                            resultValue = this._calculateScoreInternal(chartConstant, otherValue, lampBonusValue, fullBellBonusValue);
+                            if (typeof resultValue === 'string' && !/^[0-9,]+\s?(\(MAX\))?$/.test(resultValue)) this.showResult(resultValue, 'error');
+                            else this.showResult(resultValue, 'success');
+                        } else {
+                            resultValue = this._calculateRateInternal(chartConstant, otherValue, lampBonusValue, fullBellBonusValue);
+                            this.showResult(resultValue, 'success');
+                        }
+                    } catch (error) { this.showResult('計算エラー', 'error'); }
+                }
+
+                _calculateRateInternal(chartConstant, score, lampBonus, fullBellBonus) {
+                    score = Math.floor(score); let technicalBonus = 0, rankBonus = 0;
+                    if (score >= OngekiCalculator.SCORE_THRESHOLD_SSS_PLUS) { technicalBonus = score >= OngekiCalculator.MAX_SCORE ? OngekiCalculator.RATE_BONUS_MAX : OngekiCalculator.RATE_BONUS_SSS_PLUS_BASE + Math.floor((score - OngekiCalculator.SCORE_THRESHOLD_SSS_PLUS) / 10) * 0.001; }
+                    else if (score >= OngekiCalculator.SCORE_THRESHOLD_SSS) { technicalBonus = OngekiCalculator.RATE_BONUS_SSS_BASE + Math.floor((score - OngekiCalculator.SCORE_THRESHOLD_SSS) / 15) * 0.001; }
+                    else if (score >= OngekiCalculator.SCORE_THRESHOLD_SS) { technicalBonus = OngekiCalculator.RATE_BONUS_SS_BASE + Math.floor((score - OngekiCalculator.SCORE_THRESHOLD_SS) / 20) * 0.001; }
+                    else if (score >= OngekiCalculator.SCORE_THRESHOLD_S) { technicalBonus = OngekiCalculator.RATE_BONUS_S_BASE + Math.floor((score - OngekiCalculator.SCORE_THRESHOLD_S) / (80 / 3)) * 0.001; }
+                    if (score >= OngekiCalculator.SCORE_THRESHOLD_SSS_PLUS) rankBonus = OngekiCalculator.RANK_BONUS_SSS_PLUS;
+                    else if (score >= OngekiCalculator.SCORE_THRESHOLD_SSS) rankBonus = OngekiCalculator.RANK_BONUS_SSS;
+                    else if (score >= OngekiCalculator.SCORE_THRESHOLD_SS) rankBonus = OngekiCalculator.RANK_BONUS_SS;
+                    const rateValue = chartConstant + Math.min(technicalBonus, OngekiCalculator.RATE_BONUS_MAX) + rankBonus + lampBonus + fullBellBonus;
+                    return Math.max(0, rateValue).toFixed(3);
+                }
+
+                _calculateScoreInternal(chartConstant, targetRate, lampBonus, fullBellBonus) {
+                    const maxPossibleRate = chartConstant + OngekiCalculator.RATE_BONUS_MAX + OngekiCalculator.RANK_BONUS_SSS_PLUS + lampBonus + fullBellBonus;
+                    const baseRate = chartConstant + lampBonus + fullBellBonus;
+                    if (targetRate > maxPossibleRate) return `レート上限 (${maxPossibleRate.toFixed(3)}) を超えています`;
+                    if (targetRate < baseRate) return `レート下限 (${baseRate.toFixed(3)}) 未満です`;
+                    if (targetRate.toFixed(3) === maxPossibleRate.toFixed(3)) return OngekiCalculator.MAX_SCORE.toLocaleString() + ' (MAX)';
+                    
+                    const requiredTotalBonus = targetRate - baseRate;
+                    let requiredScore = 0;
+                    const bonus_sss_plus = OngekiCalculator.RATE_BONUS_SSS_PLUS_BASE + OngekiCalculator.RANK_BONUS_SSS_PLUS;
+                    const bonus_sss = OngekiCalculator.RATE_BONUS_SSS_BASE + OngekiCalculator.RANK_BONUS_SSS;
+                    const bonus_ss = OngekiCalculator.RATE_BONUS_SS_BASE + OngekiCalculator.RANK_BONUS_SS;
+
+                    if (requiredTotalBonus >= bonus_sss_plus) {
+                        const techBonus = Math.max(0, requiredTotalBonus - OngekiCalculator.RANK_BONUS_SSS_PLUS);
+                        requiredScore = OngekiCalculator.SCORE_THRESHOLD_SSS_PLUS + Math.ceil(Math.max(0, techBonus - OngekiCalculator.RATE_BONUS_SSS_PLUS_BASE) / 0.001) * 10;
+                    } else if (requiredTotalBonus >= bonus_sss) {
+                        const techBonus = Math.max(0, requiredTotalBonus - OngekiCalculator.RANK_BONUS_SSS);
+                        requiredScore = OngekiCalculator.SCORE_THRESHOLD_SSS + Math.ceil(Math.max(0, techBonus - OngekiCalculator.RATE_BONUS_SSS_BASE) / 0.001) * 15;
+                    } else if (requiredTotalBonus >= bonus_ss) {
+                        const techBonus = Math.max(0, requiredTotalBonus - OngekiCalculator.RANK_BONUS_SS);
+                        requiredScore = OngekiCalculator.SCORE_THRESHOLD_SS + Math.ceil(Math.max(0, techBonus - OngekiCalculator.RATE_BONUS_SS_BASE) / 0.001) * 20;
+                    } else if (requiredTotalBonus >= 0) {
+                        requiredScore = Math.ceil(OngekiCalculator.SCORE_THRESHOLD_S + (Math.ceil(Math.max(0, requiredTotalBonus) / 0.001) * (80 / 3)));
+                    } else { return '計算エラー'; }
+                    
+                    return Math.min(Math.floor(requiredScore), OngekiCalculator.MAX_SCORE).toLocaleString();
+                }
+            }
+            
+            new OngekiCalculator(container, initialMode);
+        }
+    </script>
+</body>
+</html>
