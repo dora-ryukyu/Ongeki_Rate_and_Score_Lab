@@ -4,28 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ongeki Rate & Score Lab</title>
-    <!-- Libraries for image generation and icons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* ---
-        Theme: "Futuristic Glass - Green Theme"
-        Designer: Gemini (Revised based on user feedback)
-        Concept: A sleek, futuristic theme combining glassmorphism with the game's signature bright green color palette.
-                 Supports both light and dark modes, while ensuring generated images remain in a consistent light theme.
-        --- */
-
-        /* --- CSS Variables --- */
         :root {
             --font-primary: 'Inter', 'Noto Sans JP', sans-serif;
             --font-display: 'Inter', 'Noto Sans JP', sans-serif;
-
-            /* Light Mode Colors */
             --color-bg: #f4fce3;
             --color-bg-gradient: radial-gradient(ellipse at top left, rgba(118, 185, 0, 0.1), transparent 50%), radial-gradient(ellipse at bottom right, rgba(153, 208, 48, 0.1), transparent 50%);
             --color-surface: rgba(255, 255, 255, 0.6);
@@ -39,14 +27,11 @@
             --color-accent-primary: #76b900;
             --color-accent-secondary: #99d030;
             --color-error: #ef5350;
-
-            /* Original Difficulty Colors (Restored) */
-            --diff-master-color: #8e24aa; /* Purple */
-            --diff-lunatic-color: #d81b60; /* Pink */
-            --diff-expert-color: #ef5350; /* Red */
-            --diff-advanced-color: #ff9800; /* Orange */
-            --diff-basic-color: #7cb342;  /* Green */
-
+            --diff-master-color: #8e24aa;
+            --diff-lunatic-color: #d81b60;
+            --diff-expert-color: #ef5350;
+            --diff-advanced-color: #ff9800;
+            --diff-basic-color: #7cb342;
             --backdrop-blur: 10px;
         }
 
@@ -64,8 +49,6 @@
                 --color-text-placeholder: #5c667a;
                 --color-accent-primary: #81c784;
                 --color-accent-secondary: #9ad29d;
-
-                /* Dark Mode Difficulty Colors (Restored & Adjusted) */
                 --diff-master-color: #ab47bc;
                 --diff-lunatic-color: #ec407a;
                 --diff-expert-color: #ef5350;
@@ -74,7 +57,6 @@
             }
         }
 
-        /* --- Base & Layout --- */
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
@@ -115,7 +97,6 @@
             margin: 0 auto 2rem auto;
         }
         
-        /* --- Typography --- */
         h1, h2, h3, h4 {
             font-family: var(--font-display);
             font-weight: 900;
@@ -128,10 +109,9 @@
 
         .intro-text { text-align: center; margin-bottom: 2rem; font-size: 1rem; color: var(--color-text-secondary); }
 
-        /* --- Forms & Buttons (Mobile First) --- */
         .input-area { 
             display: flex; 
-            flex-direction: column; /* Stack on mobile */
+            flex-direction: column;
             gap: 0.75rem; 
             margin-bottom: 1.5rem; 
         }
@@ -177,18 +157,15 @@
             background: #555; color: #aaa; cursor: not-allowed; transform: none; box-shadow: none;
         }
 
-        /* Responsive adjustments for larger screens */
         @media (min-width: 600px) {
             .input-area {
-                flex-direction: row; /* Side-by-side on larger screens */
+                flex-direction: row;
                 align-items: center;
             }
             #userId { flex: 1 1 60%; }
             #calculateBtn { flex: 1 1 40%; width: auto; }
         }
 
-
-        /* --- Loaders & Spinners --- */
         #loader, #image-loader { text-align: center; padding: 20px; font-size: 18px; display: none; color: var(--color-accent-primary); }
         .spinner {
             border: 4px solid var(--color-border);
@@ -198,39 +175,61 @@
             margin: 0 auto 10px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- Tables --- */
+        
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; min-width: 550px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
         th, td {
             border-bottom: 1px solid var(--color-border);
-            padding: 12px 10px; text-align: left;
-            word-break: normal; white-space: nowrap;
+            padding: 8px 3px;
+            text-align: left;
+            word-wrap: break-word;
         }
-        td.col-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-        th { color: var(--color-accent-primary); font-weight: bold; position: relative; font-family: var(--font-display); }
+        td.col-title {
+            white-space: normal;
+            line-height: 1.3;
+        }
+        th {
+            color: var(--color-accent-primary);
+            font-weight: bold;
+            position: relative;
+            font-family: var(--font-display);
+            white-space: nowrap;
+        }
         tr { transition: background-color 0.2s ease; }
         tbody tr:hover { background-color: var(--color-surface-hover); }
-        .col-rank { width: 40px; text-align: center; } 
-        .col-diff { width: 50px; } 
-        .col-const { width: 60px; } 
-        .col-score { width: 80px; text-align: right;} 
-        .col-lamp { width: 60px; } 
-        .col-rate { width: 80px; text-align: right;}
-        td.col-score, td.col-rate { font-weight: bold; text-align: right; }
+
+        .col-rank { width: 7%; text-align: center; }
+        .col-title { width: 43%; }
+        .col-diff { width: 10%; }
+        .col-const { width: 9%; text-align: right; }
+        .col-score { width: 14%; text-align: right; }
+        .col-lamp { width: 8%; }
+        .col-rate { width: 9%; text-align: right; }
+        td.col-const, td.col-score, td.col-rate { white-space: nowrap; }
         td.col-rate strong { color: var(--color-accent-primary); }
+        
         th.sortable { cursor: pointer; }
-        th.sortable::after { content: ' '; position: absolute; right: 8px; top: 50%; margin-top: -8px; width: 0; height: 0; border-style: solid; border-width: 5px 5px 0 5px; border-color: var(--color-text-secondary) transparent transparent transparent; opacity: 0.3; transition: all 0.2s ease; }
+        th.sortable::after { content: ' '; position: absolute; right: 4px; top: 50%; margin-top: -8px; width: 0; height: 0; border-style: solid; border-width: 5px 5px 0 5px; border-color: var(--color-text-secondary) transparent transparent transparent; opacity: 0.3; transition: all 0.2s ease; }
         th.sortable.asc::after { border-width: 0 5px 5px 5px; border-color: transparent transparent var(--color-accent-primary) transparent; opacity: 1; }
         th.sortable.desc::after { opacity: 1; transform: rotate(180deg); }
-
-        @media (max-width: 600px) {
-            table { font-size: 12px; min-width: 500px; }
-            th, td { padding: 8px 5px; }
-            td.col-title { max-width: 120px; }
+        
+        @media (min-width: 768px) {
+            table { font-size: 14px; }
+            th, td { padding: 12px 10px; white-space: nowrap; }
+            td.col-title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 200px;
+            }
+            .col-rank, .col-title, .col-diff, .col-const, .col-score, .col-lamp, .col-rate { width: auto; }
         }
 
-        /* --- Difficulty & Status Colors --- */
         .diff-master { color: var(--diff-master-color); font-weight: bold; }
         .diff-lunatic { color: var(--diff-lunatic-color); font-weight: bold; }
         .diff-expert { color: var(--diff-expert-color); font-weight: bold; }
@@ -238,7 +237,6 @@
         .diff-basic { color: var(--diff-basic-color); font-weight: bold; }
         .error { color: #fff; background-color: var(--color-error); padding: 12px; border-radius: 8px; text-align: center; }
 
-        /* --- Tabs --- */
         .tab-links { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 20px; flex-wrap: wrap; }
         .tab-link {
             padding: 10px 15px; cursor: pointer; border: none; background: none;
@@ -252,7 +250,6 @@
         .tab-pane.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Specific Sections --- */
         .player-info {
             background: linear-gradient(135deg, rgba(118, 185, 0, 0.1), rgba(153, 208, 48, 0.1));
             padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;
@@ -266,7 +263,6 @@
 
         #debugLog { background-color: #1c1e21; color: #abb2bf; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', Courier, monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
 
-        /* --- Calculator UI (Revised) --- */
         .calculator-pane .search-container { margin-bottom: 1.5rem; position: relative; }
         .calculator-pane #search-results-calc {
             max-height: 50vh; overflow-y: auto;
@@ -323,7 +319,6 @@
         
         .input-error { color: var(--color-error); font-size: 0.8rem; margin-top: 0.25rem; min-height: 1em; }
         
-        /* --- Image Generation & Modal --- */
         #image-capture-wrapper { position: absolute; left: -9999px; top: 0; z-index: -1; }
         #preview-modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0;
@@ -447,7 +442,6 @@
             debugLogEl.scrollTop = debugLogEl.scrollHeight;
         }
 
-        // --- Data Fetching with Caching ---
         function getMusicData() {
             if (!musicDataPromise) {
                 const cachedData = sessionStorage.getItem(MUSIC_DATA_CACHE_KEY);
@@ -469,7 +463,7 @@
                         })
                         .catch(err => {
                             logDebug(`楽曲データの読み込みに失敗しました: ${err.message}`);
-                            musicDataPromise = null; // Allow retrying
+                            musicDataPromise = null;
                             throw err;
                         });
                 }
@@ -677,13 +671,14 @@
             const oldAvg = calculateAverageRate(oldSongs);
             const newAvgStr = (Math.floor(newAvg * 1000) / 1000).toFixed(3);
             const oldAvgStr = (Math.floor(oldAvg * 1000) / 1000).toFixed(3);
+            const cleanedRating = playerInfo['レーティング'] ? playerInfo['レーティング'].split('(')[0].trim() : '取得不可';
             const imageBtnHtml = `<div style="text-align: center; margin: 20px 0;"><button id="generateImageBtn">ベスト枠を画像化</button></div>`;
             bestFrameResultsContainer.innerHTML = `
                 <div class="player-info">
                     <h2>プレイヤー情報</h2>
                     <p>名前: <strong>${playerInfo['プレイヤーネーム'] || '取得不可'}</strong></p>
-                    <p>レーティング: <strong>${playerInfo['レーティング'] || '取得不可'}</strong></p>
-                    <p>新曲枠平均レート: <strong>${newAvgStr}</strong> / ベスト枠平均レート: <strong>${oldAvgStr}</strong></p>
+                    <p>レーティング: <strong>${cleanedRating}</strong></p>
+                    <p>ベスト枠平均レート: <strong>${oldAvgStr}</strong> / 新曲枠平均レート: <strong>${newAvgStr}</strong></p>
                 </div>
                 ${imageBtnHtml}
                 <div class="tabs">
@@ -746,7 +741,6 @@
             tBody.append(...sortedRows);
         }
 
-        // --- Image Generation Logic ---
         function imageToDataUrl(imgElement) {
             return new Promise((resolve) => {
                 if (imgElement && imgElement.complete) {
@@ -762,7 +756,6 @@
                         logDebug(`Error converting image to data URL: ${e.message}`);
                     }
                 }
-                // Fallback if image not loaded or element not found
                 resolve('https://placehold.co/450x150/e8f5e9/7cb342?text=Logo+Error'); 
             });
         }
@@ -787,22 +780,38 @@
                     const lampsHtml = lampParts.length > 0 ? `<div class="jacket-lamps-container">${lampParts.join('')}</div>` : '';
                     return `<div class="image-song-card"><div class="rank">#${rank}</div><div class="difficulty-badge diff-${song.difficulty}">${song.difficulty.slice(0,3).toUpperCase()}<br>${song.musicConst.toFixed(1)}</div><div class="jacket-container"><img src="${jacketUrl}" class="jacket" crossorigin="anonymous" onerror="this.src='https://placehold.co/100x100/e8f5e9/7cb342?text=No+Art'">${lampsHtml}</div><div class="title">${song.title}</div><div class="details"><span class="score-value">${song.score.toLocaleString()}</span><span class="rate-value">${(song.tsRate || 0).toFixed(3)}</span></div></div>`;
                 };
+                
                 const bestSongsHtml = oldSongs.map((song, i) => songCardHtml(song, i + 1)).join('');
                 const newSongsHtml = newSongs.map((song, i) => songCardHtml(song, i + 1)).join('');
+                
+                const allSongsForGraph = [...oldSongs, ...newSongs];
+                const maxRate = Math.max(...allSongsForGraph.map(s => s.tsRate), 0);
+                const minRate = Math.min(...allSongsForGraph.map(s => s.tsRate), maxRate);
+                const createGraphBars = (songs, className) => {
+                    return songs.map(song => {
+                        const heightPercent = maxRate > minRate ? ((song.tsRate - minRate) / (maxRate - minRate)) * 100 : 0;
+                        return `<div class="bar ${className}" style="height: ${Math.max(5, heightPercent)}%;"></div>`;
+                    }).join('');
+                };
+                const bestGraphHtml = createGraphBars(oldSongs, 'best-bar');
+                const newGraphHtml = createGraphBars(newSongs, 'new-bar');
+
                 const cleanedRatingForImage = playerInfo['レーティング'] ? playerInfo['レーティング'].split('(')[0].trim() : 'N/A';
+                const now = new Date();
+                const dateTimeStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 
                 const imageGenerationStyles = `
                     <style>
                         .image-container { 
                             width: 1450px; 
                             font-family: 'Inter', 'Noto Sans JP', sans-serif; 
-                            padding: 40px;
+                            padding: 40px 40px 90px;
                             box-sizing: border-box; 
-                            background-color: #e0f8d8;
-                            background-image:
-                                linear-gradient(135deg, hsla(100, 80%, 90%, 1), hsla(80, 70%, 90%, 1)),
-                                radial-gradient(at 80% 10%, hsla(190, 80%, 70%, 0.4) 0px, transparent 50%),
-                                radial-gradient(at 10% 90%, hsla(320, 90%, 70%, 0.4) 0px, transparent 50%);
+                            background-color: #f0f4f0;
+                            background-image: 
+                                linear-gradient(150deg, hsla(180, 80%, 80%, 0.4), transparent 50%),
+                                linear-gradient(330deg, hsla(210, 90%, 75%, 0.4), transparent 50%),
+                                linear-gradient(to bottom right, #e0f2e0, #f8fff8);
                             position: relative; 
                             overflow: hidden; 
                         }
@@ -810,28 +819,84 @@
                             margin-bottom: 40px; 
                             position: relative; 
                             z-index: 2; 
-                            text-align: center;
+                            height: 150px;
                         }
                         .image-logo { 
                             position: absolute;
-                            top: 30px;
-                            left: 30px;
-                            height: 180px;
+                            top: 35px;
+                            left: 50px;
+                            height: 190px;
                             width: auto;
                             z-index: 5;
                         }
-                        .image-header-info { 
-                            display: inline-block;
-                            position: relative; 
-                            padding: 10px 30px; 
+                        .timestamp {
+                            position: absolute;
+                            bottom: 15px;
+                            right: 25px;
+                            font-size: 30px;
+                            font-family: 'Inter', sans-serif;
+                            color: #558b2f;
+                            font-weight: 800;
+                            z-index: 5;
                         }
-                        .image-header-info::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.75); border-radius: 12px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 1; }
+                        
+                        .image-header-info { 
+                            display: flex;
+                            position: absolute;
+                            left: 50%;
+                            top: 50%;
+                            transform: translate(-50%, -50%);
+                            padding: 10px 30px; 
+                            background-color: rgba(255, 255, 255, 0.75);
+                            border-radius: 12px;
+                            backdrop-filter: blur(5px);
+                            -webkit-backdrop-filter: blur(5px);
+                            border: 1px solid rgba(255, 255, 255, 0.8);
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            text-align: center;
+                            justify-content: center;
+                            flex-direction: column;
+                            height: 100%;
+                        }
+                        .rating-graphs-container { 
+                            display: flex;
+                            position: absolute;
+                            right: 0;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            padding: 15px 20px; 
+                            background-color: rgba(255, 255, 255, 0.75);
+                            border-radius: 12px;
+                            backdrop-filter: blur(5px);
+                            -webkit-backdrop-filter: blur(5px);
+                            border: 1px solid rgba(255, 255, 255, 0.8);
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                            flex-direction: column;
+                            justify-content: center;
+                            height: 100%;
+                        }
+                        .graphs-title { 
+                            font-size: 20px; 
+                            font-weight: 900; 
+                            color: #0c3b0e; 
+                            text-transform: uppercase; 
+                            letter-spacing: 1px; 
+                            margin-bottom: 8px; 
+                            text-align: center; 
+                        }
+                        .rating-graphs-wrapper { display: flex; gap: 20px; align-items: center; }
+                        .graph-block { text-align: center; }
+                        .graph-title { font-size: 14px; font-weight: 700; color: #388e3c; margin-bottom: 5px; }
+                        .graph-container { display: flex; align-items: flex-end; height: 50px; width: 150px; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 4px; border: 1px solid rgba(0,0,0,0.1); }
+                        .graph-container .bar { flex-grow: 1; width: 1px; }
+                        .graph-container .best-bar { background: linear-gradient(to top, #7cb342, #a5d6a7); }
+                        .graph-container .new-bar { background: linear-gradient(to top, #26a69a, #80cbc4); }
                         .header-content { position: relative; z-index: 2; }
                         .image-header .player-name { font-size: 42px; font-weight: 900; color: #0c3b0e; font-family: 'Inter', sans-serif; }
                         .image-header .rating-info { font-size: 22px; margin-top: 8px; font-weight: 700; color: #388e3c; }
                         .image-songs-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; position: relative; z-index: 2; }
                         .image-song-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 12px; padding: 8px; text-align: center; font-size: 10px; position: relative; color: #1b5e20; display: flex; flex-direction: column; }
-                        .image-song-card .rank { position: absolute; top: 4px; left: 4px; background: rgba(40, 40, 40, 0.8); color: white; font-weight: bold; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; font-size: 11px; z-index: 4; border: 1px solid rgba(255,255,255,0.5); }
+                        .image-song-card .rank { position: absolute; top: 4px; left: 4px; background: rgba(40, 40, 40, 0.8); color: white; font-weight: bold; border-radius: 4px; min-width: 20px; height: 20px; line-height: 20px; font-size: 11px; z-index: 4; border: 1px solid rgba(255,255,255,0.5); padding: 0 6px; }
                         .image-song-card .jacket-container { width: 100%; aspect-ratio: 1 / 1; border-radius: 6px; margin-bottom: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; flex-shrink: 0; position: relative; }
                         .image-song-card .jacket { width: 100%; height: 100%; object-fit: cover; }
                         .image-song-card .title { font-weight: 700; margin-bottom: 3px; height: 2.4em; line-height: 1.2em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex-grow: 1; }
@@ -842,14 +907,25 @@
                         .lamp-badge { font-size: 9px; font-weight: 700; background: rgba(40, 40, 40, 0.8); color: white; padding: 2px 4px; border-radius: 4px; line-height: 1; }
                         .difficulty-badge { position: absolute; top: 4px; right: 4px; font-size: 9px; font-weight: 900; color: white; padding: 3px 5px; border-radius: 4px; line-height: 1.1; text-align: center; z-index: 3; text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
                         .difficulty-badge.diff-master { background-color: #8e24aa; } .difficulty-badge.diff-lunatic { background-color: #d81b60; } .difficulty-badge.diff-expert { background-color: #ef5350; } .difficulty-badge.diff-advanced { background-color: #ff9800; } .difficulty-badge.diff-basic { background-color: #7cb342; }
-                        .image-footer { text-align: center; margin-top: 25px; font-size: 12px; color: #558b2f; position: relative; z-index: 2; }
+                        .image-footer { 
+                            text-align: center;
+                            font-size: 12px;
+                            color: #558b2f;
+                            position: absolute;
+                            z-index: 2;
+                            line-height: 1.5;
+                            bottom: 15px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 100%;
+                        }
                         .section-title { font-size: 24px; font-weight: 900; text-align: center; margin: 12px 0 4px 0; color: #558b2f; text-shadow: 0 1px 2px rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; }
                     </style>
                 `;
-                imageCaptureWrapper.innerHTML = `${imageGenerationStyles}<div class="image-container"><img src="${logoDataUrl}" class="image-logo"><div class="image-header"><div class="image-header-info"><div class="header-content"><div class="player-name">${playerInfo['プレイヤーネーム']}</div><div class="rating-info">RATING: ${cleanedRatingForImage} (NEW: ${newAvg} / BEST: ${oldAvg})</div></div></div></div><div class="section-title">BEST (${BEST_FRAME_COUNT})</div><div class="image-songs-grid">${bestSongsHtml}</div><div class="section-title">NEW (${NEW_FRAME_COUNT})</div><div class="image-songs-grid">${newSongsHtml}</div><div class="image-footer">Generated by Ongeki Rate & Score Lab</div></div>`;
+                imageCaptureWrapper.innerHTML = `${imageGenerationStyles}<div class="image-container"><div class="timestamp">${dateTimeStr}</div><img src="${logoDataUrl}" class="image-logo"><div class="image-header"><div class="image-header-info"><div class="header-content"><div class="player-name">${playerInfo['プレイヤーネーム']}</div><div class="rating-info">RATING: ${cleanedRatingForImage} (BEST: ${oldAvg} / NEW: ${newAvg})</div></div></div><div class="rating-graphs-container"><div class="graphs-title">RATE DISTRIBUTION</div><div class="rating-graphs-wrapper"><div class="graph-block"><div class="graph-title">BEST</div><div class="graph-container">${bestGraphHtml}</div></div><div class="graph-block"><div class="graph-title">NEW</div><div class="graph-container">${newGraphHtml}</div></div></div></div></div><div class="section-title">BEST (${BEST_FRAME_COUNT})</div><div class="image-songs-grid">${bestSongsHtml}</div><div class="section-title">NEW (${NEW_FRAME_COUNT})</div><div class="image-songs-grid">${newSongsHtml}</div><div class="image-footer">Generated by Ongeki Rate & Score Lab<br>※本画像における楽曲ジャケットの著作権は、すべて各権利所有者に帰属します。<br>※本ツールは非公式であり、株式会社SEGA様および関連企業とは一切関係ありません。</div></div>`;
                 logDebug("HTML生成完了。ジャケット画像の読み込み待機...");
                 
-                const images = imageCaptureWrapper.querySelectorAll('.jacket'); // Logo is now data URL, no need to wait
+                const images = imageCaptureWrapper.querySelectorAll('.jacket');
                 await Promise.all([...images].map(img => new Promise(resolve => {
                     if (img.complete) return resolve();
                     img.onload = resolve;
@@ -905,7 +981,6 @@
         }
     </script>
     <script>
-        // --- Script for Calculator ---
         function initRateCalculator(container, initialMode) {
             function debounce(func, wait) {
                 let timeout;
@@ -1242,3 +1317,4 @@
     </script>
 </body>
 </html>
+
